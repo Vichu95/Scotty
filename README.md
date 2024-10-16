@@ -1,1 +1,1 @@
-Starting proper development
+Starting proper development. Setting up folders.
