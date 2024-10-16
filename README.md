@@ -1,2 +1,1 @@
-scotty is a robotdog
-New commit
+This is the first commit with both Github and Gitlab synced. Testing,,,
