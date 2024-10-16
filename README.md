@@ -1,3 +1,3 @@
-This is the base code done by Dave shared by Subash in Freigaben/Mangatter/Bachelorarbeit/Code/Code BA
+This is the base code for my development. Its using Dave's base from (Freigaben/Mangatter/Bachelorarbeit/Code/Code BA) and Nils main.c
 
-The previous commit containing the code in ScottyShare was not working. This code will be replaced with base from Dave and main.c from Niels
+It is tested and is build through. Ignoring debug and temp files from git commit.
