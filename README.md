@@ -1,1 +1,1 @@
-Starting proper development. Setting up folders.
+This is the base code done by Dave shared by Subash in ScottyShare\1_LowerLevelController\Code BA\CAN_MOTORFIRMWARE_like_MIT
