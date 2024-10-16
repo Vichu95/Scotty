@@ -67,17 +67,6 @@
 #define KP_SOFTSTOP 100.0f
 #define KD_SOFTSTOP 0.4f
 
-//float = 4 Byte
-//uint32_t = 4 Byte
-
-/*
-#define RX_LEN 128
-#define TX_LEN 128
-
-#define STATE_LEN 80
-#define CONTROL_LEN 128
-*/
-
 // length of receive/transmit buffers
 #define RX_LEN 66
 #define TX_LEN 66
@@ -99,6 +88,8 @@ CAN_HandleTypeDef hcan1;
 CAN_HandleTypeDef hcan2;
 
 SPI_HandleTypeDef hspi1;
+DMA_HandleTypeDef hdma_spi1_rx;
+DMA_HandleTypeDef hdma_spi1_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim8;
@@ -110,6 +101,7 @@ TIM_HandleTypeDef htim8;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_SPI1_Init(void);
@@ -139,22 +131,6 @@ void delay_us(uint16_t us);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-/*
-typedef struct {
-    float ab_p,ab_v,ab_kp,ab_kd,ab_t;
-    float hip_p,hip_v,hip_kp,hip_kd,hip_t;
-    float knee_p,knee_v,knee_kp,knee_kd,knee_t;
-    int32_t flags,checksum;
-}spi_rx;
-
-typedef struct {
-    float ab_p,ab_v,ab_t;
-    float hip_p,hip_v,hip_t;
-    float knee_p,knee_v,knee_t;
-    int32_t flags,checksum;
-}spi_tx;
-*/
 
 //9*4*2+2*4=68
 
@@ -243,6 +219,8 @@ int datacheck = 2;
 int count=2;
 int keycontrol=0;
 int motormode=0;
+volatile spi_enabled = 0;
+volatile callback_enabled = 0;
 
 //Time
 uint32_t time;
@@ -255,31 +233,11 @@ Keypad_WiresTypeDef myKeypadStruct;
 
 uint32_t spi_test=0;
 uint32_t Error_spi;
+uint32_t CallbackError_spi;
 uint32_t State_spi;
 HAL_StatusTypeDef spierror;
 
 
-
-/*void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if (GPIO_Pin == GPIO_PIN_13)
-	{
-		TxData[0] = 100;   // ms Delay
-		TxData[1] = 40;    // loop rep
-
-		HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-	}
-}*/
-/*void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-	if (GPIO_Pin == GPIO_PIN_15 && count==2)
-	{
-		if (HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0)
-		{
-			count=0;
-		}
-	}
-}*/
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
@@ -329,6 +287,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CAN1_Init();
   MX_TIM1_Init();
   MX_SPI1_Init();
@@ -375,9 +334,9 @@ int main(void)
   myKeypadStruct.OUT2pin=GPIO_PIN_14;
   myKeypadStruct.OUT3pin=GPIO_PIN_15;
 
-  Keypad4x4_Init(&myKeypadStruct);
 
   printf("start\n");
+  HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
   /* USER CODE END 2 */
 
@@ -388,25 +347,33 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
 	__HAL_TIM_SET_COUNTER(&htim8,0);
-	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2){
+	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
+	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
 		spi_test=1;
-		spi_send_receive();
-		//delay_us(1200);
+		//spi_send_receive();
+		//can_control();
+		//can_send_receive();
 		count=1;
+	    //count=1;
 		time2=__HAL_TIM_GET_COUNTER(&htim8);
+
 	}
+
 	if(count==1){
 		can_control();
 		can_send_receive();
 		count=2;
 		time=__HAL_TIM_GET_COUNTER(&htim8);
 	}
+
 	Error_spi=HAL_SPI_GetError(&hspi1);
 	State_spi=HAL_SPI_GetState(&hspi1);
 	//HAL_Delay(1);
 
   }
+
   /* USER CODE END 3 */
 }
 
@@ -697,6 +664,25 @@ static void MX_TIM8_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+  /* DMA2_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -784,7 +770,8 @@ void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[7] = 0xFC;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
     }
 
 //stop motor
@@ -800,7 +787,8 @@ void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[7] = 0xFD;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
     }
 
 //set motorposition to zero
@@ -822,7 +810,8 @@ void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     if(CAN==1){
     	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
     }*/
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
     }
 
 /////////////////////////pack and unpack//////////////////////////
@@ -918,63 +907,27 @@ void unpack_replay(uint8_t*Data){
 }
 /////////////////////////////////math/////////////////////////////////////////
 void can_send_receive(){
-	/*
-	CAN=0;
-	pack_message(Ab_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-	CAN=1;
-	pack_message(Ab_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData2, &TxMailbox2);
-    delay_us(200);
-	if (datacheck==0){
-		unpack_replay(RxData);
-		}
-	if (datacheck==1){
-		unpack_replay(RxData2);
-		}
-	CAN=0;
-	pack_message(Hip_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-	CAN=1;
-	pack_message(Hip_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData2, &TxMailbox2);
-    delay_us(200);
-	if (datacheck==0){
-		unpack_replay(RxData);
-		}
-	if (datacheck==1){
-		unpack_replay(RxData2);
-		}
-	CAN=0;
-	pack_message(Knee_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-	CAN=1;
-	pack_message(Knee_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData2, &TxMailbox2);
-    delay_us(200);
-	if (datacheck==0){
-		unpack_replay(RxData);
-		}
-	if (datacheck==1){
-		unpack_replay(RxData2);
-		}*/
+
 
 	CAN=0;
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
@@ -982,19 +935,22 @@ void can_send_receive(){
 	CAN=1;
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    //delay_us(200);
+    delay_us(200);
+	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
@@ -1148,16 +1104,17 @@ void spi_send_receive(void){
 		spi_tx_buffer[i] = ((uint16_t*)(&state))[i];
 		}
 
+
 	//SPI transmission and receive
 	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
-		HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN, HAL_MAX_DELAY); //HAL_MAX_DELAY
-		/*for(int i = 0; i < RX_LEN; i++){
-			HAL_SPI_Transmit(&hspi1, (uint8_t *)spi_tx_buffer, TX_LEN, 100);
-			HAL_SPI_Receive(&hspi1, (uint8_t *)spi_rx_buffer, RX_LEN, 100);
-			}*/
+		spi_enabled = 1;
+		//HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN, HAL_MAX_DELAY); //HAL_MAX_DELAY
+		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+		//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 		}
 
 	//unpack the received bytes from rx buffer into †he valuesrec structur
+	/*
 	for(int i = 0; i < RX_LEN; i++){
 		((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
 		//printf("%d\n", spi_rx_buffer[i]);
@@ -1171,6 +1128,38 @@ void spi_send_receive(void){
 		    }
 		}
 	}
+*/
+
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
+{
+	//unpack the received bytes from rx buffer into †he valuesrec structur
+		callback_enabled = 1;
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
+			for(int i = 0; i < RX_LEN; i++){
+				((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
+				//printf("%d\n", spi_rx_buffer[i]);
+				}
+			//if the communication has no issues the values will write in the control structure
+			if(keycontrol==0){
+			check = xor_checksum((uint32_t*)&valuesrec,32);
+			if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3)){
+				for(int i = 0; i < CONTROL_LEN; i++){
+					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
+					}
+				}
+			}
+		}
+		// Disable the SPI
+		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+
+		spi_enabled = 0;
+
+}
+
+void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
+	CallbackError_spi=HAL_SPI_GetError(&hspi1);
 }
 
 /* USER CODE END 4 */
