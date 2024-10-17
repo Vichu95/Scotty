@@ -337,6 +337,7 @@ int main(void)
 
   printf("start\n");
   HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+//  HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
   /* USER CODE END 2 */
 
@@ -352,7 +353,7 @@ int main(void)
 	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
 	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
 		spi_test=1;
-		//spi_send_receive();
+		spi_send_receive();
 		//can_control();
 		//can_send_receive();
 		count=1;
@@ -1106,12 +1107,12 @@ void spi_send_receive(void){
 
 
 	//SPI transmission and receive
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
-		spi_enabled = 1;
+//	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
+//		spi_enabled = 1;
 		//HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN, HAL_MAX_DELAY); //HAL_MAX_DELAY
-		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+//		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 		//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-		}
+//		}
 
 	//unpack the received bytes from rx buffer into †he valuesrec structur
 	/*
@@ -1151,8 +1152,10 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 				}
 			}
 		}
-		// Disable the SPI
+		// Disable the SPI //vishnu : I think this actually enables SPI callback for next
 		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+//		HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+
 
 		spi_enabled = 0;
 
