@@ -343,6 +343,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+
+	motor_mode(Ab_CAN, &TxHeader, TxData);
+	motor_mode(Hip_CAN, &TxHeader, TxData);
+	motor_mode(Knee_CAN, &TxHeader, TxData);
+
+
+	zero(Ab_CAN, &TxHeader, TxData);
+	zero(Hip_CAN, &TxHeader, TxData);
+	zero(Knee_CAN, &TxHeader, TxData);
+
+	count=1;
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -350,22 +363,25 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	__HAL_TIM_SET_COUNTER(&htim8,0);
-	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
-	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
-		spi_test=1;
-		spi_send_receive();
-		//can_control();
-		//can_send_receive();
-		count=1;
-	    //count=1;
-		time2=__HAL_TIM_GET_COUNTER(&htim8);
-
-	}
+//	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
+//	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
+//		spi_test=1;
+//		spi_send_receive();
+//		//can_control();
+//		//can_send_receive();
+//		count=1;
+//	    //count=1;
+//		time2=__HAL_TIM_GET_COUNTER(&htim8);
+//
+//	}
 
 	if(count==1){
-		can_control();
+//		can_control();
+
+
+
 		can_send_receive();
-		count=2;
+//		count=2;
 		time=__HAL_TIM_GET_COUNTER(&htim8);
 	}
 
@@ -374,6 +390,11 @@ int main(void)
 	//HAL_Delay(1);
 
   }
+
+
+	exit_mode(Ab_CAN, &TxHeader, TxData);
+	exit_mode(Hip_CAN, &TxHeader, TxData);
+	exit_mode(Knee_CAN, &TxHeader, TxData);
 
   /* USER CODE END 3 */
 }
@@ -771,7 +792,7 @@ void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[7] = 0xFC;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
     }
 
@@ -788,7 +809,7 @@ void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[7] = 0xFD;
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
     }
 
@@ -811,7 +832,7 @@ void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     if(CAN==1){
     	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
     }*/
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
     }
 
@@ -885,7 +906,7 @@ void unpack_replay(uint8_t*Data){
 	/// convert uints to floats ///
 	p_out = uint_to_float(p_int, P_MIN, P_MAX, 16);
 	v_out = uint_to_float(v_int, V_MIN, V_MAX, 12);
-	t_out = uint_to_float(i_int, T_MAX, T_MAX, 12);
+	t_out = uint_to_float(i_int, T_MIN, T_MAX, 12);
 
 	if(id==1){
 		state.ab_p[datacheck]=p_out;
