@@ -910,47 +910,47 @@ void unpack_replay(uint8_t*Data){
 void can_send_receive(){
 
 
-	CAN=0;
-	pack_message(Ab_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
-	//wait(100);
-	if (datacheck==0){
-		unpack_replay(RxData);
-	}
-	pack_message(Hip_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
-	//wait(100);
-	if (datacheck==0){
-		unpack_replay(RxData);
-	}
-	pack_message(Knee_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
-	//wait(100);
-	if (datacheck==0){
-		unpack_replay(RxData);
-	}
+//	CAN=0;
+//	pack_message(Ab_CAN, &TxHeader, TxData);
+//	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+//    delay_us(200);
+//	//wait(100);
+//	if (datacheck==0){
+//		unpack_replay(RxData);
+//	}
+//	pack_message(Hip_CAN, &TxHeader, TxData);
+//	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+//    delay_us(200);
+//	//wait(100);
+//	if (datacheck==0){
+//		unpack_replay(RxData);
+//	}
+//	pack_message(Knee_CAN, &TxHeader, TxData);
+//	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+//    delay_us(200);
+//	//wait(100);
+//	if (datacheck==0){
+//		unpack_replay(RxData);
+//	}
 
 	CAN=1;
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-    delay_us(200);
+    delay_us(300);
 	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
