@@ -1184,6 +1184,11 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 
 void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
 	CallbackError_spi=HAL_SPI_GetError(&hspi1);
+
+	HAL_SPI_DeInit(&hspi1);
+	HAL_SPI_Init(&hspi1);
+
+	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 }
 
 /* USER CODE END 4 */
