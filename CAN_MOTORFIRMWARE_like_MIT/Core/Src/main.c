@@ -45,7 +45,20 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// Value limits
+
+// Range in the Motor controller
+#define MOTOR_P_MIN -12.5f
+#define MOTOR_P_MAX 12.5f
+#define MOTOR_V_MIN -50.0f
+#define MOTOR_V_MAX 50.0f
+#define MOTOR_T_MIN -65.0f
+#define MOTOR_T_MAX 65.0f
+#define MOTOR_KP_MIN 0.0f
+#define MOTOR_KP_MAX 500.0f
+#define MOTOR_KD_MIN 0.0f
+#define MOTOR_KD_MAX 5.0f
+
+// Value limits in ST
 #define P_MIN -12.5f
 #define P_MAX 12.5f
 #define V_MIN -26.0f
@@ -54,8 +67,6 @@
 //#define T_MAX 48.0f
 #define T_MIN -2.0f
 #define T_MAX 2.0f
-#define T_MIN_r -10.0f
-#define T_MAX_r 10.0f
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
@@ -122,7 +133,6 @@ void unpack_replay(uint8_t* Data);
 int softstop_joint(float *control,float state, float limit_p, float limit_n);
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x, float x_min, float x_max, int bits);
-//int float_to_uint(float x, float x_min, float x_max, unsigned int bits);
 
 void can_send_receive();
 void can_control();
@@ -350,16 +360,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-//
-//  	zero(Ab_CAN, &TxHeader, TxData);
-//  	zero(Hip_CAN, &TxHeader, TxData);
-//  	zero(Knee_CAN, &TxHeader, TxData);
+
 
 
 	motor_mode(Ab_CAN, &TxHeader, TxData);
 	motor_mode(Hip_CAN, &TxHeader, TxData);
 	motor_mode(Knee_CAN, &TxHeader, TxData);
 
+
+
+delay_us(1000);
+
+zero(Ab_CAN, &TxHeader, TxData);
+zero(Hip_CAN, &TxHeader, TxData);
+zero(Knee_CAN, &TxHeader, TxData);
+
+ delay_us(1000);
 
 	// Only CAN
 //	count=1;
@@ -896,11 +912,11 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 	float t_ff = fminf(fmaxf(T_MIN, t_in), T_MAX);
 
     /// convert floats to unsigned ints ///
-    uint16_t p_int = float_to_uint(p_des, P_MIN, P_MAX, 16);
-    uint16_t v_int = float_to_uint(v_des, V_MIN, V_MAX, 12);
-    uint16_t kp_int = float_to_uint(kp, KP_MIN, KP_MAX, 12);
-    uint16_t kd_int = float_to_uint(kd, KD_MIN, KD_MAX, 12);
-    uint16_t t_int = float_to_uint(t_ff, T_MIN, T_MAX, 12);
+    uint16_t p_int = float_to_uint(p_des, MOTOR_P_MIN, MOTOR_P_MAX, 16);
+    uint16_t v_int = float_to_uint(v_des, MOTOR_V_MIN, MOTOR_V_MAX, 12);
+    uint16_t kp_int = float_to_uint(kp, MOTOR_KP_MIN, MOTOR_KP_MAX, 12);
+    uint16_t kd_int = float_to_uint(kd, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
+    uint16_t t_int = float_to_uint(t_ff, MOTOR_T_MIN, MOTOR_T_MAX, 12);
 
     /// pack ints into the can buffer ///
     Data[0] = p_int>>8;
@@ -913,9 +929,12 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[7] = t_int&0xff;
 
 
-	float t_ffTest = uint_to_float(t_int, T_MIN_r, T_MAX_r, 12);
-	float t_fffdh = fminf(fmaxf(T_MIN, t_in), T_MAX);
-
+//	float t_ffTest = uint_to_float(t_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
+//	float p_out = uint_to_float(p_int, MOTOR_P_MIN, MOTOR_P_MAX, 16);
+//	float v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
+//	float kp_out = uint_to_float(kp_int, MOTOR_KP_MIN, MOTOR_KP_MAX, 12);
+//	float kd_out = uint_to_float(kd_int, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
+//	float vas_out = uint_to_float(kd_int, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
 
     }
 
@@ -928,9 +947,9 @@ void unpack_replay(uint8_t*Data){
 	uint16_t v_int = (Data[3]<<4)|(Data[4]>>4);
 	uint16_t i_int = ((Data[4]&0xF)<<8)|Data[5];
 	/// convert uints to floats ///
-	p_out = uint_to_float(p_int, P_MIN, P_MAX, 16);
-	v_out = uint_to_float(v_int, V_MIN, V_MAX, 12);
-	t_out = uint_to_float(i_int, T_MIN, T_MAX, 12);
+	p_out = uint_to_float(p_int, MOTOR_P_MIN, MOTOR_P_MAX, 16);
+	v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
+	t_out = uint_to_float(i_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
 
 	if(id==1){
 		state.ab_p[datacheck]=p_out;
