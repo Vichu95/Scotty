@@ -50,8 +50,12 @@
 #define P_MAX 12.5f
 #define V_MIN -26.0f
 #define V_MAX 26.0f
-#define T_MIN -48.0f
-#define T_MAX 48.0f
+//#define T_MIN -48.0f
+//#define T_MAX 48.0f
+#define T_MIN -2.0f
+#define T_MAX 2.0f
+#define T_MIN_r -10.0f
+#define T_MAX_r 10.0f
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
@@ -118,6 +122,7 @@ void unpack_replay(uint8_t* Data);
 int softstop_joint(float *control,float state, float limit_p, float limit_n);
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x, float x_min, float x_max, int bits);
+//int float_to_uint(float x, float x_min, float x_max, unsigned int bits);
 
 void can_send_receive();
 void can_control();
@@ -345,16 +350,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
+//
+//  	zero(Ab_CAN, &TxHeader, TxData);
+//  	zero(Hip_CAN, &TxHeader, TxData);
+//  	zero(Knee_CAN, &TxHeader, TxData);
+
+
 	motor_mode(Ab_CAN, &TxHeader, TxData);
 	motor_mode(Hip_CAN, &TxHeader, TxData);
 	motor_mode(Knee_CAN, &TxHeader, TxData);
 
 
-	zero(Ab_CAN, &TxHeader, TxData);
-	zero(Hip_CAN, &TxHeader, TxData);
-	zero(Knee_CAN, &TxHeader, TxData);
+	// Only CAN
+//	count=1;
+//	  while (count==1)
+//	  {
+//
+//
+//			can_send_receive();
+//			time=__HAL_TIM_GET_COUNTER(&htim8);
+//	  }
 
-	count=1;
+
+
 
   while (1)
   {
@@ -363,17 +381,17 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	__HAL_TIM_SET_COUNTER(&htim8,0);
-//	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
-//	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
-//		spi_test=1;
-//		spi_send_receive();
-//		//can_control();
-//		//can_send_receive();
-//		count=1;
-//	    //count=1;
-//		time2=__HAL_TIM_GET_COUNTER(&htim8);
-//
-//	}
+	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
+	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
+		spi_test=1;
+		spi_send_receive();
+		//can_control();
+		//can_send_receive();
+		count=1;
+	    //count=1;
+		time2=__HAL_TIM_GET_COUNTER(&htim8);
+
+	}
 
 	if(count==1){
 //		can_control();
@@ -381,7 +399,7 @@ int main(void)
 
 
 		can_send_receive();
-//		count=2;
+		count=2;
 		time=__HAL_TIM_GET_COUNTER(&htim8);
 	}
 
@@ -893,6 +911,12 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[5] = kd_int>>4;
     Data[6] = ((kd_int&0xF)<<4)|(t_int>>8);
     Data[7] = t_int&0xff;
+
+
+	float t_ffTest = uint_to_float(t_int, T_MIN_r, T_MAX_r, 12);
+	float t_fffdh = fminf(fmaxf(T_MIN, t_in), T_MAX);
+
+
     }
 
 
