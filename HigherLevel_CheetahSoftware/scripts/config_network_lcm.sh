@@ -16,8 +16,8 @@ if [ $# -eq 0 ]; then
 fi
 
 if [ "$1" == "-I" ]; then
-    sudo ifconfig $2 multicast
-    sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev $2
+    sudo ifconfig wlp3s0 multicast
+    sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev wlp3s0s
     #sudo route add -net 10.0.0.0 netmask 255.0.0.0 dev $2
 fi
 
@@ -66,3 +66,16 @@ if [ "$1" == "dhmac" ]; then
     sudo ifconfig enx70886b887f40 multicast
     sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev enx70886b887f40
 fi
+
+if [ "$1" == "scotty" ]; then
+    sudo ifconfig enp1s0 multicast
+    #sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev enp1s0
+    #sudo route add -net 10.0.0.0 netmask 255.0.0.0 dev $2
+fi
+
+if [ "$1" == "subash" ]; then
+    sudo ifconfig enp2s0f1 multicast
+    #sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev wlp3s0
+    #sudo route add -net 10.0.0.0 netmask 255.0.0.0 dev $2
+fi
+

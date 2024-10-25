@@ -18,7 +18,8 @@ cp -r ../robot robot-software
 cp -r ../config robot-software
 
 DATE=$(date +"%Y%m%d%H%M")
-#scp -r robot-software user@10.0.0.34:~/robot-software-$DATE/
+#scp -r robot-software user@10.0.0.34:~/robot-software_nodelay_fullspeed-$DATE/
+scp -r robot-software scotty@192.168.2.40:~/robot-software_Final-$DATE/
 
 if [ -z "$2" ]
 then
@@ -26,6 +27,3 @@ then
   scp -r robot-software user@10.0.0.34:~/
 else
   scp -r robot-software user@10.0.0.4$2:~/
-fi
-
-
