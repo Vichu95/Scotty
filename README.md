@@ -40,4 +40,5 @@ robot-software_Final-202303241603 : K_SBUS_PORT_MC "/dev/ttyS0"
 robot-software_Final-202303241619 : Trying different knee signs
 robot-software_Final-202304111827 : Trying different abad, hip, knee offsets
 robot-software_Final-202304121309 : again set abad, hip,knee offset to 0 
+robot-software_Final-202410241435 : Reset offsets to mit
 
