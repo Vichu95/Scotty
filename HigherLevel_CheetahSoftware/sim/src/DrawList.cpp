@@ -174,16 +174,16 @@ size_t DrawList::addMiniCheetah(Vec4<float> color, bool useOld, bool canHide) {
   lower.rotate(180, 0, 1, 0);
 
   SolidColor bodyColor, abadColor, link1Color, link2Color;
-  bodyColor.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  bodyColor.rgba = useOld ? Vec4<float>(.0, .0, .0, 0.3) : color;
   bodyColor.useSolidColor = true;
 
-  abadColor.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
-  abadColor.useSolidColor = true;
+  abadColor.rgba = useOld ? Vec4<float>(.0, .0, .0, 1) : color;
+  //abadColor.useSolidColor = false;
 
-  link1Color.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  link1Color.rgba = useOld ? Vec4<float>(255, .0, .0, 1) : color;
   link1Color.useSolidColor = true;
 
-  link2Color.rgba = useOld ? Vec4<float>(.2, .2, .4, .3) : color;
+  link2Color.rgba = useOld ? Vec4<float>(255, .0, .0, 1) : color;
   link2Color.useSolidColor = true;
 
   _canBeHidden.push_back(canHide);

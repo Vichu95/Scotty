@@ -36,9 +36,9 @@ uint16_t channel_data[18];
 /**@brief Name of SBUS serial port in simulator*/
 #define K_SBUS_PORT_SIM "/dev/ttyUSB0"
 /**@brief Name of SBUS serial port on the mini cheetah*/
-#define K_SBUS_PORT_MC "/dev/ttyS0"
+#define K_SBUS_PORT_MC "/dev/ttyS4"
 
-/*!s
+/*!
  * Unpack sbus message into channels
  */
 void unpack_sbus_data(uint8_t sbus_data[], uint16_t *channels_) {
@@ -155,11 +155,8 @@ int init_sbus(int is_simulator) {
   std::string port1;
   if (is_simulator) {
     port1 = K_SBUS_PORT_SIM;
-    printf("usb Port connected!");
-
   } else {
     port1 = K_SBUS_PORT_MC;
-    printf("Xigbee Port connected!");
   }
 
   if (pthread_mutex_init(&sbus_data_m, NULL) != 0) {

@@ -39,7 +39,7 @@ jcqp_rho          : 1e-07
 jcqp_sigma        : 1e-08
 jcqp_terminate    : 0.1
 use_jcqp          : 0
-use_wbc           : 0
+use_wbc           : 1
 
 # Swing leg parameters
 Swing_Kp_cartesian : [350, 350, 75]

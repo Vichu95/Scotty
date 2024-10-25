@@ -380,19 +380,16 @@ void MiniCheetahHardwareBridge::logMicrostrain() {
  */
 void MiniCheetahHardwareBridge::initHardware() {
   _vectorNavData.quat << 1, 0, 0, 0;
-
+#ifndef USE_MICROSTRAIN
   printf("[MiniCheetahHardware] Init vectornav\n");
   if (!init_vectornav(&_vectorNavData)) {
     printf("Vectornav failed to initialize\n");
     //initError("failed to initialize vectornav!\n", false);
   }
-
+#endif
 
   init_spi();
-
-#ifndef USE_MICROSTRAIN
   _microstrainInit = _microstrainImu.tryInit(0, 921600);
-#endif
 }
 
 void Cheetah3HardwareBridge::initHardware() {

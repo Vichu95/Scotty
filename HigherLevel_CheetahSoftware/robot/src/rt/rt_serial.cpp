@@ -32,8 +32,6 @@ void init_serial_for_sbus(int fd, int baud) {
   struct termios2 tty;
 
   ioctl(fd, TCGETS2, &tty);
-  printf("\t[RT SERIAL] verfied sbus initialized:");
-  //char printf("i = %c \n", &tty);
   tty.c_cflag &= ~CBAUD;
   tty.c_cflag |= BOTHER;
   tty.c_ispeed = baud;

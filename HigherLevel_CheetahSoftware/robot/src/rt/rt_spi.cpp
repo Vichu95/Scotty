@@ -16,13 +16,8 @@
 
 unsigned char spi_mode = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
-unsigned int spi_speed = 6000000;   // MIT original speed
-//unsigned int spi_speed = 600000;  // Trail
-//unsigned int spi_speed = 20000000;  // Dave Arduino speed with the initialisation code = 20MHz
-//unsigned int spi_speed = 8000000;  // Dave Arduino speed with clockdivider = 8MHz
-
+unsigned int spi_speed = 6000000;
 uint8_t lsb = 0x01;
-//uint8_t lsb = 0x00;
 
 int spi_1_fd = -1;
 int spi_2_fd = -1;
@@ -45,18 +40,16 @@ const float disabled_torque[3] = {0.f, 0.f, 0.f};
 // only used for actual robot
 const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
 const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
-//const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
-const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
 
 // only used for actual robot
 const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
-const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
-const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
-                              -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
+//const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
+//const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
+//                              -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
 
-//const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float hip_offset[4] = {0,0,0,0};
+const float knee_offset[4] = {0,0,0,0};
 
 /*!
  * Compute SPI message checksum
@@ -320,22 +313,17 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
     // set up message struct
     for (int i = 0; i < 1; i++) {
       spi_message[i].bits_per_word = spi_bits_per_word;
-      //spi_message[i].cs_change = 0;
-      spi_message[i].cs_change = 1;    //original
+      spi_message[i].cs_change = 1;
       spi_message[i].delay_usecs = 0;
       spi_message[i].len = word_len * 66;
-      spi_message[i].rx_buf = (uint64_t)rx_buf; //original
-      spi_message[i].tx_buf = (uint64_t)tx_buf; //original
-     // spi_message[i].rx_buf = (uint32_t)rx_buf; //Dave matched
-     // spi_message[i].tx_buf = (uint32_t)tx_buf; //Dave matched
+      spi_message[i].rx_buf = (uint64_t)rx_buf;
+      spi_message[i].tx_buf = (uint64_t)tx_buf;
     }
 
     // do spi communication
     int rv = ioctl(spi_board == 0 ? spi_1_fd : spi_2_fd, SPI_IOC_MESSAGE(1),
                    &spi_message);
     (void)rv;
-
-    //usleep(10);
 
     // flip bytes the other way
     for (int i = 0; i < 30; i++)
@@ -344,7 +332,6 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 
     // copy back to data
     spine_to_spi(data, &g_spine_data, spi_board * 2);
-    //spine_to_spi(data, &g_spine_data, spi_board * 1);
   }
 }
 
