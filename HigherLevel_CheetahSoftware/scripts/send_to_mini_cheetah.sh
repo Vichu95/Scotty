@@ -19,7 +19,6 @@ cp -r ../config robot-software
 
 DATE=$(date +"%Y%m%d%H%M")
 #scp -r robot-software user@10.0.0.34:~/robot-software-$DATE/
-scp -r robot-software scotty@192.168.2.40:~/robot-software_Final-$DATE/
 
 if [ -z "$2" ]
 then
