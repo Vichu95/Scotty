@@ -16,10 +16,10 @@
 
 unsigned char spi_mode = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
-unsigned int spi_speed = 6000000;   // MIT original speed
+//unsigned int spi_speed = 6000000;   // MIT original speed
 //unsigned int spi_speed = 600000;  // Trail
 //unsigned int spi_speed = 20000000;  // Dave Arduino speed with the initialisation code = 20MHz
-//unsigned int spi_speed = 8000000;  // Dave Arduino speed with clockdivider = 8MHz
+unsigned int spi_speed = 8000000;  // Dave Arduino speed with clockdivider = 8MHz
 
 uint8_t lsb = 0x01;
 
@@ -315,7 +315,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
     for (int i = 0; i < 1; i++) {
       spi_message[i].bits_per_word = spi_bits_per_word;
       spi_message[i].cs_change = 1;
-      spi_message[i].delay_usecs = 10;
+      spi_message[i].delay_usecs = 20;
       spi_message[i].len = word_len * 66;
       spi_message[i].rx_buf = (uint64_t)rx_buf;
       spi_message[i].tx_buf = (uint64_t)tx_buf;
