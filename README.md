@@ -15,3 +15,11 @@ _______________________________________________
 
 Creating git for the higher level code also.
 Initial commit is having the MIT Mini cheetah repo https://github.com/mit-biomimetics/Cheetah-Software
+
+
+
+_____________________________________________
+Changes by Subash : 
+robot-software-202302201609 : - Tried commenting out the SPI checksum check
+                            - Trying to set up of IMU Init
+                            - Playing with config 

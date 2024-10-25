@@ -17,6 +17,7 @@
 unsigned char spi_mode = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
 unsigned int spi_speed = 6000000;
+//unsigned int spi_speed = 600000;
 uint8_t lsb = 0x01;
 
 int spi_1_fd = -1;
@@ -264,10 +265,10 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     data->flags[i + leg_0] = spine_data->flags[i];
   }
 
-  uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
-  if (calc_checksum != (uint32_t)spine_data->checksum)
-    printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
-           spine_data->checksum);
+  //uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
+  //if (calc_checksum != (uint32_t)spine_data->checksum)
+    //printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
+           //spine_data->checksum);
 }
 
 /*!
@@ -329,6 +330,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 
     // copy back to data
     spine_to_spi(data, &g_spine_data, spi_board * 2);
+    //spine_to_spi(data, &g_spine_data, spi_board * 1);
   }
 }
 
