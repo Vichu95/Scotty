@@ -11,3 +11,7 @@ This is the base code for my development. It is using base from commit a654bc59d
 It is build through, and SPI data is received. 
 
 _______________________________________________
+
+
+Creating git for the higher level code also.
+Initial commit is having the MIT Mini cheetah repo https://github.com/mit-biomimetics/Cheetah-Software
