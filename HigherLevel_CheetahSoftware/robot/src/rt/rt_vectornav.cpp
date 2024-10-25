@@ -18,7 +18,7 @@
 #include "rt/rt_vectornav.h"
 #include "vectornav_lcmt.hpp"
 
-#define K_MINI_CHEETAH_VECTOR_NAV_SERIAL "/dev/ttyS0"
+#define K_MINI_CHEETAH_VECTOR_NAV_SERIAL "/dev/ttyS4"
 
 //#define PRINT_VECTORNAV_DEBUG
 
