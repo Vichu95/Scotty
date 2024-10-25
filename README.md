@@ -35,4 +35,5 @@ robot-software_Final-202302241657 : SPI delay zero, sbus debug
 robot-software_Final-202303171602 : Trying with different hip knee offset
 
 robot-software_Final-202303241519 : Changed to K_MINI_CHEETAH_VECTOR_NAV_SERIAL "/dev/ttyS4"
+robot-software_Final-202303241603 : K_SBUS_PORT_MC "/dev/ttyS0"
 

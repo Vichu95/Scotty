@@ -36,9 +36,9 @@ uint16_t channel_data[18];
 /**@brief Name of SBUS serial port in simulator*/
 #define K_SBUS_PORT_SIM "/dev/ttyUSB0"
 /**@brief Name of SBUS serial port on the mini cheetah*/
-#define K_SBUS_PORT_MC "/dev/ttyS4"
+#define K_SBUS_PORT_MC "/dev/ttyS0"
 
-/*!
+/*!s
  * Unpack sbus message into channels
  */
 void unpack_sbus_data(uint8_t sbus_data[], uint16_t *channels_) {
