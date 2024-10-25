@@ -38,4 +38,5 @@ robot-software_Final-202303241519 : Changed to K_MINI_CHEETAH_VECTOR_NAV_SERIAL 
 robot-software_Final-202303241603 : K_SBUS_PORT_MC "/dev/ttyS0"
 
 robot-software_Final-202303241619 : Trying different knee signs
+robot-software_Final-202304111827 : Trying different abad, hip, knee offsets
 

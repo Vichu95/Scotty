@@ -54,9 +54,9 @@ const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
 //const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
 //                              -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
 
-const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
-const float hip_offset[4] = {0.f, 0.f, 0.f, 0.f};
-const float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};
+const float abad_offset[4] = {0.5f, -0.5f, -0.5f, 0.5f};
+const float hip_offset[4] = {0.5f, -0.5f, -0.5f, 0.5f};
+const float knee_offset[4] = {0.5f, -0.5f, -0.5f, 0.5f};
 
 /*!
  * Compute SPI message checksum
