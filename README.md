@@ -32,3 +32,5 @@ robot-software_15usdelay-202302231632 : Reseting to MIT orginal SPI checksum che
 
 robot-software_Final-202302241657 : SPI delay zero, sbus debug
 
+robot-software_Final-202303171602 : Trying with different hip knee offset
+
