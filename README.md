@@ -26,6 +26,8 @@ robot-software-202302201609 : - Tried commenting out the SPI checksum check
 
 robot-software-202302201627 : Wifi -> Ethernet
 
+robot-software_noDelay_fullspeed-202302221454 : Missed to commit. Playing with spi speed/delays
+
 robot-software_10usDelay-202302231425 : Trying with SPI speed and delay
 robot-software_20usDelay-202302231436 : Trying with different SPI speed/delay
 robot-software_15usdelay-202302231632 : Reseting to MIT orginal SPI checksum check and speed
