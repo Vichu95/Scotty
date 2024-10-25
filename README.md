@@ -23,3 +23,7 @@ Changes by Subash :
 robot-software-202302201609 : - Tried commenting out the SPI checksum check
                             - Trying to set up of IMU Init
                             - Playing with config 
+
+robot-software-202302201627 : Wifi -> Ethernet
+
+

@@ -74,7 +74,7 @@ if [ "$1" == "scotty" ]; then
 fi
 
 if [ "$1" == "subash" ]; then
-    sudo ifconfig wlp3s0 multicast
+    sudo ifconfig enp2s0f1 multicast
     #sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev wlp3s0
     #sudo route add -net 10.0.0.0 netmask 255.0.0.0 dev $2
 fi
