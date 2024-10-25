@@ -155,8 +155,11 @@ int init_sbus(int is_simulator) {
   std::string port1;
   if (is_simulator) {
     port1 = K_SBUS_PORT_SIM;
+    printf("usb Port connected!");
+
   } else {
     port1 = K_SBUS_PORT_MC;
+    printf("Xigbee Port connected!");
   }
 
   if (pthread_mutex_init(&sbus_data_m, NULL) != 0) {

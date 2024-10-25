@@ -317,7 +317,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
       spi_message[i].bits_per_word = spi_bits_per_word;
       //spi_message[i].cs_change = 0;
       spi_message[i].cs_change = 1;    //original
-      spi_message[i].delay_usecs = 15;
+      spi_message[i].delay_usecs = 0;
       spi_message[i].len = word_len * 66;
       spi_message[i].rx_buf = (uint64_t)rx_buf; //original
       spi_message[i].tx_buf = (uint64_t)tx_buf; //original
