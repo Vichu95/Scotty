@@ -16,12 +16,13 @@
 
 unsigned char spi_mode = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
-//unsigned int spi_speed = 6000000;   // MIT original speed
+unsigned int spi_speed = 6000000;   // MIT original speed
 //unsigned int spi_speed = 600000;  // Trail
 //unsigned int spi_speed = 20000000;  // Dave Arduino speed with the initialisation code = 20MHz
-unsigned int spi_speed = 8000000;  // Dave Arduino speed with clockdivider = 8MHz
+//unsigned int spi_speed = 8000000;  // Dave Arduino speed with clockdivider = 8MHz
 
 uint8_t lsb = 0x01;
+//uint8_t lsb = 0x00;
 
 int spi_1_fd = -1;
 int spi_2_fd = -1;
@@ -268,10 +269,10 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     data->flags[i + leg_0] = spine_data->flags[i];
   }
 
-  //uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
-  //if (calc_checksum != (uint32_t)spine_data->checksum)
-    //printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
-           //spine_data->checksum);
+  uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
+  if (calc_checksum != (uint32_t)spine_data->checksum)
+    printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
+           spine_data->checksum);
 }
 
 /*!
@@ -314,11 +315,14 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
     // set up message struct
     for (int i = 0; i < 1; i++) {
       spi_message[i].bits_per_word = spi_bits_per_word;
-      spi_message[i].cs_change = 1;
-      spi_message[i].delay_usecs = 20;
+      //spi_message[i].cs_change = 0;
+      spi_message[i].cs_change = 1;    //original
+      spi_message[i].delay_usecs = 15;
       spi_message[i].len = word_len * 66;
-      spi_message[i].rx_buf = (uint64_t)rx_buf;
-      spi_message[i].tx_buf = (uint64_t)tx_buf;
+      spi_message[i].rx_buf = (uint64_t)rx_buf; //original
+      spi_message[i].tx_buf = (uint64_t)tx_buf; //original
+     // spi_message[i].rx_buf = (uint32_t)rx_buf; //Dave matched
+     // spi_message[i].tx_buf = (uint32_t)tx_buf; //Dave matched
     }
 
     // do spi communication
