@@ -26,4 +26,5 @@ robot-software-202302201609 : - Tried commenting out the SPI checksum check
 
 robot-software-202302201627 : Wifi -> Ethernet
 
+robot-software_10usDelay-202302231425 : Trying with SPI speed and delay
 
