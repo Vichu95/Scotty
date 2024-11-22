@@ -43,20 +43,30 @@ const float wimp_torque[3] = {6.f, 6.f, 6.f};    // TODO CHECK WITH BEN
 const float disabled_torque[3] = {0.f, 0.f, 0.f};
 
 // only used for actual robot
-const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
-const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
-//const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
-const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+// const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
+// const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+
+// // const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
+// const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+
 
 // only used for actual robot
-const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
-const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
-const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
-                              -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
+// const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
+// const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
+// const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
+//                               -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
 
-//const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+
+
+
+
+const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+
+const float abad_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+const float hip_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
+const float knee_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
 
 /*!
  * Compute SPI message checksum
