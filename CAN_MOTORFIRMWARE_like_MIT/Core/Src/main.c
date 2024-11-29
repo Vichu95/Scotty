@@ -180,6 +180,7 @@ uint16_t spi_rx_buffer[RX_LEN];
 spi_tx values;
 spi_rx valuesrec;
 spi_rx control;
+uint32_t currentControlMode = 99;
 //spi_tx state={1.12,1.12,3.16,3.16,5.4,5.4,1.12,1.12,3.16,3.16,5.4,5.4,1,1,4};
 spi_tx state;
 test torque;
@@ -1209,6 +1210,12 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 			//if the communication has no issues the values will write in the control structure
 			if(keycontrol==0){
 			check = xor_checksum((uint32_t*)&valuesrec,32);
+
+			//Retrieve the current control Mode and reset flags to its value
+			currentControlMode = (valuesrec.flags[0]>>16);
+			valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
+			valuesrec.flags[1] = (valuesrec.flags[0] & 0xFFFF);
+
 			if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3)){
 				for(int i = 0; i < CONTROL_LEN; i++){
 					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
