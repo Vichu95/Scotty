@@ -1,0 +1,1001 @@
+history
+  998  python3 first.py 
+  999  nano first.py 
+ 1000  python3 first.py 
+ 1001  nano first.py 
+ 1002  python3 first.py 
+ 1003  nano first.py 
+ 1004  nano second.py
+ 1005  python3 second.py 
+ 1006  nano second.py
+ 1007  python3 second.py 
+ 1008  nano second.py
+ 1009  python3 second.py 
+ 1010  nano second.py
+ 1011  python3 second.py 
+ 1012  sudo apt-get install sox libsndfile1 ffmpeg portaudio19-dev
+ 1013  python3 -m pip install unidecode
+ 1014  python3 -m pip install pyaudio
+ 1015  brew update
+ 1016  sudo apt-get install portaudio19-dev
+ 1017  python3 -m pip install pyaudio
+ 1018  sudo apt-get install python3-pyaudio
+ 1019  python3 -m pip install torchaudio>=0.6.0 -f https://download.pytorch.org/whl/torch_stable.html
+ 1020  nano third.py
+ 1021  python3 third.py 
+ 1022  nano third.py
+ 1023  python3 third.py 
+ 1024  sudo apt-get install python3-pyaudio
+ 1025  python3 -m pip install PortAudio
+ 1026  python3 -m pip install Port Audio
+ 1027  python3 third.py 
+ 1028  pip uninstall pyAudio
+ 1029  sudo apt-get uninstall python3-pyaudio
+ 1030  sudo apt-get remove python3-pyaudio
+ 1031  python3 third.py 
+ 1032  sudo pip3 install pyaudio
+ 1033  sudo apt-get remove python3-pyaudio
+ 1034  sudo pip3 install pyaudio
+ 1035  cd
+ 1036  cd Downloads/
+ 1037  python3 -m pip install PyAudio-0.2.11-cp37-cp37m-win32.whl
+ 1038  python3 -m pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl 
+ 1039  pip install PyAudio-0.2.11-cp37-cp37m-win_amd64.whl 
+ 1040  sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+ 1041  sudo apt-get install ffmpeg libav-tools
+ 1042  sudo pip install pyaudio
+ 1043  python3 -m pip install pyaudio
+ 1044  sudo apt-get install python3-pyaudio
+ 1045  cd Downloads/
+ 1046  cd Cheetah-Software-master/
+ 1047  ls
+ 1048  mkdir build
+ 1049  cd build/
+ 1050  cmake ..
+ 1051  ./../scripts/make_types.sh
+ 1052  ./sim
+ 1053  cd
+ 1054  cd Downloads/Cheetah-Software-master/
+ 1055  ls
+ 1056  cd sim/
+ 1057  ls
+ 1058  cd ..
+ 1059  ./sim/include/
+ 1060  cd build/
+ 1061  cmake -DMINI_CHEETAH_BUILD=TRUE
+ 1062  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1063  ./../scripts/make_types.sh
+ 1064  make -j4
+ 1065  cd
+ 1066  sudo apt install libqt5 libqt5gamepad5
+ 1067  git clone https://github.com/mit-biomimetics/Cheetah-Software.git
+ 1068  cd Cheetah-Software
+ 1069  cd scripts
+ 1070  ./make_types.sh
+ 1071  cd ..
+ 1072  mkdir build
+ 1073  cd build
+ 1074  cmake ..
+ 1075  make -j
+ 1076  sudo apt install mesa-common-dev freeglut3-dev coinor-libipopt-dev libblas-dev liblapack-dev gfortran liblapack-dev coinor-libipopt-dev cmake gcc build-essential libglib2.0-dev
+ 1077  cd
+ 1078  cd Cheetah-Software
+ 1079  cd scripts
+ 1080  ./make_types.sh
+ 1081  cd ..
+ 1082  cd build
+ 1083  cmake ..
+ 1084  make -j
+ 1085  cd..
+ 1086  cd ..
+ 1087  cd sim/
+ 1088  ls
+ 1089  cd ..
+ 1090  cd
+ 1091  cd Downloads/Cheetah-Software-master/
+ 1092  cd build/
+ 1093  cmake -DMINI_CHEETAH_BUILD=TRUE
+ 1094  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1095  ./../scripts/make_types.sh
+ 1096  make -j4
+ 1097  make -j
+ 1098  sudo apt-get install mesa-common-dev
+ 1099  sudo apt-get install freeglut3-dev
+ 1100  sudo apt-get install libblas-dev liblapack-dev
+ 1101  cmake -DIPOPT_OPTION=ON ..
+ 1102  ./../scripts/make_types.sh
+ 1103  make -j4
+ 1104  make -j
+ 1105  ./
+ 1106  cd Downloads/
+ 1107  cd Cheetah-Software
+ 1108  cd build/
+ 1109  ./Testing/Temporary/
+ 1110  ./user/MIT_Controller/mit_ctrl m s
+ 1111  ./Testing/Temporary/
+ 1112  ./user/MIT_Controller/mit_ctrl m s
+ 1113  ./user/MIT_Controller/mit_ctrl 
+ 1114  ./user/MIT_Controller/mit_ctrl m
+ 1115  ./user/MIT_Controller/mit_ctrl m s
+ 1116  ./user/MIT_Controller/mit_ctrl
+ 1117  ./user/MIT_Controller/mit_ctrl m s mc-mit-ctrl-user-parameters.yaml
+ 1118  ./user/MIT_Controller/mit_ctrl m s f mc-mit-ctrl-user-parameters.yaml
+ 1119  ./user/MIT_Controller/mit_ctrl m s
+ 1120  python3
+ 1121  ./user/MIT_Controller/mit_ctrl m s
+ 1122  ./user/MIT_Controller/Controllers/WBC
+ 1123  ./user/MIT_Controller/mit_ctrl m s
+ 1124  ./user/MIT_Controller/mit_ctrl 
+ 1125  ./user/MIT_Controller/mit_ctrl 3 s
+ 1126  ./user/MIT_Controller/mit_ctrl m s
+ 1127  cd Downloads/
+ 1128  Cheetah-Software
+ 1129  cd Cheetah-Software
+ 1130  cd build/
+ 1131  ./user/MIT_Controller/mit_ctrl m s
+ 1132  make -j 1
+ 1133  cd Downloads/
+ 1134  cd Cheetah-Software
+ 1135  cd build/
+ 1136  make -j 1
+ 1137  ./sim/sim 
+ 1138  ./sim/sim sim/sim
+ 1139  ./sim/sim 
+ 1140  cd ..
+ 1141  cd build/
+ 1142  ./sim/sim 
+ 1143  cd Downloads/Cheetah-Software/build/
+ 1144  ./user/MIT_Controller/mit_ctrl m s
+ 1145  ./user/MIT_Controller/Controllers/WBC_Ctrl/libWBC_Ctrl.so 
+ 1146  ./user/MIT_Controller/mit_ctrl m s
+ 1147  cd Downloads/Cheetah-Software
+ 1148  cd build/
+ 1149  ./sim/sim 
+ 1150  cd Downloads/Cheetah-Software/build/
+ 1151  ./sim/sim 
+ 1152  ./common/test-common 
+ 1153  ./robot/robot
+ 1154  ./robot
+ 1155  ./robot/librobot.so 
+ 1156  ./sim/sim 
+ 1157  cd Downloads/Cheetah-Software/build/
+ 1158  ./user/JPos_Controller/jpos_ctrl m s
+ 1159  ./user/MiniCheetahSpi_Controller/mcspi_ctrl 
+ 1160  ./user/MiniCheetahSpi_Controller/mcspi_ctrl m s
+ 1161  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1162  ./user/JPos_Controller/jpos_ctrl m s
+ 1163  ./user/MIT_Controller/mit_ctrl m s
+ 1164  roscore
+ 1165  cd Downloads/Cheetah-Software/build/
+ 1166  ./sim/sim 
+ 1167  cd Downloads/Cheetah-Software/build/
+ 1168  ./user/MIT_Controller/mit_ctrl m s
+ 1169  nano ~/.bashrc
+ 1170  ssh pi@192.168.1.142
+ 1171  rqt
+ 1172  mkdir /catkin_ws
+ 1173  cd Downloads/
+ 1174  mkdir /catkin_ws
+ 1175  sudo mkdir /catkin_ws
+ 1176  ls
+ 1177  cd /catkin_ws/
+ 1178  mkdir src
+ 1179  sudo mkdir src
+ 1180  cd src/
+ 1181  git clone -b kinetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+ 1182  sudo git clone -b kinetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+ 1183  cd ~/catkin_ws && catkin_make 
+ 1184  roslaunch turtlebot3_gazebo turtlebot3_world.launch
+ 1185  cd ..
+ 1186  roslaunch turtlebot3_gazebo turtlebot3_world.launch
+ 1187  cd catkin_ws/
+ 1188  ls
+ 1189  cd src/
+ 1190  ls
+ 1191  cd ..
+ 1192  cd .
+ 1193  cd ..
+ 1194  roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch 
+ 1195  rqt
+ 1196  roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch 
+ 1197  ifconfug
+ 1198  ifconfig
+ 1199  roscore
+ 1200  cd Downloads/Cheetah-Software/build/
+ 1201  ./sim/sim 
+ 1202  cmake ..
+ 1203  cd Downloads/Cheetah-Software/build/
+ 1204  ./user/MIT_Controller/mit_ctrl m s
+ 1205  cd Downloads/Cheetah-Software/build/
+ 1206  ./sim/sim 
+ 1207  cd Downloads/Cheetah-Software/build/
+ 1208  ./user/MIT_Controller/mit_ctrl m s
+ 1209  ./user/MIT_Controller/mit_ctrl 3 s
+ 1210  ./user/MIT_Controller/mit_ctrl m s
+ 1211  history
+ 1212  cd Downloads/Cheetah-Software/build/
+ 1213  ./sim/sim 
+ 1214  sudo reboot now
+ 1215  sudo apt-get install gparted
+ 1216  ./user/MIT_Controller/mit_ctrl m s
+ 1217  history
+ 1218  history > history_bu
+ 1219  ls
+ 1220  ./user/MIT_Controller/mit_ctrl m s
+ 1221  cd Downloads/Cheetah-Software/build/
+ 1222  ./sim/sim 
+ 1223  cd
+ 1224  cd Downloads/Cheetah-Software-master/build/
+ 1225  ./sim/sim
+ 1226  cd ..
+ 1227  cd Cheetah-Software/build/
+ 1228  ./sim/sim
+ 1229  ./user/MIT_Controller/mit_ctrl m s
+ 1230  ./common/FootstepPlanner/libfootstep_planner.so 
+ 1231  ./user/MIT_Controller/mit_ctrl m s
+ 1232  ./user/JPos_Controller/jpos_ctrl m s
+ 1233  ./user/JPos_Controller/jpos_ctrl 3 s
+ 1234  ./common/test-common 
+ 1235  ./user/JPos_Controller/jpos_ctrl m s
+ 1236  ./sim/sim
+ 1237  ./Downloads/Cheetah-Software/build/
+ 1238  ./Downloads/Cheetah-Software/build
+ 1239  cd /Downloads/Cheetah-Software/build
+ 1240  cd /Downloads/Cheetah-Software/build/
+ 1241  cd Downloads/Cheetah-Software/build/
+ 1242  ./sim/sim 
+ 1243  ./
+ 1244  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl 
+ 1245  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1246  ./common/test-common m s
+ 1247  ./user/MIT_Controller/mit_ctrl m s
+ 1248  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl 
+ 1249  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1250  ./user/JPos_Controller/jpos_ctrl m s
+ 1251  ./user/Example_Leg_InvDyn/
+ 1252  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1253  ./user/MIT_Controller/mit_ctrl m s
+ 1254  ./user/MIT_Controller/mit_ctrl 3 s
+ 1255  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl 3 s
+ 1256  ./sim/sim
+ 1257  ./sim/sim sim/include/moc_SimControlPanel.cpp
+ 1258  ./sim/sim
+ 1259  ./sim/sim 
+ 1260  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1261  cd Downloads/Cheetah-Software/build/
+ 1262  ./sim/sim 
+ 1263  ./user/MIT_Controller/mit_ctrl m s
+ 1264  ./user/MiniCheetahSpi_Controller/mcspi_ctrl m s
+ 1265  ./user/MIT_Controller/mit_ctrl m s
+ 1266  cd Downloads/Cheetah-Software/build/
+ 1267  cd ..
+ 1268  cd build/
+ 1269  ./sim/sim 
+ 1270  ./user/MIT_Controller/mit_ctrl m s
+ 1271  ./user/MIT_Controller/mit_ctrl c s
+ 1272  ./user/MIT_Controller/mit_ctrl 3 s
+ 1273  ./user/MIT_Controller/mit_ctrl m s
+ 1274  cd Cheetah-Software/build/
+ 1275  ./sim/sim
+ 1276  cd
+ 1277  cd Downloads/Cheetah-Software/build/
+ 1278  ./sim/sim 
+ 1279  ./common/libbiomimetics.so 
+ 1280  ./common/test-common 
+ 1281  ./sim/sim 
+ 1282  make
+ 1283  ./sim/sim 
+ 1284  sudo apt-get install htop
+ 1285  htop
+ 1286  cd Downloads/Cheetah-Software/build/
+ 1287  ./sim/sim 
+ 1288  make
+ 1289  ./sim/sim 
+ 1290  make
+ 1291  ./sim/sim 
+ 1292  make
+ 1293  ./sim/sim 
+ 1294  make
+ 1295  ./sim/sim 
+ 1296  make
+ 1297  ./sim/sim 
+ 1298  make
+ 1299  ./sim/sim 
+ 1300  ./user/MIT_Controller/mit_ctrl m s
+ 1301  ./user/JPos_Controller/jpos_ctrl m s
+ 1302  ./user/MIT_Controller/mit_ctrl m s
+ 1303  cd script
+ 1304  ls
+ 1305  cd ..
+ 1306  cd scripts/
+ 1307  ./launch_lcm_spy.sh 
+ 1308  lcm-logger 
+ 1309  ./launch_lcm_spy.sh 
+ 1310  cd ..
+ 1311  cd build/
+ 1312  make
+ 1313  ./user/Example_Leg_InvDyn/leg_invdyn_ctrl m s
+ 1314  cd ..
+ 1315  lcm-logplayer
+ 1316  lcm-tester 
+ 1317  lcm-spy 
+ 1318  lcm-sink 
+ 1319  lcm-spy 
+ 1320  cd ..
+ 1321  cd build/
+ 1322  lcm-spy 
+ 1323  lcm-example 
+ 1324  lcm-logger 
+ 1325  lcm-tester 
+ 1326  lcm-gen 
+ 1327  lcm-logplayer
+ 1328  lcm-logplayer-gui 
+ 1329  lcm-source 
+ 1330  lcm-logfilter 
+ 1331  lcm-spy 
+ 1332  ./robot/librobot.so 
+ 1333  ./common/FootstepPlanner/libfootstep_planner.so 
+ 1334  cd Downloads/Cheetah-Software/build/
+ 1335  ./sim/sim 
+ 1336  cmake ..
+ 1337  make -j
+ 1338  ./sim/sim 
+ 1339  cmake ..
+ 1340  make -j
+ 1341  ./sim/sim 
+ 1342  cmake ..
+ 1343  make -j
+ 1344  ./sim/sim 
+ 1345  ./user/MIT_Controller/mit_ctrl m s
+ 1346  cd Downloads/Cheetah-Software/build/
+ 1347  ./sim/sim 
+ 1348  ./user/MIT_Controller/mit_ctrl m s
+ 1349  cmake -DMINI_CHEETAH_BUILD=TRUE
+ 1350  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1351  make -j4
+ 1352  ssh robodoghsa@192.168.178.20
+ 1353  cd Downloads/Cheetah-Software
+ 1354  mkdir mc-build
+ 1355  cd mc-build/
+ 1356  cmake ..
+ 1357  cd googletest-download/
+ 1358  make -j4
+ 1359  cd ..
+ 1360  cmake ..
+ 1361  make -j4
+ 1362  ./sim/sim 
+ 1363  cd ..
+ 1364  cd build/
+ 1365  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1366  make -j4
+ 1367  cd Desktop/
+ 1368  cd Cheetah-Software-master/
+ 1369  cd scripts/
+ 1370  ./make_types.sh 
+ 1371  cd ..
+ 1372  mkdir build
+ 1373  cd build/
+ 1374  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1375  cd googletest-download/
+ 1376  sudo nano CMakeLists.txt 
+ 1377  make -j
+ 1378  cd ..
+ 1379  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1380  ./../scripts/make_types.sh
+ 1381  make -j4
+ 1382  /config_network_lcm.sh -I
+ 1383  cd ..
+ 1384  cd scripts/
+ 1385  /config_network_lcm.sh -I
+ 1386  ./config_network_lcm.sh -I
+ 1387  lsusb
+ 1388  cd ..
+ 1389  mkdir mc-build && cd mc-build
+ 1390  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1391  cd googletest-download/
+ 1392  sudo nano CMakeLists.txt 
+ 1393  make -j
+ 1394  cd ..
+ 1395  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1396  make -j4
+ 1397  ifconfig
+ 1398  ssh robodoghsa@192.168.178.20
+ 1399  ping 192.168.178.20
+ 1400  sudo apt-get install openssh-server openssh-client
+ 1401  ssh robodoghsa@192.168.178.20
+ 1402  ./user/MIT_Controller/mit_ctrl m s
+ 1403  lcm-logplayer
+ 1404  lcm-logplayer-gui 
+ 1405  lcm-logger 
+ 1406  ../scripts/launch_lcm_spy.sh 
+ 1407  cd Downloads/Cheetah-Software/build/
+ 1408  ./sim/sim 
+ 1409  ./sim/sim 
+ 1410  ifconfig
+ 1411  ./sim/sim 
+ 1412  ../scripts/config_network_lcm.sh -I 
+ 1413  ifconfig
+ 1414  ../scripts/config_network_lcm.sh -I enp2s0f1
+ 1415  ./sim/sim 
+ 1416  sudo ifconfig lo multicast
+ 1417  sudo route add -net 255.0.0.0 netmask 255.0.0.0 dev lo
+ 1418  ./sim/sim 
+ 1419  ifconfig
+ 1420  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1421  ../scripts/config_network_lcm.sh -I enp2s0f1
+ 1422  ./sim/sim 
+ 1423  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1424  ../scripts/config_network_lcm.sh -I enp2s0f1
+ 1425  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1426  ./sim/sim \
+ 1427  ./sim/sim
+ 1428  sudo reboot now
+ 1429  cd Downloads/Cheetah-Software/build/
+ 1430  ./sim/sim
+ 1431  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1432  ./sim/sim
+ 1433  ifconfig
+ 1434  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1435  ./sim/sim 
+ 1436  ifconfig
+ 1437  service network-manager restart 
+ 1438  ifconfig
+ 1439  systemctl restart NetworkManager.service
+ 1440  ifconfig
+ 1441  sudo iptables -F INPUT
+ 1442  sudo iptables -F OUTPUT
+ 1443  sudo iptables -P INPUT ACCEPT
+ 1444  sudo iptables -P OUTPUT ACCEPT
+ 1445  sudo systemctl restart NetworkManager
+ 1446  sudo reboot now
+ 1447  ifconfig
+ 1448  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1449  cd Downloads/Cheetah-Software/build/
+ 1450  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1451  ifconfig
+ 1452  ./sim/sim \
+ 1453  ./sim/sim 
+ 1454  ifconfig
+ 1455  ping 192.168.1.113
+ 1456  ./sim/sim 
+ 1457  ssh robodoghsa@192.168.178.20
+ 1458  cd Downloads/Cheetah-Software/build/
+ 1459  ./sim/sim 
+ 1460  ../scripts/launch_lcm_spy.sh 
+ 1461  ssh robodoghsa@192.168.178.20
+ 1462  ssh robodoghsa@192.168.178.20
+ 1463  cd Downloads/Cheetah-Software/build/
+ 1464  ./sim/sim 
+ 1465  cd ..
+ 1466  cd mc-build/
+ 1467  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1468  make -j4
+ 1469  ../scripts/send_to_mini_cheetah.sh 
+ 1470  ../scripts/send_to_mini_cheetah.sh ~/Downloads/Cheetah-Software/mc-build/user/MIT_Controller/mit_ctrl 
+ 1471  ./sim/sim 
+ 1472  cd ..
+ 1473  sudo reboot now
+ 1474  ./user/MIT_Controller/mit_ctrl m s
+ 1475  sudo reboot now
+ 1476  ./user/MIT_Controller/mit_ctrl m s
+ 1477  cd Downloads/Cheetah-Software/build/
+ 1478  make -j4
+ 1479  ./sim/sim 
+ 1480  cd Downloads/Cheetah-Software/build/
+ 1481  cd
+ 1482  cd Desktop/
+ 1483  cd Cheetah-Software-master_1/
+ 1484  mkdir build
+ 1485  ./scripts/make_types.sh 
+ 1486  cd build/
+ 1487  cmake ..
+ 1488  cd googletest-download/
+ 1489  make -j4
+ 1490  cd ..
+ 1491  cmake ..
+ 1492  make -j4
+ 1493  cd Downloads/Cheetah-Software/build/
+ 1494  ./common/FootstepPlanner/libfootstep_planner.so 
+ 1495  ./common/test-common 
+ 1496  ./user/MIT_Controller/mit_ctrl m s
+ 1497  ../scripts/launch_lcm_spy.sh 
+ 1498  cd Downloads/Cheetah-Software/build/
+ 1499  ./sim/sim 
+ 1500  make -j4
+ 1501  ./sim/sim 
+ 1502  cd
+ 1503  cd Downloads/Cheetah-Software-master/build/
+ 1504  cd
+ 1505  cd Desktop/Cheetah-Software-master/build/
+ 1506  ./sim/sim 
+ 1507  make -j4
+ 1508  ./sim/sim 
+ 1509  make -j4
+ 1510  ./sim/sim 
+ 1511  make -j4
+ 1512  ./sim/sim 
+ 1513  make -j4
+ 1514  ./sim/sim 
+ 1515  make -j4
+ 1516  ./sim/sim 
+ 1517  make -j4
+ 1518  ./sim/sim 
+ 1519  make -j4
+ 1520  ./sim/sim 
+ 1521  make -j4
+ 1522  ./sim/sim 
+ 1523  ./user/MIT_Controller/mit_ctrl m s
+ 1524  ldd --version
+ 1525  Df -H
+ 1526  df -H
+ 1527  cd Cheetah-Software/build/
+ 1528  cd ..
+ 1529  cd build/
+ 1530  ./sim/sim
+ 1531  cd
+ 1532  cd Downloads/Cheetah-Software-master/
+ 1533  cd build/
+ 1534  cd
+ 1535  cd Desktop/
+ 1536  cd Cheetah-Software-master/build/
+ 1537  ./sim/sim 
+ 1538  Df -H
+ 1539  df -H
+ 1540  D
+ 1541  6~
+ 1542  cd Downloads/
+ 1543  cd HSA_Scotty/
+ 1544  mkdir mc-build
+ 1545  cd mc-build/
+ 1546  cmake ..
+ 1547  cd
+ 1548  cd Downloads/HSA_Scotty/
+ 1549  mkdir mc-build
+ 1550  cd mc-build/
+ 1551  cmake -DMINI_CHEETAH_BUILD=TRUE
+ 1552  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1553  cd googletest-download/
+ 1554  make -j4
+ 1555  cd ..
+ 1556  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1557  ../scripts/make_types.sh 
+ 1558  make -j4
+ 1559  ./sim/sim 
+ 1560  ./user/MIT_Controller/mit_ctrl m s
+ 1561  cd Downloads/HSA_Scotty/mc-build/
+ 1562  make -j4
+ 1563  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1564  ./sim/sim 
+ 1565  make -j4
+ 1566  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1567  ./sim/sim 
+ 1568  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1569  make -j4
+ 1570  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1571  ./sim/sim 
+ 1572  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1573  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1574  make -j4
+ 1575  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1576  ./sim/sim 
+ 1577  make -j4
+ 1578  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1579  ./sim/sim 
+ 1580  make -j4
+ 1581  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1582  ./sim/sim 
+ 1583  make -j4
+ 1584  ./sim/sim 
+ 1585  make -j4
+ 1586  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1587  ./sim/sim 
+ 1588  make -j4
+ 1589  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1590  ./sim/sim 
+ 1591  make -j4
+ 1592  ./sim/sim 
+ 1593  ifconfig
+ 1594  sudo ifconfig wlp3s0 multicast
+ 1595  sudo ifconfig enp2s0f1 multicast
+ 1596  ifconfig
+ 1597  sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev wlp3s0
+ 1598  sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev enp2s0f1
+ 1599  ./sim/sim 
+ 1600  make -j4
+ 1601  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1602  cmake -DMINI_CHEETAH_BUILD=TRUE ..
+ 1603  make -j4
+ 1604  ./sim/sim 
+ 1605  sudo route add -net 255.255.255.0 netmask 240.255.255.0 dev wlp3s0
+ 1606  sudo route add -net 255.255.255.0 netmask 255.255.255.0 dev wlp3s0
+ 1607  ./sim/sim 
+ 1608  sudo route add -net 255.255.255.0 netmask 255.255.255.0 dev lo
+ 1609  ./sim/sim 
+ 1610  ../scripts/config_network_lcm.sh -I wlp3s0
+ 1611  ./sim/sim 
+ 1612  sudo route add -net 255.255.224.0 netmask 255.255.255.0 dev lo
+ 1613  ./sim/sim 
+ 1614  make -j4
+ 1615  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1616  sudo route add -net 255.255.224.0 netmask 255.255.255.0 dev lo
+ 1617  sudo route add -net 255.255.224.0 netmask 255.255.255.0 dev wlp3s0
+ 1618  make -j4
+ 1619  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1620  ./sim/sim 
+ 1621  make -j4
+ 1622  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1623  sudo ifconfig enp2s0f1 -multicast
+ 1624  sudo ifconfig lo -multicast
+ 1625  ./sim/sim 
+ 1626  ifconfig
+ 1627  ssh scotty@192.168.2.37
+ 1628  sudo reboot now
+ 1629  ssh scotty@192.168.2.37
+ 1630  cd Downloads/HSA_Scotty/mc-build/
+ 1631  ./sim/sim 
+ 1632  cd Downloads/HSA_Scotty/b
+ 1633  cd Downloads/HSA_Scotty/mc-build/
+ 1634  ./sim/sim 
+ 1635  ssh scotty@192.168.2.37
+ 1636  ../scripts/launch_lcm_spy.sh 
+ 1637  cd
+ 1638  cd Downloads/HSA_Scotty/
+ 1639  cd mc-build/
+ 1640  ./user/MIT_Controller/mit_ctrl s m
+ 1641  ./user/MIT_Controller/mit_ctrl m s
+ 1642  cd Downloads/HSA_Scotty//mc-build/
+ 1643  ./sim/sim 
+ 1644  ssh scotty@192.168.2.37
+ 1645  cd Downloads/HSA_Scotty/mc-build/
+ 1646  ../scripts/launch_lcm_spy.sh 
+ 1647  cd Downloads/HSA_Scotty/mc-build/
+ 1648  ./sim/sim 
+ 1649  cd Downloads/HSA_Scotty/mc-build/
+ 1650  ./sim/sim 
+ 1651  cd Downloads/HSA_Scotty/mc-build/
+ 1652  ../scripts/launch_lcm_spy.sh 
+ 1653  ssh scotty@192.168.2.37
+ 1654  cd Downloads/HSA_Scotty/mc-build/
+ 1655  ./sim/sim 
+ 1656  make -j4
+ 1657  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1658  ./sim/sim 
+ 1659  ssh scotty@192.168.2.37
+ 1660  cd  user/MIT_Controller/
+ 1661  ./mit_ctrl m s
+ 1662  cd
+ 1663  cd cd Cheetah-Software/build/
+ 1664  cd Cheetah-Software/build/
+ 1665  ./sim/s
+ 1666  ./sim/sim
+ 1667  cd
+ 1668  cd Desktop/Cheetah-Software-master/build/
+ 1669  ./sim/sim 
+ 1670  cd user/MIT_Controller/
+ 1671  ./mit_ctrl m s
+ 1672  ssh scotty@192.168.2.37
+ 1673  ssh scotty@192.168.2.5
+ 1674  ssh scotty@192.168.2.37
+ 1675  cd Downloads/HSA_Scotty/mc-build/
+ 1676  ./sim/sim 
+ 1677  make -j4
+ 1678  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1679  ./sim/sim 
+ 1680  make -j4
+ 1681  ./sim/sim 
+ 1682  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1683  ./sim/sim 
+ 1684  make -j4
+ 1685  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1686  ./sim/sim 
+ 1687  make -j4
+ 1688  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl 
+ 1689  ./sim/sim 
+ 1690  ssh scotty@192.168.2.37
+ 1691  ssh scotty@192.168.2.5
+ 1692  history
+ 1693  ssh scotty@192.168.2.37
+ 1694  cd Downloads/HSA_Scotty/mc-build/
+ 1695  ./sim/sim 
+ 1696  ../scripts/launch_lcm_spy.sh 
+ 1697  cd Downloads/HSA_Scotty/mc-build/
+ 1698  ./sim/sim 
+ 1699  cd Downloads/HSA_Scotty/mc-build/
+ 1700  ./sim/sim 
+ 1701  ssh scotty@192.168.2.37
+ 1702  history
+ 1703  ssh scotty@192.168.2.5
+ 1704  ssh scotty@192.168.2.37
+ 1705  cd Desktop/
+ 1706  cd Cheetah-Software-master/mc-build/
+ 1707  history
+ 1708  history > history_for_print.txt
+ 1709  ./sim/sim 
+ 1710  history
+ 1711  cd
+ 1712  cd /Desktop/Cheetah-Software-master/mc-build
+ 1713  cd Desktop/Cheetah-Software-master/mc-build/
+ 1714  ./sim/sim 
+ 1715  historz
+ 1716  history
+ 1717  ./user/MIT_Controller/mit_ctrl m s
+ 1718  cd ..
+ 1719  cd mc-build/
+ 1720  ./sim/sim 
+ 1721  ./user/MIT_Controller/mit_ctrl m s
+ 1722  ../scripts/launch_lcm_spy.sh 
+ 1723  ssh scotty@192.168.2.5
+ 1724  ssh scotty@192.168.2.37
+ 1725  ifconfig
+ 1726  ssh scotty@192.168.2.37
+ 1727  ssh scotty@192.168.2.5
+ 1728  \
+ 1729  ssh scotty@192.168.2.5
+ 1730  ssh scotty@192.168.2.37
+ 1731  cd
+ 1732  cd Downloads/
+ 1733  ls
+ 1734  sudo chmod +x st-stm32cubeide_1.14.0_19471_20231121_1200_amd64.deb_bundle.sh 
+ 1735  ./st-stm32cubeide_1.14.0_19471_20231121_1200_amd64.deb_bundle.sh 
+ 1736  sudo su
+ 1737  ssh scotty@192.168.2.5
+ 1738  ssh scotty@192.168.2.37
+ 1739  ssh scotty@192.168.2.5
+ 1740  ssh scotty@192.168.2.37
+ 1741  ssh scotty@192.168.2.5
+ 1742  ssh scotty@192.168.2.37
+ 1743  ssh scotty@192.168.2.40
+ 1744  historz
+ 1745  history
+ 1746  ssh scotty@192.168.2.40
+ 1747  cd Desktop/Cheetah-Software-master/mc-build/
+ 1748  ./sim/sim 
+ 1749  ../scripts/launch_lcm_spy
+ 1750  ../scripts/launch_lcm_spy.sh 
+ 1751  history
+ 1752  ./user/MIT_Controller/mit_ctrl m s
+ 1753  history
+ 1754  cd Desktop/Cheetah-Software-master/mc-build/
+ 1755  ./sim/sim 
+ 1756  history
+ 1757  ssh scotty@192.168.2.40
+ 1758  cd Desktop/Cheetah-Software-master/mc-build/
+ 1759  ./sim/sim 
+ 1760  cd Desktop/Cheetah-Software-master/mc-build/
+ 1761  ../scripts/launch_lcm_spy.sh 
+ 1762  historz
+ 1763  history
+ 1764  ./user/MIT_Controller/mit_ctrl m s
+ 1765  cd Desktop/Cheetah-Software-master/mc-build/
+ 1766  ./sim/sim 
+ 1767  ./user/MIT_Controller/mit_ctrl m r
+ 1768  ./user/MIT_Controller/mit_ctrl m r
+ 1769  ./user/MIT_Controller/mit_ctrl m s
+ 1770  ../user/MIT_Controller/mit_ctrl m s
+ 1771  ../scripts/launch_lcm_spy.sh 
+ 1772  cd Desktop/Cheetah-Software-master/mc-build/
+ 1773  ./sim/sim 
+ 1774  cd Desktop/Cheetah-Software-master/mc-build/
+ 1775  ./sim/sim 
+ 1776  ../scripts/launch_lcm_spy.sh 
+ 1777  cd Downloads/
+ 1778  ./st-stm32cubeide_1.14.0_19471_20231121_1200_amd64.deb_bundle.sh 
+ 1779  sudo chmod +x st-stm32cubeide_1.16.1_22882_20240916_0822_amd64.deb_bundle.sh 
+ 1780  ./st-stm32cubeide_1.16.1_22882_20240916_0822_amd64.deb_bundle.sh 
+ 1781  sudo sh
+ 1782  sudo su
+ 1783  cd Desktop/Cheetah-Software-master/mc-build/
+ 1784  ./sim/sim 
+ 1785  ../scripts/launch_lcm_spy.sh 
+ 1786  ../scripts/launch_lcm_spy.sh
+ 1787  cd Desktop/Cheetah-Software-master/mc-build/
+ 1788  ./sim/sim 
+ 1789  cd Desktop/Cheetah-Software-master/mc-build/
+ 1790  ../scripts/launch_lcm_spy.sh
+ 1791  ifconfig
+ 1792  history
+ 1793  
+ 1794  clear
+ 1795  history
+ 1796  ssh scotty@192.168.2.40
+ 1797  history
+ 1798  ssh scotty@192.168.2.40
+ 1799  ssh scotty@192.168.2.37
+ 1800  ../scripts/launch_lcm_spy.sh
+ 1801  cd Desktop/Cheetah-Software-master/mc-build/
+ 1802  ./sim/sim 
+ 1803  sudo apt-get install terminator
+ 1804  ../scripts/launch_lcm_spy.sh
+ 1805  cd Desktop/Cheetah-Software-master/mc-build/
+ 1806  ./sim/sim 
+ 1807  ssh scotty@192.168.2.40
+ 1808  cd Desktop/Cheetah-Software-master/mc-build/
+ 1809  ./sim/sim 
+ 1810  ../scripts/launch_lcm_spy.sh
+ 1811  ./sim/sim 
+ 1812  cd Desktop/Cheetah-Software-master/mc-build/
+ 1813  ./sim/sim 
+ 1814  cd Desktop/Cheetah-Software-master/mc-build/
+ 1815  ../scripts/launch_lcm_spy.sh
+ 1816  ssh scotty@192.168.2.40
+ 1817  ../scripts/launch_lcm_spy.sh
+ 1818  cd Desktop/Cheetah-Software-master/mc-build/
+ 1819  ./sim/sim 
+ 1820  ./sim/sim
+ 1821  cd ..
+ 1822  cd build/
+ 1823  ./sim/sim 
+ 1824  cd Desktop/Cheetah-Software-master/mc-build/
+ 1825  ./sim/sim 
+ 1826  cd ..
+ 1827  cd build/
+ 1828  ./sim/sim 
+ 1829  ../user/MIT_Controller/
+ 1830  ../user/MIT_Controller/mit_ctrl m s
+ 1831  history
+ 1832  ../user/MIT_Controller/mit_ctrl m s
+ 1833  cd user/
+ 1834  cd MIT_Controller/
+ 1835  ls
+ 1836  ./mit_ctrl m s
+ 1837  cd ..
+ 1838  cd build/
+ 1839  cd user/MIT_Controller/
+ 1840  ls
+ 1841  ./mit_ctrl mit_ctrl m s
+ 1842  ./mit_ctrl m s
+ 1843  history
+ 1844  cd Downloads/HSA_Scotty/mc-build/
+ 1845  ./sim/sim 
+ 1846  cd..
+ 1847  cd ..
+ 1848  cd Downloads/HSA_Scotty/mc-build/
+ 1849  cd mc-build/
+ 1850  ./sim/sim 
+ 1851  cd user/MIT_Controller/
+ 1852  ls
+ 1853  ./mit_ctrl m s
+ 1854  ./user/MIT_Controller/mit_ctrl m s
+ 1855  ./sim/sim 
+ 1856  ../scripts/launch_lcm_spy.sh 
+ 1857  cd Desktop/Cheetah-Software-master/mc-build/
+ 1858  ./sim/sim 
+ 1859  history
+ 1860  ssh scotty@192.168.2.40
+ 1861  ../scripts/launch_lcm_spy.sh 
+ 1862  cd Desktop/Cheetah-Software-master/mc-build/
+ 1863  ./sim/sim 
+ 1864  ssh scotty@192.168.2.40
+ 1865  cd Desktop/Cheetah-Software-master/mc-build/
+ 1866  ./sim/sim 
+ 1867  history
+ 1868  ./sim/sim 
+ 1869  ./user/MIT_Controller/mit_ctrl m s
+ 1870  make -j4
+ 1871  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1872  ../scripts/launch_lcm_spy.sh 
+ 1873  ./user/MIT_Controller/mit_ctrl m s
+ 1874  cd
+ 1875  cd Downloads/HSA_Scotty/mc-build/
+ 1876  make -j4
+ 1877  history
+ 1878  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1879  ./sim/sim 
+ 1880  ssh scotty@192.168.2.40
+ 1881  sudo add-apt-repository universe
+ 1882  sudo dpkg -i bcompare-5.0.3.30258_amd64.deb 
+ 1883  sudo dpkg -i code_1.94.2-1728494015_amd64.deb 
+ 1884  code
+ 1885  pip install gdbm
+ 1886  code --verbose
+ 1887  sudo apt install -y libgdbm6 libgdbm-dev
+ 1888  code --verbose
+ 1889  code
+ 1890  sudo apt remove --purge code
+ 1891  git clone https://gitlab.hs-anhalt.de/stvikuru/scotty.git
+ 1892  cd scotty/
+ 1893  git checkout
+ 1894  git config --global user.email "Vishnudev.Kurumbaparambil@student.hs-anhalt.de"
+ 1895  git config --global user.name "stvikuru"
+ 1896  git config --global credential.helper cache
+ 1897  git status
+ 1898  git fetch origin
+ 1899  git status
+ 1900  git reset --hard origin/main
+ 1901  git status
+ 1902  ssh scotty@192.168.2.40
+ 1903  ../scripts/launch_lcm_spy.sh 
+ 1904  cd Downloads/HSA_Scotty/mc-build/
+ 1905  history
+ 1906  ./sim/sim
+ 1907  historyu
+ 1908  history
+ 1909  make -j4
+ 1910  ./sim/sim
+ 1911  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1912  ./sim/sim
+ 1913  make -j4
+ 1914  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1915  ./sim/sim
+ 1916  ssh scotty@192.168.2.40
+ 1917  cd Downloads/HSA_Scotty/mc-build/
+ 1918  ./sim/sim
+ 1919  make -j4
+ 1920  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1921  ./sim/sim
+ 1922  make -j4
+ 1923  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1924  ./sim/sim
+ 1925  ../scripts/launch_lcm_spy.sh 
+ 1926  history
+ 1927  C cd Desktop/Cheetah-Software-master/mc-build/
+ 1928  ./sim/sim
+ 1929  ssh scotty@192.168.2.40
+ 1930  cd Downloads/HSA_Scotty/mc-build/
+ 1931  ./sim/sim
+ 1932  make -j4
+ 1933  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1934  ./sim/sim
+ 1935  make -j4
+ 1936  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1937  ./sim/sim
+ 1938  make -j4
+ 1939  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1940  ./sim/sim
+ 1941  make -j4
+ 1942  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1943  ./sim/sim
+ 1944  make -j4
+ 1945  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1946  ./sim/sim
+ 1947  make -j4
+ 1948  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1949  ./sim/sim
+ 1950  ssh scotty@192.168.2.40
+ 1951  ../scripts/launch_lcm_spy.sh 
+ 1952  ../scripts/launch_lcm_spy.sh 
+ 1953  cd Downloads/HSA_Scotty/mc-build/
+ 1954  ./common/test-common 
+ 1955  ls
+ 1956  ./sim/sim
+ 1957  make -j4
+ 1958  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1959  ./sim/sim
+ 1960  make -j4
+ 1961  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1962  ./sim/sim
+ 1963  make -j4
+ 1964  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1965  ./sim/sim
+ 1966  make -j4
+ 1967  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1968  ./sim/sim
+ 1969  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1970  ./sim/sim
+ 1971  ./sim/sim 
+ 1972  history
+ 1973  ./user/MIT_Controller/mit_ctrl m s
+ 1974  ./sim_data_convert.sh 
+ 1975  ./log_convert.sh 
+ 1976  ../scripts/log_convert.sh 
+ 1977  ../lcm_data/sim_data_convert.sh 
+ 1978  ../scripts/log_convert.sh 
+ 1979  ../lcm_data/sim_data_convert.sh --outfile=testVishnu
+ 1980  ssh scotty@192.168.2.40
+ 1981  cd Downloads/HSA_Scotty/mc-build/
+ 1982  ./sim/sim 
+ 1983  make -j4
+ 1984  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1985  ./sim/sim 
+ 1986  make -j4
+ 1987  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1988  ./sim/sim 
+ 1989  make -j4
+ 1990  ../scripts/send_to_mini_cheetah.sh /home/roboubu/Downloads/HSA_Scotty/mc-build/user/MIT_Controller/mit_ctrl
+ 1991  ./sim/sim 
+ 1992  history
+ 1993  ./user/MIT_Controller/mit_ctrl m s
+ 1994  history
+ 1995  ./user/MIT_Controller/mit_ctrl m s
+ 1996  ../scripts/launch_lcm_spy.sh 
+ 1997  history

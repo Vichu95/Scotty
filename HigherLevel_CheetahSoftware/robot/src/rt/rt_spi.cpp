@@ -43,20 +43,30 @@ const float wimp_torque[3] = {6.f, 6.f, 6.f};    // TODO CHECK WITH BEN
 const float disabled_torque[3] = {0.f, 0.f, 0.f};
 
 // only used for actual robot
-const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
-const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
-//const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
-const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+// const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
+// const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+
+// // const float knee_side_sign[4] = {-.6429f, .6429f, -.6429f, .6429f};
+// const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+
 
 // only used for actual robot
-const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
-const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
-const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
-                              -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
+// const float abad_offset[4] = {0.f, 0.f, 0.f, 0.f};
+// const float hip_offset[4] = {M_PI / 2.f, -M_PI / 2.f, -M_PI / 2.f, M_PI / 2.f};
+// const float knee_offset[4] = {K_KNEE_OFFSET_POS, -K_KNEE_OFFSET_POS,
+//                               -K_KNEE_OFFSET_POS, K_KNEE_OFFSET_POS};
 
-//const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-//const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+
+
+
+
+const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+
+const float abad_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+const float hip_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
+const float knee_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
 
 /*!
  * Compute SPI message checksum
@@ -208,7 +218,25 @@ int spi_driver_iterations = 0;
 /*!
  * convert spi command to spine_cmd_t
  */
-void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
+void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t currentControlMode) {
+
+  // Open the CSV file in append mode
+  FILE *file = fopen("output_data.csv", "a");
+  if (!file) {
+      perror("Failed to open file");
+      return;
+
+  }
+  // Write the header row if the file is empty (optional, depending on your use case)
+
+  static int header_written = 0; // Ensure header is written only once
+  if (!header_written) {
+      fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Flags\n");
+      header_written = 1;
+  }
+
+
   for (int i = 0; i < 2; i++) {
     // spine_cmd->q_des_abad[i] = (cmd->q_des_abad[i+leg_0] +
     // abad_offset[i+leg_0]) * abad_side_sign[i+leg_0]; spine_cmd->q_des_hip[i]
@@ -249,8 +277,26 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
         cmd->tau_knee_ff[i + leg_0] * knee_side_sign[i + leg_0];
 
     spine_cmd->flags[i] = cmd->flags[i + leg_0];
-  }
+    //Adding control_mode to the higher 16 bits of the flag
+    spine_cmd->flags[i] = (spine_cmd->flags[i] & 0x0000FFFF) | (currentControlMode & 0xFFFF)<<16;
+  
+    // Write the data row to the file
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d\n",
+            leg_0 + i,
+            spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
+            spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
+            spine_cmd->kp_abad[i], spine_cmd->kp_hip[i], spine_cmd->kp_knee[i],
+            spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
+            spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
+            currentControlMode, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
+
+   }
   spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
+
+
+    // Close the file
+
+    fclose(file);
 }
 
 /*!
@@ -283,7 +329,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 /*!
  * send receive data and command from spine
  */
-void spi_send_receive(spi_command_t *command, spi_data_t *data) {
+void spi_send_receive(spi_command_t *command, spi_data_t *data, int32_t currentControlMode) {
   // update driver status flag
   spi_driver_iterations++;
   data->spi_driver_status = spi_driver_iterations << 16;
@@ -294,7 +340,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 
   for (int spi_board = 0; spi_board < 2; spi_board++) {
     // copy command into spine type:
-    spi_to_spine(command, &g_spine_cmd, spi_board * 2);
+    spi_to_spine(command, &g_spine_cmd, spi_board * 2, currentControlMode);
 
     // pointers to command/data spine array
     uint16_t *cmd_d = (uint16_t *)&g_spine_cmd;
@@ -351,7 +397,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 /*!
  * Run SPI
  */
-void spi_driver_run() {
+void spi_driver_run(int32_t currentControlMode) {
   // do spi board calculations
   for (int i = 0; i < 4; i++) {
     fake_spine_control(&spi_command_drv, &spi_data_drv, &spi_torque, i);
@@ -359,7 +405,7 @@ void spi_driver_run() {
 
   // in here, the driver is good
   pthread_mutex_lock(&spi_mutex);
-  spi_send_receive(&spi_command_drv, &spi_data_drv);
+  spi_send_receive(&spi_command_drv, &spi_data_drv, currentControlMode);
   pthread_mutex_unlock(&spi_mutex);
 }
 
