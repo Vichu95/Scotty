@@ -218,7 +218,7 @@ int spi_driver_iterations = 0;
 /*!
  * convert spi command to spine_cmd_t
  */
-void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
+void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t currentControlMode) {
 
   // Open the CSV file in append mode
   FILE *file = fopen("output_data.csv", "a");
@@ -232,7 +232,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
   static int header_written = 0; // Ensure header is written only once
   if (!header_written) {
       fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
-                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Flags\n");
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Flags\n");
       header_written = 1;
   }
 
@@ -277,17 +277,18 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
         cmd->tau_knee_ff[i + leg_0] * knee_side_sign[i + leg_0];
 
     spine_cmd->flags[i] = cmd->flags[i + leg_0];
-  
+    //Adding control_mode to the higher 16 bits of the flag
+    spine_cmd->flags[i] = (spine_cmd->flags[i] & 0x0000FFFF) | (currentControlMode & 0xFFFF)<<16;
   
     // Write the data row to the file
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d\n",
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d\n",
             leg_0 + i,
             spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
             spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
             spine_cmd->kp_abad[i], spine_cmd->kp_hip[i], spine_cmd->kp_knee[i],
             spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
             spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
-            spine_cmd->flags[i]);
+            currentControlMode, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
 
    }
   spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
@@ -328,7 +329,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 /*!
  * send receive data and command from spine
  */
-void spi_send_receive(spi_command_t *command, spi_data_t *data) {
+void spi_send_receive(spi_command_t *command, spi_data_t *data, int32_t currentControlMode) {
   // update driver status flag
   spi_driver_iterations++;
   data->spi_driver_status = spi_driver_iterations << 16;
@@ -339,7 +340,7 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 
   for (int spi_board = 0; spi_board < 2; spi_board++) {
     // copy command into spine type:
-    spi_to_spine(command, &g_spine_cmd, spi_board * 2);
+    spi_to_spine(command, &g_spine_cmd, spi_board * 2, currentControlMode);
 
     // pointers to command/data spine array
     uint16_t *cmd_d = (uint16_t *)&g_spine_cmd;
@@ -402,11 +403,9 @@ void spi_driver_run(int32_t currentControlMode) {
     fake_spine_control(&spi_command_drv, &spi_data_drv, &spi_torque, i);
   }
 
-  printf("[SPI Control Parameter] set inside SPI FUNCTION %d \n",currentControlMode);
-
   // in here, the driver is good
   pthread_mutex_lock(&spi_mutex);
-  spi_send_receive(&spi_command_drv, &spi_data_drv);
+  spi_send_receive(&spi_command_drv, &spi_data_drv, currentControlMode);
   pthread_mutex_unlock(&spi_mutex);
 }
 
