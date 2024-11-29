@@ -219,6 +219,24 @@ int spi_driver_iterations = 0;
  * convert spi command to spine_cmd_t
  */
 void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
+
+  // Open the CSV file in append mode
+  FILE *file = fopen("output_data.csv", "a");
+  if (!file) {
+      perror("Failed to open file");
+      return;
+
+  }
+  // Write the header row if the file is empty (optional, depending on your use case)
+
+  static int header_written = 0; // Ensure header is written only once
+  if (!header_written) {
+      fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Flags\n");
+      header_written = 1;
+  }
+
+
   for (int i = 0; i < 2; i++) {
     // spine_cmd->q_des_abad[i] = (cmd->q_des_abad[i+leg_0] +
     // abad_offset[i+leg_0]) * abad_side_sign[i+leg_0]; spine_cmd->q_des_hip[i]
@@ -259,8 +277,25 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
         cmd->tau_knee_ff[i + leg_0] * knee_side_sign[i + leg_0];
 
     spine_cmd->flags[i] = cmd->flags[i + leg_0];
+  
+  
+    // Write the data row to the file
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d\n",
+            leg_0 + i,
+            spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
+            spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
+            spine_cmd->kp_abad[i], spine_cmd->kp_hip[i], spine_cmd->kp_knee[i],
+            spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
+            spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
+            spine_cmd->flags[i]);
+
   }
   spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
+
+
+    // Close the file
+
+    fclose(file);
 }
 
 /*!
