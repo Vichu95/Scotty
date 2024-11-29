@@ -23,6 +23,8 @@
 
 #define USE_MICROSTRAIN
 
+static int32_t currentControlMode = 999; //This variable is used to temp store the control_mode and pass it to runSpi function
+
 /*!
  * If an error occurs during initialization, before motors are enabled, print
  * error and exit.
@@ -211,6 +213,10 @@ void HardwareBridge::handleControlParameter(
              controlParameterValueToString(
                  v, (ControlParameterValueKind)msg->parameterKind)
                  .c_str());
+
+      currentControlMode = int(v.d);
+      printf("[Robot Control Parameter] currentControlMode is set to %d \n",currentControlMode);
+
 
     } break;
 
@@ -417,7 +423,7 @@ void MiniCheetahHardwareBridge::runSpi() {
   spi_data_t* data = get_spi_data();
 
   memcpy(cmd, &_spiCommand, sizeof(spi_command_t));
-  spi_driver_run();
+  spi_driver_run(currentControlMode); //Passing control_mode additionally
   memcpy(&_spiData, data, sizeof(spi_data_t));
 
   _spiLcm.publish("spi_data", data);

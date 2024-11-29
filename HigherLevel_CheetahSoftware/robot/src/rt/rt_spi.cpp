@@ -289,7 +289,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0) {
             spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
             spine_cmd->flags[i]);
 
-  }
+   }
   spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
 
 
@@ -396,11 +396,13 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data) {
 /*!
  * Run SPI
  */
-void spi_driver_run() {
+void spi_driver_run(int32_t currentControlMode) {
   // do spi board calculations
   for (int i = 0; i < 4; i++) {
     fake_spine_control(&spi_command_drv, &spi_data_drv, &spi_torque, i);
   }
+
+  printf("[SPI Control Parameter] set inside SPI FUNCTION %d \n",currentControlMode);
 
   // in here, the driver is good
   pthread_mutex_lock(&spi_mutex);

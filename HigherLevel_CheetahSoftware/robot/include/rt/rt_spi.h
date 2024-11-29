@@ -46,7 +46,7 @@ extern "C" {
 void init_spi();
 
 void spi_send_receive(spi_command_t* command, spi_data_t* data);
-void spi_driver_run();
+void spi_driver_run(int32_t currentControlMode);
 
 spi_data_t* get_spi_data();
 spi_command_t* get_spi_command();
