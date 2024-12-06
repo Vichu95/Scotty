@@ -72,13 +72,13 @@
 #define KD_MIN 0.0f
 #define KD_MAX 5.0f
 
-/// Joint Soft Stops ///P
-#define A_LIM_P 1.5f
-#define A_LIM_N -1.5f
-#define H_LIM_P 2.5f
-#define H_LIM_N -2.5f
-#define K_LIM_P -1.2f
-#define K_LIM_N 6.5f
+/// Joint Soft Stops
+#define AB_LIM_P 1.5708f //90°
+#define AB_LIM_N -0.785f //-45°
+#define HIP_LIM_P 2.0944f //120°
+#define HIP_LIM_N -2.0944f //120°
+#define KNEE_LIM_P 0.0f //0°
+#define KNEE_LIM_N -4.01426f //-230°
 #define KP_SOFTSTOP 100.0f
 #define KD_SOFTSTOP 0.4f
 
@@ -875,32 +875,29 @@ void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 
 void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 
-		state.flags[0] = 0;
-		state.flags[1] = 0;
-
 		if(ID==1){
-			state.flags[CAN] |= softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],1.5, -1.5);
 			p_in = control.ab_p[CAN];
 			v_in = control.ab_v[CAN];
 			kp_in = control.ab_kp[CAN];   //stifness
 			kd_in = control.ab_kd[CAN];     //damper
 			t_in = control.ab_t[CAN];
+			state.flags[CAN] |= softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N);
 	    	}
 		if(ID==2){
-			state.flags[CAN] |= softstop_joint(&control.hip_p[CAN],state.hip_p[CAN],2.5, -2.5)<<1;
 			p_in = control.hip_p[CAN];
 			v_in = control.hip_v[CAN];
 			kp_in = control.hip_kp[CAN];   //stifness
 			kd_in = control.hip_kd[CAN];     //damper
 			t_in = control.hip_t[CAN];
+			state.flags[CAN] |= softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N)<<1;
 	    	}
 		if(ID==3){
-			state.flags[CAN] |= softstop_joint(&control.knee_p[CAN], state.knee_p[CAN],7.3, -0.2)<<2;
 			p_in = control.knee_p[CAN];
 			v_in = control.knee_v[CAN];
 			kp_in = control.knee_kp[CAN];   //stifness
 			kd_in = control.knee_kd[CAN];     //damper
 			t_in = control.knee_t[CAN];
+			state.flags[CAN] |= softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N)<<2;
 	    	}
 
 	Header->StdId = ID;
@@ -974,6 +971,9 @@ void unpack_replay(uint8_t*Data){
 /////////////////////////////////math/////////////////////////////////////////
 void can_send_receive(){
 
+	// Reset the flags before each CAN communication
+	state.flags[0] = 0;
+	state.flags[1] = 0;
 
 	CAN=0;
 	pack_message(Ab_CAN, &TxHeader, TxData);
@@ -1143,6 +1143,7 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n){
     t_in += KP_SOFTSTOP*(limit_n - state);
     return 1;
     }
+  return 0;
   }
 
 ////////////////////////delay//////////////////////////////////
