@@ -314,7 +314,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
   static int header_data_written = 0; // Ensure header is written only once
   if (!header_data_written) {
-      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, Flag_data\n");
+      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, Flag_data\n");
       header_data_written = 1;
   }
 
@@ -333,16 +333,34 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     data->qd_knee[i + leg_0] =
         spine_data->qd_knee[i] * knee_side_sign[i + leg_0];
 
-    data->flags[i + leg_0] = spine_data->flags[i];
+
+
+
+    // Extract each 10-bit segment
+    uint16_t a_enc = (spine_data->flags[i] >> 2) & 0x3FF; // First 10 bits (bits 2–11) 
+    uint16_t b_enc = (spine_data->flags[i] >> 12) & 0x3FF; // Next 10 bits (bits 12–21) 
+    uint16_t c_enc = (spine_data->flags[i] >> 22) & 0x3FF; // Last 10 bits (bits 22–31) 
+    // Decode each value back to the original 
+    float tau_m_abad = (a_enc * (140.0 / 1023.0)) - 70; 
+    float tau_m_hip = (b_enc * (140.0 / 1023.0)) - 70; 
+    float tau_m_knee = (c_enc * (140.0 / 1023.0)) - 70; 
+
+
+
+    data->flags[i + leg_0] = spine_data->flags[i] & 0x03;
+
+
+
+
 
     // Write the data row to the file
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %d\n",
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d\n",
             leg_0 + i,
             spine_data->q_abad[i], spine_data->q_hip[i], spine_data->q_knee[i],
             spine_data->qd_abad[i], spine_data->qd_hip[i], spine_data->qd_knee[i],
-            spine_data->flags[i]);
+            tau_m_abad, tau_m_hip, tau_m_knee,
+            data->flags[i + leg_0]);
 
-   
   }
 
   uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
