@@ -1162,7 +1162,39 @@ uint32_t xor_checksum(uint32_t* data, int len)
     return t;
 }
 
+uint32_t encode_floats(float a, float b, float c) {
+    uint32_t encoded = 0;
+
+    // Clamp each value to the range [-70, 70] using conditional statements
+    if (a < -70.0f) a = -70.0f;
+    if (a > 70.0f) a = 70.0f;
+
+    if (b < -70.0f) b = -70.0f;
+    if (b > 70.0f) b = 70.0f;
+
+    if (c < -70.0f) c = -70.0f;
+    if (c > 70.0f) c = 70.0f;
+
+
+    // Normalize and encode each float to 10 bits
+    uint16_t a_enc = (uint16_t)round((a + 70) * (1023.0 / 140.0));
+    uint16_t b_enc = (uint16_t)round((b + 70) * (1023.0 / 140.0));
+    uint16_t c_enc = (uint16_t)round((c + 70) * (1023.0 / 140.0));
+
+    // Pack into 32 bits, leaving the first 2 bits unused
+    encoded |= (a_enc & 0x3FF) << 2;        // First 10 bits start at bit 2
+    encoded |= (b_enc & 0x3FF) << 12;       // Next 10 bits start at bit 12
+    encoded |= (c_enc & 0x3FF) << 22;       // Last 10 bits start at bit 22
+
+    return encoded;
+}
+
 void spi_send_receive(void){
+
+	//Pack the torques into the flag.
+	 state.flags[0] = encode_floats(torque.ab_t[0], torque.hip_t[0], torque.knee_t[0]) | (state.flags[0]& 0x03);
+	 state.flags[1] = encode_floats(torque.ab_t[1], torque.hip_t[1], torque.knee_t[1]) | (state.flags[1]& 0x03);
+
 
 	//calculatet the checksum
 	//pack the status variables into the tx buffer
