@@ -25,9 +25,9 @@ Quadruped<T> buildMiniCheetah() {
   cheetah._bodyLength = 0.19 * 2;
   cheetah._bodyWidth = 0.049 * 2;
   cheetah._bodyHeight = 0.05 * 2;
-  cheetah._abadGearRatio = 6;
-  cheetah._hipGearRatio = 6;
-  cheetah._kneeGearRatio = 9.33;
+  cheetah._abadGearRatio = 9;
+  cheetah._hipGearRatio = 9;
+  cheetah._kneeGearRatio = 13.5;//11.25; //todo Additionally connected to a sprocket (16 Teeth) - plate (20 Teeth) setup Gear Ratio 20/16= 1.25. Total is 9*1.25
   cheetah._abadLinkLength = 0.062;
   cheetah._hipLinkLength = 0.209;
   //cheetah._kneeLinkLength = 0.175;

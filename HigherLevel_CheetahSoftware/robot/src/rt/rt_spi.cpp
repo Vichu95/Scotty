@@ -64,9 +64,9 @@ const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
 const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
 const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
 
-const float abad_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
-const float hip_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
-const float knee_side_sign[4] = {1.f, 1.f, 1.f, 1.f};
+const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
+const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f}; //reset to mit
+const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
 
 /*!
  * Compute SPI message checksum
@@ -281,6 +281,8 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
     spine_cmd->flags[i] = (spine_cmd->flags[i] & 0x0000FFFF) | (currentControlMode & 0xFFFF)<<16;
   
     // Write the data row to the file
+    if(leg_0 + i == 2)
+    {
     fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d\n",
             leg_0 + i,
             spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
@@ -289,6 +291,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
             spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
             spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
             currentControlMode, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
+    }
 
    }
   spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
@@ -354,12 +357,15 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
 
     // Write the data row to the file
+    if(leg_0 + i == 2)
+    {
     fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d\n",
             leg_0 + i,
             spine_data->q_abad[i], spine_data->q_hip[i], spine_data->q_knee[i],
             spine_data->qd_abad[i], spine_data->qd_hip[i], spine_data->qd_knee[i],
             tau_m_abad, tau_m_hip, tau_m_knee,
             data->flags[i + leg_0]);
+    }
 
   }
 
