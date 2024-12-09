@@ -1133,7 +1133,8 @@ float uint_to_float(int x_int, float x_min, float x_max, int bits){
 
 int softstop_joint(float *control,float state, float limit_p, float limit_n){
   if(*control>=limit_p){
-    *control = limit_p;
+//	    *control = limit_p;
+    p_in = limit_p;
     v_in = 0.0f;
     kp_in = 0.0f;
     kd_in = KD_SOFTSTOP;
@@ -1141,7 +1142,8 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n){
     return 1;
     }
   if(*control<=limit_n){
-    *control = limit_n;
+//	    *control = limit_n;
+	p_in = limit_n;
     v_in = 0.0f;
     kp_in = 0.0f;
     kd_in = KD_SOFTSTOP;
