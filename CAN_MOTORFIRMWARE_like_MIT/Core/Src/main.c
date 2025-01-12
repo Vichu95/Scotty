@@ -58,6 +58,8 @@
 #define MOTOR_KD_MIN 0.0f
 #define MOTOR_KD_MAX 5.0f
 
+#define TRQ_REQ_MAX 3.0f
+
 // Value limits in ST
 #define P_MIN -12.5f
 #define P_MAX 12.5f
@@ -136,6 +138,7 @@ void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void unpack_replay(uint8_t* Data);
 int softstop_joint(float *control,float state, float limit_p, float limit_n);
+void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int float_to_uint(float x, float x_min, float x_max, int bits);
 
@@ -891,6 +894,9 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				{	//Incase of wrong request
 					state.flags[CAN] |= 0b01;
 				}
+
+			// Safety Limit
+			safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t);
 	    	}
 		if(ID==2){
 			p_in = (control.hip_p[CAN] * hip_mitdirection[CAN]);
@@ -903,6 +909,9 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				{	//Incase of wrong request
 					state.flags[CAN] |= 0b10;
 				}
+
+			// Safety Limit
+			safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t);
 	    	}
 		if(ID==3){
 			p_in = (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
@@ -915,6 +924,9 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				{	//Incase of wrong request
 					state.flags[CAN] |= 0b11;
 				}
+
+			// Safety Limit
+			safetycheck_reqTrq(state.knee_p[CAN], state.knee_v[CAN], torque.knee_t);
 	    	}
 
 	Header->StdId = ID;
@@ -1164,6 +1176,25 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n){
     }
   return 0;
   }
+
+
+////////////////////////safetycheck_reqTrq//////////////////////////////////
+//To add additional check on the torque requested to the motor. Calculated based on the PID model of motor.
+void safetycheck_reqTrq(float p_act, float v_act, float t_ff){
+
+	float trqreq = (p_in - p_act)*kp_in + (v_in - v_act)*kd_in + t_ff;
+
+	// Incase the Trq to be calculated at the motor is too high, cancel the req by setting everything to zero
+	if (trqreq >= TRQ_REQ_MAX || trqreq <= -TRQ_REQ_MAX)
+	{
+		p_in = 0.0f;
+		v_in = 0.0f;
+		kp_in = 0.0f;
+		kd_in = 0.0f;
+		t_in = 0.0f;
+	}
+  }
+
 
 ////////////////////////delay//////////////////////////////////
 void delay_us (uint16_t us)
