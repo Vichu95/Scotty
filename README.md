@@ -2,7 +2,7 @@ Contents :
 - CAN_MOTORFIRMWARE_like_MIT : STM lower level code
 - HigherLevel_CheetahSoftware : MIT Mini Cheetah Software
 - Extras : Additional files, SW_URDF
-- Champ 
+- Scotty_Champ : Champ based implementation 
 
 
 
