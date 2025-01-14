@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="sensors">
     <!-- IMU Link -->
     <link name="imu_link">
         <inertial>
@@ -29,4 +30,6 @@
             <headingGaussianNoise>0.005</headingGaussianNoise>
         </plugin>
     </gazebo>
+
+  </xacro:macro>
 </robot>
