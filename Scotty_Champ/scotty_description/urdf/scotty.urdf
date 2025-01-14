@@ -375,6 +375,7 @@
     <limit effort="50" lower="-2.5" upper="0" velocity="3"/>
   </joint>
   <!-- Define base fixed joint -->
+  <link name="world"/>
   <joint name="world_to_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>

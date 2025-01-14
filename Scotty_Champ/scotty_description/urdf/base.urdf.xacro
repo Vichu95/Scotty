@@ -6,6 +6,7 @@
   <xacro:include filename="$(find scotty_description)/urdf/scotty_description.urdf" />
 
   <!-- Define base fixed joint -->
+  <link name="world" />
   <joint name="world_to_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
