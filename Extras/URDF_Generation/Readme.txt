@@ -1,5 +1,9 @@
 The Assembled CAD base model is from \6_RobotDog\3_Prototype\1_Mechanics\Unit 2-Aluminum Design\Assembly-Complete
 
+
+NOTE : This contains the one generated from Solidwork. The latest will be found in the Champ folder : scotty_description
+
+
 Solid Works to URDF plugin is used for conversion.
 https://wiki.ros.org/sw_urdf_exporter
 
