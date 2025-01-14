@@ -1,0 +1,23 @@
+left_front:
+  - abad_FL_joint
+  - hip_FL_joint
+  - knee_FL_joint
+  - foot_FL_joint
+
+right_front:
+  - abad_FR_joint
+  - hip_FR_joint
+  - knee_FR_joint
+  - foot_FR_joint
+
+left_hind:
+  - abad_RL_joint
+  - hip_RL_joint
+  - knee_RL_joint
+  - foot_RL_joint
+
+right_hind:
+  - abad_RR_joint
+  - hip_RR_joint
+  - knee_RR_joint
+  - foot_RR_joint

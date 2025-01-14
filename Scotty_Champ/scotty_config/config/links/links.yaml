@@ -1,0 +1,24 @@
+base: world
+left_front:
+  - abad_FL_link
+  - hip_FL_link
+  - knee_FL_link
+  - foot_FL_link
+
+right_front:
+  - abad_FR_link
+  - hip_FR_link
+  - knee_FR_link
+  - foot_FR_link
+
+left_hind:
+  - abad_RL_link
+  - hip_RL_link
+  - knee_RL_link
+  - foot_RL_link
+
+right_hind:
+  - abad_RR_link
+  - hip_RR_link
+  - knee_RR_link
+  - foot_RR_link
