@@ -1,3 +1,17 @@
+Contents :
+- CAN_MOTORFIRMWARE_like_MIT : STM lower level code
+- HigherLevel_CheetahSoftware : MIT Mini Cheetah Software
+- Extras : Additional files, SW_URDF
+- Champ 
+
+
+
+#########################
+#####  L O G S 
+#########################
+
+
+
 The combination of Dave's base and Nils main didnt work. The SPI data was not received. Could be due to the possibility that the DMA code is not present.
 
 With the code Subash shared and Nils main, the SPI is working.
