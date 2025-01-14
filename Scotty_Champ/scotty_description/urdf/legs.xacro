@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="leg_description">
+  
+  <!-- Parameters -->
+  <xacro:property name="lower_leg_to_foot_distance" value="0.32" />
+
+  <!-- Front Right (FR) Foot -->
+  <link name="foot_FR_link" />
+  <joint name="foot_FR_joint" type="fixed">
+      <parent link="knee_FR_link" />
+      <child link="foot_FR_link" />
+      <origin xyz="0 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" />
+  </joint>
+
+  <!-- Front Left (FL) Foot -->
+  <link name="foot_FL_link" />
+  <joint name="foot_FL_joint" type="fixed">
+      <parent link="knee_FL_link" />
+      <child link="foot_FL_link" />
+      <origin xyz="0 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" />
+  </joint>
+
+  <!-- Rear Right (RR) Foot -->
+  <link name="foot_RR_link" />
+  <joint name="foot_RR_joint" type="fixed">
+      <parent link="knee_RR_link" />
+      <child link="foot_RR_link" />
+      <origin xyz="0 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" />
+  </joint>
+
+  <!-- Rear Left (RL) Foot -->
+  <link name="foot_RL_link" />
+  <joint name="foot_RL_joint" type="fixed">
+      <parent link="knee_RL_link" />
+      <child link="foot_RL_link" />
+      <origin xyz="0 0 -${lower_leg_to_foot_distance}" rpy="0 0 0" />
+  </joint>
+
+</robot>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="scotty_robot">
+
+  <!-- Include modular parts -->
+  <xacro:include filename="$(find scotty_description)/urdf/base.urdf.xacro" />
+  <xacro:include filename="$(find scotty_description)/urdf/sensors.xacro" />
+  <!-- <xacro:include filename="$(find scotty_description)/urdf/transmissions.xacro" /> -->
+  <xacro:include filename="$(find scotty_description)/urdf/legs.xacro" />
+
+  <!-- Invoke parts -->
+  <xacro:base/>
+  <xacro:sensors/>
+  <!-- <xacro:transmissions/> -->
+  <xacro:legs/>
+</robot>
