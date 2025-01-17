@@ -5,7 +5,15 @@
   <xacro:property name="lower_leg_to_foot_distance" value="0.32" />
 
   <!-- Front Right (FR) Foot -->
-  <link name="foot_FR_link" />
+  <link name="foot_FR_link">
+    <collision>
+      <origin xyz="0 0 -0.01" rpy="0 0 0" />
+      <geometry>
+        <box size="0.05 0.05 0.01"/>
+      </geometry>
+    </collision>
+  </link>
+
   <joint name="foot_FR_joint" type="fixed">
       <parent link="knee_FR_link" />
       <child link="foot_FR_link" />
@@ -13,7 +21,14 @@
   </joint>
 
   <!-- Front Left (FL) Foot -->
-  <link name="foot_FL_link" />
+  <link name="foot_FL_link">
+    <collision>
+      <origin xyz="0 0 -0.01" rpy="0 0 0" />
+      <geometry>
+        <box size="0.05 0.05 0.01"/>
+      </geometry>
+    </collision>
+  </link>
   <joint name="foot_FL_joint" type="fixed">
       <parent link="knee_FL_link" />
       <child link="foot_FL_link" />
@@ -21,7 +36,14 @@
   </joint>
 
   <!-- Rear Right (RR) Foot -->
-  <link name="foot_RR_link" />
+  <link name="foot_RR_link">
+    <collision>
+      <origin xyz="0 0 -0.01" rpy="0 0 0" />
+      <geometry>
+        <box size="0.05 0.05 0.01"/>
+      </geometry>
+    </collision>
+  </link>
   <joint name="foot_RR_joint" type="fixed">
       <parent link="knee_RR_link" />
       <child link="foot_RR_link" />
@@ -29,7 +51,14 @@
   </joint>
 
   <!-- Rear Left (RL) Foot -->
-  <link name="foot_RL_link" />
+  <link name="foot_RL_link">
+    <collision>
+      <origin xyz="0 0 -0.01" rpy="0 0 0" />
+      <geometry>
+        <box size="0.05 0.05 0.01"/>
+      </geometry>
+    </collision>
+  </link>
   <joint name="foot_RL_joint" type="fixed">
       <parent link="knee_RL_link" />
       <child link="foot_RL_link" />

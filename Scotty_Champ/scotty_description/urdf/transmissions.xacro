@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+ <xacro:macro name="transmissions">
+
+  
+  <!-- Gear Reduction Properties -->
+  <xacro:property name="gear_reduction_abad" value="1"/>
+  <xacro:property name="gear_reduction_hip" value="1"/>
+  <xacro:property name="gear_reduction_knee" value="1"/>
+
+  <!-- Transmissions for Front Right (FR) -->
+  <transmission name="abad_FR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="abad_FR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="abad_FR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_abad}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="hip_FR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="hip_FR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="hip_FR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_hip}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="knee_FR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="knee_FR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="knee_FR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_knee}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmissions for Front Left (FL) -->
+  <transmission name="abad_FL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="abad_FL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="abad_FL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_abad}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="hip_FL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="hip_FL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="hip_FL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_hip}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="knee_FL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="knee_FL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="knee_FL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_knee}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmissions for Rear Right (RR) -->
+  <transmission name="abad_RR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="abad_RR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="abad_RR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_abad}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="hip_RR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="hip_RR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="hip_RR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_hip}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="knee_RR_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="knee_RR_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="knee_RR_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_knee}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmissions for Rear Left (RL) -->
+  <transmission name="abad_RL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="abad_RL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="abad_RL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_abad}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="hip_RL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="hip_RL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="hip_RL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_hip}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="knee_RL_joint_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="knee_RL_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="knee_RL_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>${gear_reduction_knee}</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+
+ </xacro:macro>
+</robot>

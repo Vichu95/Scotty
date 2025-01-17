@@ -4,12 +4,12 @@
   <!-- Include modular parts -->
   <xacro:include filename="$(find scotty_description)/urdf/base.urdf.xacro" />
   <xacro:include filename="$(find scotty_description)/urdf/sensors.xacro" />
-  <!-- <xacro:include filename="$(find scotty_description)/urdf/transmissions.xacro" /> -->
-  <xacro:include filename="$(find scotty_description)/urdf/legs.xacro" />
+   <xacro:include filename="$(find scotty_description)/urdf/transmissions.xacro" />
+
 
   <!-- Invoke parts -->
   <xacro:base/>
   <xacro:sensors/>
-  <!-- <xacro:transmissions/> -->
-  <xacro:legs/>
+  <xacro:transmissions/>
+
 </robot>
