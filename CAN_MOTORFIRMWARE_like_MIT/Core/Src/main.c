@@ -371,7 +371,6 @@ int main(void)
 
 
 
-
 	motor_mode(Ab_CAN, &TxHeader, TxData);
 	motor_mode(Hip_CAN, &TxHeader, TxData);
 	motor_mode(Knee_CAN, &TxHeader, TxData);
@@ -380,59 +379,63 @@ int main(void)
 
 delay_us(1000);
 
+
 zero(Ab_CAN, &TxHeader, TxData);
 zero(Hip_CAN, &TxHeader, TxData);
 zero(Knee_CAN, &TxHeader, TxData);
 
  delay_us(1000);
 
+
+
+
 	// Only CAN
-//	count=1;
-//	  while (count==1)
-//	  {
+	count=1;
+	  while (count==1)
+	  {
+
+
+			can_send_receive();
+			time=__HAL_TIM_GET_COUNTER(&htim8);
+	  }
+
+
+
+//
+//  while (1)
+//  {
+//    /* USER CODE END WHILE */
+//
+//    /* USER CODE BEGIN 3 */
+//
+//	__HAL_TIM_SET_COUNTER(&htim8,0);
+//	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
+//	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
+//		spi_test=1;
+//		spi_send_receive();
+//		//can_control();
+//		//can_send_receive();
+//		count=1;
+//	    //count=1;
+//		time2=__HAL_TIM_GET_COUNTER(&htim8);
+//
+//	}
+//
+//	if(count==1){
+////		can_control();
 //
 //
-//			can_send_receive();
-//			time=__HAL_TIM_GET_COUNTER(&htim8);
-//	  }
-
-
-
-
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-
-	__HAL_TIM_SET_COUNTER(&htim8,0);
-	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
-	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
-		spi_test=1;
-		spi_send_receive();
-		//can_control();
-		//can_send_receive();
-		count=1;
-	    //count=1;
-		time2=__HAL_TIM_GET_COUNTER(&htim8);
-
-	}
-
-	if(count==1){
-//		can_control();
-
-
-
-		can_send_receive();
-		count=2;
-		time=__HAL_TIM_GET_COUNTER(&htim8);
-	}
-
-	Error_spi=HAL_SPI_GetError(&hspi1);
-	State_spi=HAL_SPI_GetState(&hspi1);
-	//HAL_Delay(1);
-
-  }
+//
+//		can_send_receive();
+//		count=2;
+//		time=__HAL_TIM_GET_COUNTER(&htim8);
+//	}
+//
+//	Error_spi=HAL_SPI_GetError(&hspi1);
+//	State_spi=HAL_SPI_GetState(&hspi1);
+//	//HAL_Delay(1);
+//
+//  }
 
 
 	exit_mode(Ab_CAN, &TxHeader, TxData);
@@ -1027,28 +1030,28 @@ void can_send_receive(){
 		unpack_replay(RxData);
 	}
 
-//	CAN=1;
-//	pack_message(Ab_CAN, &TxHeader, TxData);
-//	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-//    delay_us(300);
-//	//wait(100);
-//	if (datacheck==1){
-//		unpack_replay(RxData);
-//	}
-//	pack_message(Hip_CAN, &TxHeader, TxData);
-//	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-//    delay_us(300);
-//	//wait(100);
-//	if (datacheck==1){
-//		unpack_replay(RxData);
-//	}
-//	pack_message(Knee_CAN, &TxHeader, TxData);
-//	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
-//    delay_us(300);
-//	//wait(100);
-//	if (datacheck==1){
-//		unpack_replay(RxData);
-//	}
+	CAN=1;
+	pack_message(Ab_CAN, &TxHeader, TxData);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+    delay_us(300);
+	//wait(100);
+	if (datacheck==1){
+		unpack_replay(RxData);
+	}
+	pack_message(Hip_CAN, &TxHeader, TxData);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+    delay_us(300);
+	//wait(100);
+	if (datacheck==1){
+		unpack_replay(RxData);
+	}
+	pack_message(Knee_CAN, &TxHeader, TxData);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+    delay_us(300);
+	//wait(100);
+	if (datacheck==1){
+		unpack_replay(RxData);
+	}
 
 }
 
