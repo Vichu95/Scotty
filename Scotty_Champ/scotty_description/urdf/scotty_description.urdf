@@ -93,7 +93,7 @@
       xyz="0.2485 -0.065 0.025"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="trunk" />
     <child
       link="abad_FR_link" />
     <axis
@@ -324,7 +324,7 @@
       xyz="0.2485 0.065 0.025"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="trunk" />
     <child
       link="abad_FL_link" />
     <axis
@@ -555,7 +555,7 @@
       xyz="-0.2485 -0.065 0.025"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="trunk" />
     <child
       link="abad_RR_link" />
     <axis
@@ -786,7 +786,7 @@
       xyz="-0.2485 0.065 0.025"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="trunk" />
     <child
       link="abad_RL_link" />
     <axis

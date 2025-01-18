@@ -65,7 +65,7 @@
   </link>
   <joint name="abad_FR_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.2485 -0.065 0.025"/>
-    <parent link="base_link"/>
+    <parent link="trunk"/>
     <child link="abad_FR_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
@@ -184,7 +184,7 @@
   </link>
   <joint name="abad_FL_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.2485 0.065 0.025"/>
-    <parent link="base_link"/>
+    <parent link="trunk"/>
     <child link="abad_FL_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
@@ -303,7 +303,7 @@
   </link>
   <joint name="abad_RR_joint" type="revolute">
     <origin rpy="0 0 0" xyz="-0.2485 -0.065 0.025"/>
-    <parent link="base_link"/>
+    <parent link="trunk"/>
     <child link="abad_RR_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
@@ -422,7 +422,7 @@
   </link>
   <joint name="abad_RL_joint" type="revolute">
     <origin rpy="0 0 0" xyz="-0.2485 0.065 0.025"/>
-    <parent link="base_link"/>
+    <parent link="trunk"/>
     <child link="abad_RL_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
