@@ -4,8 +4,10 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="scotty_description">
+  <!-- <link
+    name="base_link"> -->
   <link
-    name="base_link">
+    name="trunk">
     <inertial>
       <origin
         xyz="0 0 0.02"
@@ -99,8 +101,9 @@
     <limit
       lower="-0.65"
       upper="0.65"
-      effort="25"
-      velocity="3" />
+      effort="50"
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="hip_FR_link">
@@ -158,7 +161,8 @@
       lower="-1.25"
       upper="1.8"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="knee_FR_link">
@@ -216,7 +220,8 @@
       lower="-2.5"
       upper="0"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="foot_FR_link">
@@ -270,6 +275,7 @@
       link="foot_FR_link" />
     <axis
       xyz="0 0 0" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="abad_FL_link">
@@ -326,8 +332,9 @@
     <limit
       lower="-0.65"
       upper="0.65"
-      effort="25"
-      velocity="3" />
+      effort="50"
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="hip_FL_link">
@@ -385,7 +392,8 @@
       lower="-1.25"
       upper="1.8"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="knee_FL_link">
@@ -443,7 +451,8 @@
       lower="-2.5"
       upper="0"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="foot_FL_link">
@@ -497,6 +506,7 @@
       link="foot_FL_link" />
     <axis
       xyz="0 0 0" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="abad_RR_link">
@@ -553,8 +563,9 @@
     <limit
       lower="-0.65"
       upper="0.65"
-      effort="25"
-      velocity="3" />
+      effort="50"
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="hip_RR_link">
@@ -612,7 +623,8 @@
       lower="-1.25"
       upper="1.8"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="knee_RR_link">
@@ -670,7 +682,8 @@
       lower="-2.5"
       upper="0"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="foot_RR_link">
@@ -724,6 +737,7 @@
       link="foot_RR_link" />
     <axis
       xyz="0 0 0" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="abad_RL_link">
@@ -780,8 +794,9 @@
     <limit
       lower="-0.65"
       upper="0.65"
-      effort="25"
-      velocity="3" />
+      effort="50"
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="hip_RL_link">
@@ -839,7 +854,8 @@
       lower="-1.25"
       upper="1.8"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="knee_RL_link">
@@ -897,7 +913,8 @@
       lower="-2.5"
       upper="0"
       effort="50"
-      velocity="3" />
+      velocity="25" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
   <link
     name="foot_RL_link">
@@ -951,5 +968,6 @@
       link="foot_RL_link" />
     <axis
       xyz="0 0 0" />
+    <dynamics damping="0.2" friction="0.8"/>
   </joint>
 </robot>

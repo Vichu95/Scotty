@@ -2,16 +2,33 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
  <xacro:macro name="base">
 
+  <link name="base_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="floating_base_link" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="trunk"/>
+  </joint>
+
   <!-- Include SolidWorks-generated URDF -->
   <xacro:include filename="$(find scotty_description)/urdf/scotty_description.urdf" />
 
-  <!-- Define base fixed joint -->
+
+<!-- 
+   Define base fixed joint 
   <link name="world" />
   <joint name="world_to_base" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint>
+  </joint> -->
+  
 
  </xacro:macro>
 </robot>
