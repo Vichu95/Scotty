@@ -13,7 +13,8 @@
     <arg name="roll" default="0" />
     <arg name="pitch" default="0" />
     <arg name="yaw" default="0" />
-
+    <arg name="ros_control_file"   default="$(find scotty_config)/config/ros_control/ros_control.yaml" /> <!-- Path to ROS Control configurations. Do not touch. -->
+    
     <!-- Spawn Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_file)" />
@@ -28,6 +29,12 @@
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro $(arg urdf_file)" />
 
+    <rosparam file="$(arg ros_control_file)" command="load"/>
+    <!-- <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        output="screen" args="joint_states_controller joint_group_position_controller ">
+    </node> -->
+
     <!-- Main Python Controller -->
     <node name="scotty_main_controller" pkg="scotty_config" type="main_controller.py" output="screen" />
+
 </launch>

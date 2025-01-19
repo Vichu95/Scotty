@@ -2,6 +2,7 @@
 
 import rospy
 import subprocess
+import time
 from std_msgs.msg import String
 
 
@@ -50,12 +51,16 @@ class MainController:
 
     def start_stand_up_state(self):
         """Start the stand-up state (currently a placeholder)."""
-        rospy.loginfo("Executing stand-up state...")
-        rospy.sleep(3)  # Simulate some processing delay
-        rospy.loginfo("Stand-up state complete.")
+        rospy.loginfo("Launching stand state node")
+        try:
+            stand_process = subprocess.Popen(["rosrun", "scotty_config", "stand_controller.py"])
+            stand_process.wait()  # Wait for the stand state process to complete
+            rospy.loginfo("Stand state completed.")
 
-        # Transition to the next state (if applicable)
-        self.transition_to_next_state()
+            # Transition to the next state
+            self.transition_to_next_state()
+        except Exception as e:
+            rospy.logerr("Failed to launch stand state node: {}".format(e))
 
     def transition_to_next_state(self):
         """Move to the next state if available."""
