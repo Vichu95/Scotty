@@ -88,9 +88,12 @@ if __name__ == '__main__':
 
     try:
         # Step 1: Wait for the model to be ready
+        rospy.loginfo("Waiting for the model")
         wait_for_model(model_name)
+        rospy.loginfo("Model is loaded in the startup")
 
         # Step 2: Set initial joint positions
+        rospy.loginfo("Setting init joints")
         set_joint_positions(model_name, joint_names, joint_positions)
 
         # Optional: Pause physics for debugging
