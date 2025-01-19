@@ -69,7 +69,7 @@
     <child link="abad_FR_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="hip_FR_link">
     <inertial>
@@ -99,7 +99,7 @@
     <child link="hip_FR_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="knee_FR_link">
     <inertial>
@@ -129,7 +129,7 @@
     <child link="knee_FR_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="foot_FR_link">
     <inertial>
@@ -158,7 +158,7 @@
     <parent link="knee_FR_link"/>
     <child link="foot_FR_link"/>
     <axis xyz="0 0 0"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="abad_FL_link">
     <inertial>
@@ -188,7 +188,7 @@
     <child link="abad_FL_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="hip_FL_link">
     <inertial>
@@ -218,7 +218,7 @@
     <child link="hip_FL_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="knee_FL_link">
     <inertial>
@@ -248,7 +248,7 @@
     <child link="knee_FL_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="foot_FL_link">
     <inertial>
@@ -277,7 +277,7 @@
     <parent link="knee_FL_link"/>
     <child link="foot_FL_link"/>
     <axis xyz="0 0 0"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="abad_RR_link">
     <inertial>
@@ -307,7 +307,7 @@
     <child link="abad_RR_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="hip_RR_link">
     <inertial>
@@ -337,7 +337,7 @@
     <child link="hip_RR_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="knee_RR_link">
     <inertial>
@@ -367,7 +367,7 @@
     <child link="knee_RR_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="foot_RR_link">
     <inertial>
@@ -396,7 +396,7 @@
     <parent link="knee_RR_link"/>
     <child link="foot_RR_link"/>
     <axis xyz="0 0 0"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="abad_RL_link">
     <inertial>
@@ -426,7 +426,7 @@
     <child link="abad_RL_link"/>
     <axis xyz="1 0 0"/>
     <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="hip_RL_link">
     <inertial>
@@ -456,7 +456,7 @@
     <child link="hip_RL_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="knee_RL_link">
     <inertial>
@@ -486,7 +486,7 @@
     <child link="knee_RL_link"/>
     <axis xyz="0 1 0"/>
     <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <link name="foot_RL_link">
     <inertial>
@@ -515,7 +515,7 @@
     <parent link="knee_RL_link"/>
     <child link="foot_RL_link"/>
     <axis xyz="0 0 0"/>
-    <dynamics damping="0.2" friction="0.8"/>
+    <dynamics damping="0.05" friction="0.8"/>
   </joint>
   <!-- 
    Define base fixed joint 

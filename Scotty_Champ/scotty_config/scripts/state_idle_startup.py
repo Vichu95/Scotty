@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+
+import rospy
+import time
+from gazebo_msgs.msg import ModelStates
+from gazebo_msgs.srv import SetModelConfiguration
+from std_srvs.srv import Empty
+
+def set_joint_positions(model_name, joint_names, joint_positions):
+    """
+    Sets the initial joint positions for the specified model in Gazebo.
+    """
+    rospy.wait_for_service('/gazebo/set_model_configuration', timeout=10)
+    try:
+        set_model_config = rospy.ServiceProxy('/gazebo/set_model_configuration', SetModelConfiguration)
+        rospy.loginfo("Setting initial joint positions for model '{}'...".format(model_name))
+        response = set_model_config(
+            model_name=model_name,
+            urdf_param_name='robot_description',
+            joint_names=joint_names,
+            joint_positions=joint_positions
+        )
+        if response.success:
+            rospy.loginfo("Successfully set joint positions for model '{}'.".format(model_name))
+        else:
+            rospy.logerr("Failed to set joint positions: {}".format(response.status_message))
+    except rospy.ServiceException as e:
+        rospy.logerr("Service call failed: {}".format(e))
+
+
+
+if __name__ == '__main__':
+    rospy.init_node('set_initial_conditions')
+
+    # Specify your robot model name
+    model_name = "scotty_robot"
+
+    # List of joints and their corresponding desired positions
+    joint_names = [
+        "abad_FL_joint", "hip_FL_joint", "knee_FL_joint",
+        "abad_FR_joint", "hip_FR_joint", "knee_FR_joint",
+        "abad_RL_joint", "hip_RL_joint", "knee_RL_joint",
+        "abad_RR_joint", "hip_RR_joint", "knee_RR_joint"
+    ]
+    # joint_positions = [
+    #     0.0, 0.6, -1.2,   # Front Left
+    #     0.0, 0.6, -1.2,   # Front Right
+    #     0.0, 0.6, -1.2,   # Rear Left
+    #     0.0, 0.6, -1.2    # Rear Right
+    # ]
+    joint_positions = [
+        0.0, 1.6, -2.2,   # Front Left
+        0.0, 1.6, -2.2,   # Front Right
+        0.0, 1.6, -2.2,   # Rear Left
+        0.0, 1.6, -2.2    # Rear Right
+    ]
+
+    try:
+
+        # Step 2: Set initial joint positions
+        set_joint_positions(model_name, joint_names, joint_positions)
+
+        # Optional: Pause physics for debugging
+    except RuntimeError as e:
+        rospy.logerr(str(e))
+    except rospy.ROSInterruptException:
+        pass
