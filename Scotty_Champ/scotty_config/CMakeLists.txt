@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package()
 
 install(PROGRAMS
+    scripts/main_controller.py
     scripts/state_idle_startup.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
