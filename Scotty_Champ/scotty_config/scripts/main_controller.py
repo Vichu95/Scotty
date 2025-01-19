@@ -12,7 +12,7 @@ class MainController:
         rospy.loginfo("Starting Scotty Main Controller...")
 
         # Define the states
-        self.states = ["idle", "stand_up"]
+        self.states = ["idle", "stand_up", "walk"]
         self.current_state_index = 0
 
         # Publisher to broadcast current state
@@ -33,6 +33,8 @@ class MainController:
             self.start_idle_state()
         elif current_state == "stand_up":
             self.start_stand_up_state()
+        elif current_state == "walk":
+            self.start_walk_state()
         else:
             rospy.logwarn("Unknown state: {}".format(current_state))
 
@@ -61,6 +63,19 @@ class MainController:
             self.transition_to_next_state()
         except Exception as e:
             rospy.logerr("Failed to launch stand state node: {}".format(e))
+
+    def start_walk_state(self):
+        """Start the walk state (currently a placeholder)."""
+        rospy.loginfo("Launching walk state node")
+        try:
+            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_walk.py"])
+            stand_process.wait()  # Wait for the walk state process to complete
+            rospy.loginfo("Walk state completed.")
+
+            # Transition to the next state
+            self.transition_to_next_state()
+        except Exception as e:
+            rospy.logerr("Failed to launch walk state node: {}".format(e))
 
     def transition_to_next_state(self):
         """Move to the next state if available."""

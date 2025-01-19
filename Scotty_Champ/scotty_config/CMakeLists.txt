@@ -12,5 +12,6 @@ install(PROGRAMS
     scripts/main_controller.py
     scripts/state_idle_startup.py
     scripts/stand_controller.py
+    scripts/state_walk.py    
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

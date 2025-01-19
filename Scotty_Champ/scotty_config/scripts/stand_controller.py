@@ -61,12 +61,21 @@ class StandController:
             "abad_RR_joint", "hip_RR_joint", "knee_RR_joint"
         ]
 
+
+        ##Joint values from champ, when the robot stands
         joint_positions = [
-            0.0, 0.6, -1.2,  # Front Left
-            0.0, 0.6, -1.2,  # Front Right
-            0.0, 0.6, -1.2,  # Rear Left
-            0.0, 0.6, -1.2   # Rear Right
-        ]
+            -0.24987684190273285, 0.937517523765564, -1.8144596815109253, 
+            0.23306728899478912, 0.9333722591400146, -1.806188941001892, 
+            -0.24987684190273285, 0.9375174045562744, -1.8144596815109253, 
+            0.23306728899478912, 0.9333721399307251, -1.806188941001892]
+
+
+        # joint_positions = [
+        #     0.0, 0.6, -1.2,  # Front Left
+        #     0.0, 0.6, -1.2,  # Front Right
+        #     0.0, 0.6, -1.2,  # Rear Left
+        #     0.0, 0.6, -1.2   # Rear Right
+        # ]
 
         # Create and publish the trajectory message
         traj_msg = JointTrajectory()
@@ -74,7 +83,7 @@ class StandController:
 
         point = JointTrajectoryPoint()
         point.positions = joint_positions
-        point.time_from_start = rospy.Duration(3.0)  # Smooth transition over 3 seconds
+        point.time_from_start = rospy.Duration(2.0)  # Smooth transition over 3 seconds
 
         traj_msg.points = [point]
 
@@ -82,7 +91,7 @@ class StandController:
         rospy.sleep(1)
         rospy.loginfo("Publishing trajectory message for stand-up position...")
         self.joint_pub.publish(traj_msg)
-        rospy.sleep(5)  # Allow time for the robot to complete the motion
+        rospy.sleep(3)  # Allow time for the robot to complete the motion
 
 if __name__ == "__main__":
     try:
