@@ -94,7 +94,21 @@ if __name__ == '__main__':
         set_joint_positions(model_name, joint_names, joint_positions)
 
         # Optional: Pause physics for debugging
+        rospy.loginfo("Gravity is disabled")
+        rospy.wait_for_service('/gazebo/pause_physics')
+        pause_physics = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+        pause_physics()
+
+
+        # 3. Unpause physics
+        time.sleep(3)  # Optional delay for stability
+        rospy.loginfo("Gravity is enabled")
+        rospy.wait_for_service('/gazebo/unpause_physics')
+        pause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+        pause_physics()
+
     except RuntimeError as e:
         rospy.logerr(str(e))
     except rospy.ROSInterruptException:
         pass
+
