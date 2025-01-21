@@ -34,7 +34,14 @@
         output="screen" args="joint_states_controller joint_group_position_controller ">
     </node> -->
 
+
+
+    <!-- ROS Bridge Server -->
+    <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
+    
+
     <!-- Main Python Controller -->
     <node name="scotty_main_controller" pkg="scotty_config" type="main_controller.py" output="screen" />
+
 
 </launch>
