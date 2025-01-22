@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
 
     <meta charset="UTF-8">
@@ -12,182 +10,103 @@
     <style>
 
         body {
-
             background-color: #f5f5f5;
-
             font-family: Arial, sans-serif;
-
         }
 
         .container {
-
             background: white;
-
             padding: 20px;
-
             border-radius: 8px;
-
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-
         }
 
         .header {
-
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             background: #007bff;
-
             color: white;
-
             padding: 15px;
-
             border-radius: 8px 8px 0 0;
-
             font-size: 1.5rem;
-
         }
 
         .section {
-
             margin-top: 20px;
-
             padding: 15px;
-
             border-radius: 8px;
-
             background-color: #e9ecef;
-
             border: 1px solid #ddd;
-
         }
 
         .section-title {
-
             font-weight: bold;
-
             font-size: 1.2rem;
-
             margin-bottom: 10px;
-
         }
 
         .btn-state {
-
             width: 100%;
-
             margin: 5px 0;
-
         }
 
         .status-badge {
-
             font-size: 1rem;
-
         }
 
         .current-state {
-
             margin-bottom: 10px;
-
             font-size: 1.1rem;
-
         }
 
     </style>
-
 </head>
-
 <body>
-
     <div class="container mt-5">
-
         <!-- Header Section -->
-
         <div class="header">
-
             Scotty Controller
-
             <span class="header-status">Status: <span id="controller-status" class="badge badge-danger">Off</span></span>
-
         </div>
-
  
 
         <!-- Current State -->
-
         <div class="section current-state">
-
-            Current State: <span id="current-state" class="badge badge-primary status-badge">Idle</span>
-
+            Current State: <span id="current-state" class="badge badge-warning status-badge">Idle</span>
         </div>
-
  
 
         <!-- State Controls Section -->
-
         <div class="section">
-
             <div class="section-title">State Controls</div>
-
             <div class="row">
-
                 <div class="col-md-4">
-
-                    <button class="btn btn-secondary btn-state" id="idle-button" onclick="changeState('Idle')" disabled>Idle</button>
-
+                    <button class="btn btn-secondary btn-state" id="down-button" onclick="changeState('Down')" disabled>Down</button>
                 </div>
                 <div class="col-md-4">
-
-                    <button class="btn btn-secondary btn-state" id="ready-button" onclick="changeState('Ready')" disabled>Ready</button>
-
-                </div>
-
-                <div class="col-md-4">
-
                     <button class="btn btn-secondary btn-state" id="stand-button" onclick="changeState('Stand')" disabled>Stand</button>
-
                 </div>
-
                 <div class="col-md-4">
-
                     <button class="btn btn-secondary btn-state" id="walk-button" onclick="changeState('Walk')" disabled>Walk</button>
-
                 </div>
-
             </div>
-
         </div>
 
  
 
         <!-- Simulation Controls Section -->
-
         <div class="section">
-
             <div class="section-title">Simulation Controls</div>
-
             <div class="row">
-
                 <div class="col-md-6">
-
                     <button class="btn btn-danger btn-state" id="stop-simulation" onclick="stopSimulation()">Stop Simulation</button>
-
                 </div>
-
                 <div class="col-md-6">
-
                     <button class="btn btn-warning btn-state" id="restart-simulation" onclick="restartSimulation()">Restart Simulation</button>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
  
@@ -195,112 +114,83 @@
     <script>
 
         // ROSBridge Connection Setup
-
         let ros = new ROSLIB.Ros({
-
-            url: 'ws://0.0.0.0:9090' // Replace with your ROSBridge server URL
-
+            url: 'ws://0.0.0.0:9090'
         });
 
- 
-
-        // Connection status management
-
+         // Connection status management
         ros.on('connection', function() {
-
             document.getElementById('controller-status').innerText = 'On';
-
             document.getElementById('controller-status').className = 'badge badge-success';
-
-        });
-
- 
+        }); 
 
         ros.on('error', function(error) {
-
             document.getElementById('controller-status').innerText = 'Off';
-
             document.getElementById('controller-status').className = 'badge badge-danger';
-
-        });
-
- 
+        }); 
 
         ros.on('close', function() {
-
             document.getElementById('controller-status').innerText = 'Off';
-
             document.getElementById('controller-status').className = 'badge badge-danger';
-
         });
 
+
         // ROS topic for sending state commands
-
         let changeStateTopic = new ROSLIB.Topic({
-
             ros: ros,
-
-            name: '/scotty_controller/change_state', // Replace with your actual ROS topic name
-
+            name: '/scotty_controller/change_state',
             messageType: 'std_msgs/String'
-
         });
 
  
-
         // ROS topic for sending state commands
-
         let stateTopic = new ROSLIB.Topic({
-
             ros: ros,
-
-            name: '/scotty_controller/state', // Replace with your actual ROS topic name
-
+            name: '/scotty_controller/state',
             messageType: 'std_msgs/String'
-
         });
-
-                 
+                
 
         stateTopic.subscribe(function(message) {
 
             const currentState = message.data;
             document.getElementById('current-state').innerText = currentState;
 
-            // document.getElementById('current-state').className =
-            //         'badge ' + (state === 'Idle' ? 'badge-primary' :
-            //                     state === 'Ready' ? 'badge-primary' :
-            //                     state === 'Stand' ? 'badge-warning' :
-            //                     state === 'Walk' ? 'badge-success' : 'badge-secondary');
+            document.getElementById('current-state').className =
+                    'badge ' + (currentState === 'Idle' ? 'badge-warning' :
+                                currentState === 'Ready' ? 'badge-success' : 'badge-primary');
 
 
             // Enable/Disable buttons based on the current state
-            const idleButton = document.getElementById('idle-button');
-            const readyButton = document.getElementById('ready-button');
+            const downButton = document.getElementById('down-button');
             const standButton = document.getElementById('stand-button');
             const walkButton = document.getElementById('walk-button');
 
             if (currentState === "Idle") {
-                idleButton.disabled = true;
-                standButton.disabled = true;
-                walkButton.disabled = true;
-
-            }else if (currentState === "Ready") {
-                idleButton.disabled = true;
-                standButton.disabled = false;
-                walkButton.disabled = true;
-
-            } else if (currentState === "Stand") {
-                idleButton.disabled = true;
-                standButton.disabled = true;
-                walkButton.disabled = false;
-
-            } else if (currentState === "Walk") {
-                idleButton.disabled = true;
+                downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
             }
-
+            else if (currentState === "Ready") {
+                downButton.disabled = false;
+                standButton.disabled = false;
+                walkButton.disabled = true;
+            } 
+            else if (currentState === "Down") {
+                downButton.disabled = true;
+                standButton.disabled = false;
+                walkButton.disabled = true;
+            } 
+            else if (currentState === "Stand") {
+                downButton.disabled = true;
+                standButton.disabled = true;
+                walkButton.disabled = false;
+            } 
+            else if (currentState === "Walk") {
+                idleButton.disabled = true;
+                standButton.disabled = false;
+                walkButton.disabled = true;
+            }
      });
 
 
@@ -309,7 +199,6 @@
             const message = new ROSLIB.Message({
                 data: state
             });
-
             changeStateTopic.publish(message);
             console.log(`Sent state change request: ${state}`);
         }
@@ -318,23 +207,17 @@
         // Simulation controls
 
         function stopSimulation() {
-
             alert('Stop simulation logic goes here.');
-
         }
 
- 
 
         function restartSimulation() {
-
             alert('Restart simulation logic goes here.');
-
         }
 
     </script>
 
 </body>
-
 </html>
 
 
