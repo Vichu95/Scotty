@@ -63,6 +63,8 @@ class MainController:
             self.start_idle_state()
         elif current_state == "Ready":
             self.start_ready_state()
+        elif current_state == "Down":
+            self.start_down_state()
         elif current_state == "Stand":
             self.start_stand_state()
         elif current_state == "Walk":
@@ -107,11 +109,11 @@ class MainController:
     def start_down_state(self):
         rospy.loginfo("Launching Down state node")
         try:
+            self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
-            stand_process = subprocess.Popen(["rosrun", "scotty_config", "scotty_state_down_controller.py"])
+            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_down_controller.py"])
             stand_process.wait()  # Wait for the Down state process to complete
             rospy.loginfo("Down state completed.")
-            self.state_pub.publish("Down")
 
         except Exception as e:
             rospy.logerr("Failed to launch Down state node: {}".format(e))
@@ -174,6 +176,10 @@ class MainController:
             self.current_state_key = 'Stand'
             self.state_pub.publish("Stand")
             print("\n\nstate stand execuion finishedd for finishing execution")
+        if self.state_exec_status == "Down_Done":
+            self.current_state_key = 'Down'
+            self.state_pub.publish("Down")
+            print("\n\nstate Down execuion finishedd for finishing execution")
         else:
             print("Waiting for finishing execution")
 

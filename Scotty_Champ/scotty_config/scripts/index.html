@@ -166,31 +166,35 @@
             const standButton = document.getElementById('stand-button');
             const walkButton = document.getElementById('walk-button');
 
+            downButton.disabled = false;
+            standButton.disabled = false;
+            walkButton.disabled = false;
+
             if (currentState === "Idle") {
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
             }
-            else if (currentState === "Ready") {
-                downButton.disabled = false;
-                standButton.disabled = false;
-                walkButton.disabled = true;
-            } 
-            else if (currentState === "Down") {
-                downButton.disabled = true;
-                standButton.disabled = false;
-                walkButton.disabled = true;
-            } 
-            else if (currentState === "Stand") {
-                downButton.disabled = true;
-                standButton.disabled = true;
-                walkButton.disabled = false;
-            } 
-            else if (currentState === "Walk") {
-                idleButton.disabled = true;
-                standButton.disabled = false;
-                walkButton.disabled = true;
-            }
+            // else if (currentState === "Ready") {
+            //     downButton.disabled = false;
+            //     standButton.disabled = false;
+            //     walkButton.disabled = true;
+            // } 
+            // else if (currentState === "Down") {
+            //     downButton.disabled = true;
+            //     standButton.disabled = false;
+            //     walkButton.disabled = true;
+            // } 
+            // else if (currentState === "Stand") {
+            //     downButton.disabled = true;
+            //     standButton.disabled = true;
+            //     walkButton.disabled = false;
+            // } 
+            // else if (currentState === "Walk") {
+            //     idleButton.disabled = true;
+            //     standButton.disabled = false;
+            //     walkButton.disabled = true;
+            // }
      });
 
 

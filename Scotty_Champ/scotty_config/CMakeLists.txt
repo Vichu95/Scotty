@@ -10,9 +10,10 @@ catkin_package()
 
 install(PROGRAMS
     scripts/main_controller.py
+    scripts/scotty_controller_manager.py
     scripts/state_idle_startup.py
     scripts/stand_controller.py
     scripts/state_walk.py    
-    scripts/controller_backend.py
+    scripts/state_down_controller.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
