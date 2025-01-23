@@ -8,8 +8,7 @@ import webbrowser
 import rospkg
 
 ## STATE MACHINE
-scotty_states = 
-{
+scotty_states = {
     "Idle"  : "Idle",
     "Ready" : "Ready",
     "Down"  : "Down",
@@ -18,8 +17,7 @@ scotty_states =
     "Busy"  : "Busy"
 }
 
-valid_transitions = 
-{
+valid_transitions = {
     scotty_states["Idle"]   : [scotty_states["Ready"]],
     scotty_states["Ready"]  : [scotty_states["Down"], scotty_states["Stand"]],
     scotty_states["Down"]   : [scotty_states["Stand"]],
@@ -41,12 +39,14 @@ class MainController:
         webbrowser.open(package_path + "/scripts/index.html")
 
         self.current_state_key = 'Idle'
+        self.state_exec_status = 'Wait'
 
         # Publisher to broadcast current state
         self.state_pub = rospy.Publisher("/scotty_controller/state", String, queue_size=10)
 
         # Subscribe to state change command
         self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
+        self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
         # Start the initial state
         self.start_current_state()
@@ -68,7 +68,8 @@ class MainController:
         elif current_state == "Walk":
             self.start_walk_state()
         elif current_state == "Busy":
-            # Do nothing
+            # self.start_busy_wait()
+            i =0
         else:
             rospy.logwarn("Unknown state requested: {}".format(current_state))
 
@@ -106,9 +107,11 @@ class MainController:
     def start_down_state(self):
         rospy.loginfo("Launching Down state node")
         try:
+            self.state_pub.publish("Busy")
             stand_process = subprocess.Popen(["rosrun", "scotty_config", "scotty_state_down_controller.py"])
             stand_process.wait()  # Wait for the Down state process to complete
             rospy.loginfo("Down state completed.")
+            self.state_pub.publish("Down")
 
         except Exception as e:
             rospy.logerr("Failed to launch Down state node: {}".format(e))
@@ -120,6 +123,8 @@ class MainController:
     def start_stand_state(self):
         rospy.loginfo("Launching Stand state node")
         try:
+            self.current_state_key = 'Busy'
+            self.state_pub.publish("Busy")
             stand_process = subprocess.Popen(["rosrun", "scotty_config", "stand_controller.py"])
             stand_process.wait()  # Wait for the Stand state process to complete
             rospy.loginfo("Stand state completed.")
@@ -152,18 +157,25 @@ class MainController:
 
         rospy.loginfo("\n\nRECEIVED")
 
-        valid_transitions = {
-            "Ready"  : "Stand",
-            "Stand"  : "Walk" ,
-
-        }
-
-        if check_valid_transition(current_state, desired_state):
+        if self.check_valid_transition(current_state, desired_state):
             rospy.loginfo("Transitioning from {} to {}.".format(current_state,desired_state))
             self.current_state_key = desired_state
             self.start_current_state()
         else:
             rospy.loginfo("Invalid state transition. Request ignored.")
+
+    ## This callback stores the information about the status of state execution
+    def state_execution_status_callback(self, msg):
+        status_recevied = msg.data        
+        self.state_exec_status = status_recevied
+        rospy.loginfo("\n\nRECEIVED stateeuss exection {}".format(status_recevied))
+
+        if self.state_exec_status == "Stand_Done":
+            self.current_state_key = 'Stand'
+            self.state_pub.publish("Stand")
+            print("\n\nstate stand execuion finishedd for finishing execution")
+        else:
+            print("Waiting for finishing execution")
 
 
 if __name__ == "__main__":

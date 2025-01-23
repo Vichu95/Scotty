@@ -3,6 +3,7 @@
 import rospy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from controller_manager_msgs.srv import LoadController, SwitchController
+from std_msgs.msg import String
 
 class StandController:
     def __init__(self):
@@ -17,6 +18,10 @@ class StandController:
 
         # Publisher for joint group position controller
         self.joint_pub = rospy.Publisher("/joint_group_position_controller/command", JointTrajectory, queue_size=10)
+        
+
+        # Publisher for indicating state change is finished
+        self.state_change_pub = rospy.Publisher("/scotty_controller/state_execution_status", String, queue_size=10)
         
         rospy.loginfo("StandController initialized.")
 
@@ -92,6 +97,9 @@ class StandController:
         rospy.loginfo("Publishing trajectory message for stand-up position...")
         self.joint_pub.publish(traj_msg)
         rospy.sleep(3)  # Allow time for the robot to complete the motion
+
+        self.state_change_pub.publish("Stand_Done")
+        rospy.loginfo("Completed stand-up position...")
 
 if __name__ == "__main__":
     try:
