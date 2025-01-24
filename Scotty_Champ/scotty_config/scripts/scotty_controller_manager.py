@@ -78,3 +78,21 @@ class ScottyControllerManager:
         except rospy.ServiceException as e:
             rospy.logerr("Service call failed: {}".format(e))
             return False
+
+    def stop_controller(self, controller_name):
+        try:
+            rospy.loginfo("Stopping {}...".format(controller_name))
+            switch_response = self.switch_controller_srv(
+                start_controllers=[],
+                stop_controllers=[controller_name],
+                strictness=2
+            )
+            if switch_response.ok:
+                rospy.loginfo("{} stopped successfully.".format(controller_name))
+                return True
+            else:
+                rospy.logerr("Failed to stop {}.".format(controller_name))
+                return False
+        except rospy.ServiceException as e:
+            rospy.logerr("Service call failed: {}".format(e))
+            return False
