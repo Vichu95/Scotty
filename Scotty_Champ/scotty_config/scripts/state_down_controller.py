@@ -43,10 +43,10 @@ class DownController:
 
 
         joint_positions = [
-            0.0, 1.04, -2.18,  # Front Left
-            0.0, 1.04, -2.18, # Front Right
-            0.0, 1.04, -2.18,  # Rear Left
-            0.0, 1.04, -2.18   # Rear Right
+            0.2, 1.04, -2.18,  # Front Left
+           -0.2, 1.04, -2.18, # Front Right
+            0.2, 1.04, -2.18,  # Rear Left
+           -0.2, 1.04, -2.18   # Rear Right
         ]
 
         # Create and publish the trajectory message
