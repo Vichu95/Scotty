@@ -9,22 +9,23 @@ import rospkg
 
 ## STATE MACHINE
 scotty_states = {
-    "Idle"  : "Idle",
-    "Ready" : "Ready",
-    "Down"  : "Down",
-    "Stand" : "Stand",
-    "Walk"  : "Walk",
-    "Busy"  : "Busy"
+    "Idle"      : "Idle",
+    "Ready"     : "Ready",
+    "Down"      : "Down",
+    "Stand"     : "Stand",
+    "Walk"      : "Walk",
+    "Busy"      : "Busy",
+    "Shutdown"  : "Shutdown"
 }
 
 valid_transitions = {
-    scotty_states["Idle"]   : [scotty_states["Ready"]],
-    scotty_states["Ready"]  : [scotty_states["Down"], scotty_states["Stand"]],
-    scotty_states["Down"]   : [scotty_states["Stand"]],
-    scotty_states["Stand"]  : [scotty_states["Down"], scotty_states["Walk"]],
-    scotty_states["Walk"]   : [scotty_states["Stand"]],
-    scotty_states["Busy"]   : [scotty_states["Idle"], scotty_states["Ready"], scotty_states["Down"], scotty_states["Stand"], scotty_states["Walk"]]
-
+    scotty_states["Idle"]       : [scotty_states["Ready"], scotty_states["Shutdown"]],
+    scotty_states["Ready"]      : [scotty_states["Down"], scotty_states["Stand"], scotty_states["Shutdown"]],
+    scotty_states["Down"]       : [scotty_states["Stand"], scotty_states["Shutdown"]],
+    scotty_states["Stand"]      : [scotty_states["Down"], scotty_states["Walk"], scotty_states["Shutdown"]],
+    scotty_states["Walk"]       : [scotty_states["Stand"], scotty_states["Shutdown"]],
+    scotty_states["Busy"]       : [scotty_states["Idle"], scotty_states["Ready"], scotty_states["Down"], scotty_states["Stand"], scotty_states["Walk"]],
+    scotty_states["Shutdown"]   : [scotty_states["Idle"]]
 }
 
 
@@ -69,6 +70,8 @@ class MainController:
             self.start_stand_state()
         elif current_state == "Walk":
             self.start_walk_state()
+        elif current_state == "Shutdown":
+            self.start_shutdown_state()
         elif current_state == "Busy":
             # self.start_busy_wait()
             i =0
@@ -149,6 +152,22 @@ class MainController:
             rospy.logerr("Failed to launch Walk state node: {}".format(e))
 
 
+    ##############
+    #   S H U T D O W N 
+    ##############
+    def start_shutdown_state(self):
+        rospy.loginfo("Launching Shutdown state node")
+        try:
+            self.current_state_key = 'Busy'
+            self.state_pub.publish("Busy")
+            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_shutdown_controller.py"])
+            stand_process.wait()  # Wait for the Shutdown state process to complete
+            rospy.loginfo("Shutdown state completed.")
+
+        except Exception as e:
+            rospy.logerr("Failed to launch Shutdown state node: {}".format(e))
+
+
     def check_valid_transition(self, _current_state, _next_state):
         return _next_state in valid_transitions.get(_current_state, [])
 
@@ -176,13 +195,17 @@ class MainController:
             self.current_state_key = 'Stand'
             self.state_pub.publish("Stand")
             print("\n\nstate stand execuion finishedd for finishing execution")
-        if self.state_exec_status == "Down_Done":
+        elif self.state_exec_status == "Down_Done":
             self.current_state_key = 'Down'
             self.state_pub.publish("Down")
             print("\n\nstate Down execuion finishedd for finishing execution")
+        elif self.state_exec_status == "Shutdown_Done":
+            self.current_state_key = 'Shutdown'
+            self.state_pub.publish("Shutdown")
+
+            print("\n\nstate Shutdown execuion finishedd for finishing execution")
         else:
             print("Waiting for finishing execution")
-
 
 if __name__ == "__main__":
     try:

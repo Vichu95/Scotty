@@ -100,10 +100,10 @@
             <div class="section-title">Simulation Controls</div>
             <div class="row">
                 <div class="col-md-6">
-                    <button class="btn btn-danger btn-state" id="stop-simulation" onclick="stopSimulation()">Stop Simulation</button>
+                    <button class="btn btn-danger btn-state" id="shutdown-scotty" onclick="changeState('Shutdown')">Shutdown</button>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-warning btn-state" id="restart-simulation" onclick="restartSimulation()">Restart Simulation</button>
+                    <button class="btn btn-warning btn-state" id="reset-simulation" onclick="restartSimulation()">Restart Simulation</button>
                 </div>
             </div>
         </div>
@@ -166,11 +166,12 @@
             const downButton = document.getElementById('down-button');
             const standButton = document.getElementById('stand-button');
             const walkButton = document.getElementById('walk-button');
+            const shutdownButton = document.getElementById('shutdown-scotty');
 
 
             if (currentState === "Idle") {
                 downButton.disabled = true;
-                standButton.disabled = false;
+                standButton.disabled = true;
                 walkButton.disabled = true;
             }
             else if (currentState === "Busy") {
@@ -197,7 +198,13 @@
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
-            }            
+            }
+            else if (currentState === "Shutdown") {
+                downButton.disabled = true;
+                standButton.disabled = true;
+                walkButton.disabled = true;
+                shutdownButton.disabled = true;
+            }           
      });
 
 
@@ -212,14 +219,17 @@
 
 
         // Simulation controls
-
-        function stopSimulation() {
-            alert('Stop simulation logic goes here.');
-        }
-
-
         function restartSimulation() {
             alert('Restart simulation logic goes here.');
+        }
+
+        // Disable all buttons
+        function disableGUI() {
+            document.getElementById('down-button').disabled = true;
+            document.getElementById('stand-button').disabled = true;
+            document.getElementById('walk-button').disabled = true;
+            document.getElementById('shutdown-scotty').disabled = true;
+            document.getElementById('reset-simulation').disabled = true;
         }
 
     </script>
