@@ -204,6 +204,9 @@ class MainController:
             self.state_pub.publish("Shutdown")
 
             print("\n\nstate Shutdown execuion finishedd for finishing execution")
+            # Stop the ROS nodes cleanly
+            rospy.signal_shutdown("Shutting down all nodes...")
+    
         else:
             print("Waiting for finishing execution")
 

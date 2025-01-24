@@ -41,7 +41,7 @@
     
 
     <!-- Main Python Controller -->
-    <node name="scotty_main_controller" pkg="scotty_config" type="main_controller.py" output="screen" />
+    <node name="scotty_main_controller" pkg="scotty_config" type="main_controller.py" output="screen" required="true" />
 
 
 </launch>
