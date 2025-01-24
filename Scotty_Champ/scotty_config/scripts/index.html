@@ -127,11 +127,13 @@
         ros.on('error', function(error) {
             document.getElementById('controller-status').innerText = 'Off';
             document.getElementById('controller-status').className = 'badge badge-danger';
+            disableGUI();
         }); 
 
         ros.on('close', function() {
             document.getElementById('controller-status').innerText = 'Off';
             document.getElementById('controller-status').className = 'badge badge-danger';
+            disableGUI();
         });
 
 
