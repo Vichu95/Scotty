@@ -6,9 +6,9 @@ from controller_manager_msgs.srv import ListControllers, LoadController, SwitchC
 class ScottyControllerManager:
     def __init__(self):
         # Initialize the services for controller management
-        rospy.wait_for_service("/controller_manager/list_controllers")
-        rospy.wait_for_service("/controller_manager/load_controller")
-        rospy.wait_for_service("/controller_manager/switch_controller")
+        rospy.wait_for_service("/controller_manager/list_controllers", timeout=10)
+        rospy.wait_for_service("/controller_manager/load_controller", timeout=10)
+        rospy.wait_for_service("/controller_manager/switch_controller", timeout=10)
         
         self.list_controllers_srv = rospy.ServiceProxy("/controller_manager/list_controllers", ListControllers)
         self.load_controller_srv = rospy.ServiceProxy("/controller_manager/load_controller", LoadController)
