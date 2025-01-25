@@ -328,6 +328,16 @@
             newMessage.textContent = message.data;
             newMessage.className = 'console-line';
 
+            if(/is/.test(message.data)){
+                newMessage.style.color = 'red';
+            } 
+            else if(/stand/.test(message.data)){
+                newMessage.style.color = 'yellow';
+            } 
+            else {
+                newMessage.style.color = 'white';
+            } 
+
             // Add the new message to the console
             consoleDiv.appendChild(newMessage);
 
