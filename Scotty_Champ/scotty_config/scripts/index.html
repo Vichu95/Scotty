@@ -251,49 +251,64 @@
             const standButton = document.getElementById('stand-button');
             const walkButton = document.getElementById('walk-button');
             const shutdownButton = document.getElementById('shutdown-scotty');
+const resetSimButton = document.getElementById('reset-simulation');
 
 
             if (currentState === "Idle") {
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
+shutdownButton.disabled = true;
+                resetSimButton.disabled = true;
             }
             else if (currentState === "Busy") {
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
+shutdownButton.disabled = true;
+                resetSimButton.disabled = true;
             }
             else if (currentState === "Ready") {
                 downButton.disabled = false;
                 standButton.disabled = false;
                 walkButton.disabled = true;
+shutdownButton.disabled = false;
+                resetSimButton.disabled = false;
             }
             else if (currentState === "Down") {
                 downButton.disabled = true;
                 standButton.disabled = false;
                 walkButton.disabled = true;
+shutdownButton.disabled = false;
+                resetSimButton.disabled = false;
             }
             else if (currentState === "Stand") {
                 downButton.disabled = false;
                 standButton.disabled = true;
                 walkButton.disabled = false;
+shutdownButton.disabled = false;
+                resetSimButton.disabled = false;
             }
             else if (currentState === "Walk") {
                 downButton.disabled = true;
-                standButton.disabled = true;
+                standButton.disabled = false;
                 walkButton.disabled = true;
+shutdownButton.disabled = false;
+                resetSimButton.disabled = false;
             }
             else if (currentState === "Shutdown") {
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
                 shutdownButton.disabled = true;
+resetSimButton.disabled = true;
             }
             else if (currentState === "Reset") {
                 downButton.disabled = true;
                 standButton.disabled = true;
                 walkButton.disabled = true;
                 shutdownButton.disabled = true;
+resetSimButton.disabled = false;
             }           
         });
 
