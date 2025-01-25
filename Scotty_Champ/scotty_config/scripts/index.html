@@ -16,7 +16,7 @@
 
         .container {
             background: rgb(255, 255, 255);
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             border: 1px solid #000000;
@@ -365,11 +365,14 @@
             newMessage.textContent = message.data;
             newMessage.className = 'console-line';
 
-            if(/is/.test(message.data)){
+            if(/ERROR/.test(message.data)){
                 newMessage.style.color = 'red';
             } 
-            else if(/stand/.test(message.data)){
+            else if(/WARNING/.test(message.data)){
                 newMessage.style.color = 'yellow';
+            } 
+else if(/SUCCESS/.test(message.data)){
+                newMessage.style.color = 'green';
             } 
             else {
                 newMessage.style.color = 'white';
@@ -393,6 +396,19 @@
             const newMessage = document.createElement('p');
             newMessage.textContent = text;
             newMessage.className = 'console-line';
+
+            if(/ERROR/.test(text)){
+                newMessage.style.color = 'red';
+            } 
+            else if(/WARNING/.test(text)){
+                newMessage.style.color = 'yellow';
+            } 
+            else if(/SUCCESS/.test(text)){
+                newMessage.style.color = 'green';
+            } 
+            else {
+                newMessage.style.color = 'white';
+            } 
 
             // Add the new message to the console
             consoleDiv.appendChild(newMessage);
