@@ -7,7 +7,7 @@ Script Name : scotty_main_controller.py
 Author      : Vishnudev Kurumbaparambil
 Organization: Hochschule Anhalt
 Description : The main script that controlls the states of the robot
-Usage       : These scripts are run from the scotty_controller.launch
+Usage       : These scripts are run from the scotty_main_controller.launch
 """
 
 import rospy
@@ -50,7 +50,7 @@ class MainController:
 
         ## Open the GUI
         rospack = rospkg.RosPack()
-        package_path = rospack.get_path("scotty_config")
+        package_path = rospack.get_path("scotty_controller")
         webbrowser.open(package_path + "/scripts/index.html")
 
         self.current_state_key = 'Idle'
@@ -113,7 +113,7 @@ class MainController:
     def start_idle_state(self):
         rospy.loginfo("Launching Idle state node...")
         try:
-            idle_process = subprocess.Popen(["rosrun", "scotty_config", "state_idle_startup.py"])
+            idle_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py"])
             idle_process.wait()  # Wait for the Idle state process to complete
             rospy.loginfo("Completed Idle State.")
             self.console_log_pub.publish("INFO    : Completed execution of Idle state")
@@ -148,7 +148,7 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            down_process = subprocess.Popen(["rosrun", "scotty_config", "state_down_controller.py"])
+            down_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_down.py"])
             down_process.wait()  # Wait for the Down state process to complete
 
         except Exception as e:
@@ -165,7 +165,7 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            stand_process = subprocess.Popen(["rosrun", "scotty_config", "stand_controller.py"])
+            stand_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_stand.py"])
             stand_process.wait()  # Wait for the Stand state process to complete
             rospy.loginfo("Stand node wait finished")
 
@@ -180,7 +180,7 @@ class MainController:
     def start_walk_state(self):
         rospy.loginfo("Launching Walk state node...")
         try:
-            walk_process = subprocess.Popen(["rosrun", "scotty_config", "state_walk.py"])
+            walk_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_walk.py"])
             walk_process.wait()  # Wait for the Walk state process to complete
             rospy.loginfo("Completed Walk State.")
             self.console_log_pub.publish("SUCCESS : Completed execution of Walk state")
@@ -220,7 +220,7 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            shutdown_process = subprocess.Popen(["rosrun", "scotty_config", "state_shutdown_controller.py"])
+            shutdown_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_shutdown.py"])
             shutdown_process.wait()  # Wait for the Shutdown state process to complete
 
         except Exception as e:
@@ -234,7 +234,7 @@ class MainController:
     def start_reset_state(self):
         rospy.loginfo("Launching Reset state node...")
         try:
-            reset_process = subprocess.Popen(["rosrun", "scotty_config", "state_idle_startup.py"])
+            reset_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py"])
             reset_process.wait()  # Wait for the Idle state process to complete
             rospy.loginfo("Completed Reset State.")
             self.console_log_pub.publish("INFO    : Completed resetting")

@@ -12,6 +12,21 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+
+catkin_package()
+
+install(PROGRAMS
+    scripts/scotty_main_controller.py
+    scripts/state_controllers/scotty_controller_manager.py
+    scripts/state_controllers/scotty_state_idle.py
+    scripts/state_controllers/scotty_state_stand.py
+    scripts/state_controllers/scotty_state_down.py    
+    scripts/state_controllers/scotty_state_walk.py
+    scripts/state_controllers/scotty_state_shutdown.py
+    scripts/scotty_emergency_stop.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 

@@ -15,12 +15,12 @@
     <rosparam file="$(arg ros_control_file)" command="load"/>
 
     <!-- Emergency Stop Node -->
-    <node pkg="scotty_config" type="emergency_stop.py" name="emergency_stop" output="screen" />
+    <node pkg="scotty_controller" type="scotty_emergency_stop.py" name="scotty_emergency_stop" output="screen" />
 
     <!-- ROS Bridge Server -->
     <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
     
     <!-- Main Python Controller -->
-    <node name="scotty_main_controller" pkg="scotty_config" type="main_controller.py" output="screen" required="true" />
+    <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true" />
     
 </launch>
