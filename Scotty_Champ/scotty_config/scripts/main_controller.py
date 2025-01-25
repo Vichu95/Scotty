@@ -43,6 +43,7 @@ class MainController:
 
         self.current_state_key = 'Idle'
         self.state_exec_status = 'Wait'
+        self.state_already_processed = False
 
         # Publisher to broadcast current state
         self.state_pub = rospy.Publisher("/scotty_controller/state", String, queue_size=10)
@@ -64,25 +65,27 @@ class MainController:
         self.state_pub.publish(current_state)
         self.console_log_pub.publish(current_state)
 
-        if current_state == "Idle":
-            self.start_idle_state()
-        elif current_state == "Ready":
-            self.start_ready_state()
-        elif current_state == "Down":
-            self.start_down_state()
-        elif current_state == "Stand":
-            self.start_stand_state()
-        elif current_state == "Walk":
-            self.start_walk_state()
-        elif current_state == "Shutdown":
-            self.start_shutdown_state()
-        elif current_state == "Reset":
-            self.start_reset_state()
-        elif current_state == "Busy":
-            # self.start_busy_wait()
-            i =0
+        if(not self.state_already_processed):
+            if current_state == "Idle":
+                self.start_idle_state()
+            elif current_state == "Ready":
+                self.start_ready_state()
+            elif current_state == "Down":
+                self.start_down_state()
+            elif current_state == "Stand":
+                self.start_stand_state()
+            elif current_state == "Walk":
+                self.start_walk_state()
+            elif current_state == "Shutdown":
+                self.start_shutdown_state()
+            elif current_state == "Reset":
+                self.start_reset_state()
+            elif current_state == "Busy":
+                i = 0 # Do nothing
+            else:
+                rospy.logwarn("Unknown state requested: {}".format(current_state))
         else:
-            rospy.logwarn("Unknown state requested: {}".format(current_state))
+            rospy.loginfo("State is already processed")
 
     ###########
     #  I D L E 
@@ -230,6 +233,7 @@ class MainController:
         current_state = scotty_states[self.current_state_key ]
 
         rospy.loginfo("\n\nRECEIVED")
+        self.state_already_processed = False
 
         if self.check_valid_transition(current_state, desired_state):
             rospy.loginfo("Transitioning from {} to {}.".format(current_state,desired_state))
@@ -248,6 +252,8 @@ class MainController:
         status_recevied = msg.data        
         self.state_exec_status = status_recevied
         rospy.loginfo("\n\nRECEIVED stateeuss exection {}".format(status_recevied))
+
+        self.state_already_processed = True
 
         if self.state_exec_status == "Stand_Done":
             self.current_state_key = 'Stand'
