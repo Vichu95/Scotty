@@ -15,17 +15,19 @@ scotty_states = {
     "Stand"     : "Stand",
     "Walk"      : "Walk",
     "Busy"      : "Busy",
-    "Shutdown"  : "Shutdown"
+    "Shutdown"  : "Shutdown",
+    "Reset"     : "Reset"
 }
 
 valid_transitions = {
-    scotty_states["Idle"]       : [scotty_states["Ready"], scotty_states["Shutdown"]],
-    scotty_states["Ready"]      : [scotty_states["Down"], scotty_states["Stand"], scotty_states["Shutdown"]],
-    scotty_states["Down"]       : [scotty_states["Stand"], scotty_states["Shutdown"]],
-    scotty_states["Stand"]      : [scotty_states["Down"], scotty_states["Walk"], scotty_states["Shutdown"]],
-    scotty_states["Walk"]       : [scotty_states["Stand"], scotty_states["Shutdown"]],
+    scotty_states["Idle"]       : [scotty_states["Ready"], scotty_states["Shutdown"], scotty_states["Reset"]], 
+    scotty_states["Ready"]      : [scotty_states["Down"], scotty_states["Stand"], scotty_states["Shutdown"], scotty_states["Reset"]],
+    scotty_states["Down"]       : [scotty_states["Stand"], scotty_states["Shutdown"], scotty_states["Reset"]],
+    scotty_states["Stand"]      : [scotty_states["Down"], scotty_states["Walk"], scotty_states["Shutdown"], scotty_states["Reset"]],
+    scotty_states["Walk"]       : [scotty_states["Stand"], scotty_states["Shutdown"], scotty_states["Reset"]],
     scotty_states["Busy"]       : [scotty_states["Idle"], scotty_states["Ready"], scotty_states["Down"], scotty_states["Stand"], scotty_states["Walk"]],
-    scotty_states["Shutdown"]   : [scotty_states["Idle"]]
+    scotty_states["Shutdown"]   : [scotty_states["Idle"]],
+    scotty_states["Reset"]      : [scotty_states["Idle"], scotty_states["Ready"]]
 }
 
 
@@ -72,6 +74,8 @@ class MainController:
             self.start_walk_state()
         elif current_state == "Shutdown":
             self.start_shutdown_state()
+        elif current_state == "Reset":
+            self.start_reset_state()
         elif current_state == "Busy":
             # self.start_busy_wait()
             i =0
@@ -166,6 +170,33 @@ class MainController:
 
         except Exception as e:
             rospy.logerr("Failed to launch Shutdown state node: {}".format(e))
+
+
+    ##############
+    #   R E S E T 
+    ##############
+    def start_reset_state(self):
+        rospy.loginfo("Launching Reset state node...")
+        try:
+            reset_process = subprocess.Popen(["rosrun", "scotty_config", "state_idle_startup.py"])
+            reset_process.wait()  # Wait for the Idle state process to complete
+            rospy.loginfo("Reset state completed.")
+
+            ## Going to ready state automatically in 3s
+            rospy.sleep(3)
+            # Subscribe to state change command
+
+            print("\n\nRegistering agian")
+            self.state_change_sub.unregister()
+            self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
+            self.state_exec_status_sub.unregister()
+            self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
+
+            self.current_state_key = 'Ready'
+            self.start_current_state()
+
+        except Exception as e:
+            rospy.logerr("Failed to launch Reset state node: {}".format(e))
 
 
     def check_valid_transition(self, _current_state, _next_state):

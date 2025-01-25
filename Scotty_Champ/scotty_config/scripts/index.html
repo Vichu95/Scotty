@@ -103,7 +103,7 @@
                     <button class="btn btn-danger btn-state" id="shutdown-scotty" onclick="changeState('Shutdown')">Shutdown</button>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-warning btn-state" id="reset-simulation" onclick="restartSimulation()">Restart Simulation</button>
+                    <button class="btn btn-warning btn-state" id="reset-simulation" onclick="changeState('Reset')">Restart Simulation</button>
                 </div>
             </div>
         </div>
@@ -206,6 +206,12 @@
                 standButton.disabled = true;
                 walkButton.disabled = true;
                 shutdownButton.disabled = true;
+            }
+            else if (currentState === "Reset") {
+                downButton.disabled = true;
+                standButton.disabled = true;
+                walkButton.disabled = true;
+                shutdownButton.disabled = true;
             }           
      });
 
@@ -219,11 +225,6 @@
             console.log(`Sent state change request: ${state}`);
         }
 
-
-        // Simulation controls
-        function restartSimulation() {
-            alert('Restart simulation logic goes here.');
-        }
 
         // Disable all buttons
         function disableGUI() {

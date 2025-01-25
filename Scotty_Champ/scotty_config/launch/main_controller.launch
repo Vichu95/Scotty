@@ -24,7 +24,7 @@
     <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model $(arg robot_name)" /> -->
   
   <!-- Spawn Robot -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" output="screen" />
+    <!-- <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" output="screen" /> -->
 
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro $(arg urdf_file)" />
