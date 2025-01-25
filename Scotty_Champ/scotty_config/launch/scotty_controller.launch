@@ -1,9 +1,0 @@
-<launch>
-    <arg name="robot_name" default="scotty_robot" />
- 
-    <!-- Launch rosbridge_server -->
-    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
- 
-    <!-- Launch backend controller -->
-    <node pkg="scotty_config" type="controller_backend.py" name="controller_backend" output="screen" />
-</launch>
