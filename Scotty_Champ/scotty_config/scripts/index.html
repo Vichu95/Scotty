@@ -166,6 +166,11 @@
                     <button class="btn btn-warning btn-state" id="reset-simulation" onclick="changeState('Reset')">Restart Simulation</button>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-danger btn-state btn-lg" id="emergency-scotty" onclick="emergencyStopFunc()">Emergency Stop</button>
+                </div>
+            </div>
         </div>
 
 
@@ -206,6 +211,13 @@
             disableGUI();
         });
 
+
+        // ROS topic for emergency command
+        let emergencyStopTopic = new ROSLIB.Topic({
+            ros: ros,
+            name: '/scotty_controller/emergency_stop',
+            messageType: 'std_msgs/Bool'
+        });
 
         // ROS topic for sending state commands
         let changeStateTopic = new ROSLIB.Topic({
@@ -295,6 +307,14 @@
             console.log(`Sent state change request: ${state}`);
         }
 
+        function emergencyStopFunc() {
+            const message = new ROSLIB.Message({
+                data: true
+            });
+            emergencyStopTopic.publish(message);
+            addToConsoleLog(`Emergency stop request`);
+        }
+
 
         // Disable all buttons
         function disableGUI() {
@@ -350,6 +370,20 @@
         // Clear Console
         function clearConsole() {
             consoleDiv.innerHTML = '';
+        }
+
+        function addToConsoleLog(text){
+            const newMessage = document.createElement('p');
+            newMessage.textContent = text;
+            newMessage.className = 'console-line';
+
+            // Add the new message to the console
+            consoleDiv.appendChild(newMessage);
+            
+            // Scroll to the bottom only if the user is at the bottom
+            if (isUserAtBottom) {
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
         }
     </script>
 

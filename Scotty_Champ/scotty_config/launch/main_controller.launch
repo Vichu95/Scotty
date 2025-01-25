@@ -35,6 +35,9 @@
     </node> -->
 
 
+    <!-- Emergency Stop Node -->
+    <node pkg="scotty_config" type="emergency_stop.py" name="emergency_stop" output="screen" />
+
 
     <!-- ROS Bridge Server -->
     <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
