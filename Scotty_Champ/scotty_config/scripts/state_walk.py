@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : scotty_state_walk.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : Handles the state Walk
+Usage       : These scripts are run from the scotty_controller.launch
+Logic       : Calls the champ bring up and champ takes over the walking
+"""
+
 import rospy
 import subprocess
+from std_msgs.msg import String
 
 class WalkController:
     def __init__(self):
-        rospy.init_node('walk_controller', anonymous=True)
-        rospy.loginfo("Walk Controller initialized.")
+        rospy.init_node('scotty_state_controller_walk', anonymous=True)
+        rospy.loginfo("WalkController : Initialized.")
+
+        # Publisher to broadcast logs to the GUI console
+        self.console_log_pub = rospy.Publisher("/scotty_controller/console_log", String, queue_size=10)
 
     def start_champ_controller(self):
-        rospy.loginfo("Starting CHAMP controller via launch file.")
+        rospy.loginfo("WalkController : Starting CHAMP controller via bringup.launch")
         # Replace 'path_to_champ_controller.launch' with the correct path
         subprocess.Popen(["roslaunch", "scotty_config", "bringup.launch"])
-        rospy.loginfo("CHAMP controller started. Ready for teleop.")
+        rospy.loginfo("WalkController : CHAMP controller started. Ready for teleop.")
+        self.console_log_pub.publish("INFO    : Use teleop for moving the robot")
 
 if __name__ == '__main__':
     try:

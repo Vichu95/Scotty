@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : scotty_state_shutdown.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : Handles the state Shutdown
+Usage       : These scripts are run from the scotty_controller.launch
+Logic       : The script starts by going to the idle position and then 
+              killing the gazebo and other nodes.
+"""
+
 import rospy
 from scotty_controller_manager import ScottyControllerManager
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -8,7 +20,7 @@ from std_msgs.msg import String
 
 class ShutdownController:
     def __init__(self):
-        rospy.init_node("shutdown_controller", anonymous=True)
+        rospy.init_node("scotty_state_controller_shutdown", anonymous=True)
         
         # Publisher for joint group position controller
         self.controller_manager = ScottyControllerManager()
@@ -17,13 +29,18 @@ class ShutdownController:
         # Publisher for indicating state change is finished
         self.state_execution_status_pub = rospy.Publisher("/scotty_controller/state_execution_status", String, queue_size=10)
         
-        rospy.loginfo("ShutdownController initialized.")
+        # Publisher to broadcast logs to the GUI console
+        self.console_log_pub = rospy.Publisher("/scotty_controller/console_log", String, queue_size=10)
 
+        rospy.loginfo("ShutdownController : Initialized.")
+
+    ##############
+    #   Going to idle pose, so that robot does not collapse from a height
+    ##############
     def shutdown(self):
-
         # Load and start the controller
         if not self.controller_manager.load_and_start_controller("joint_group_position_controller"):
-            rospy.logerr("Failed to load and start the controller.")
+            rospy.logerr("ShutdownController : Failed to load and start the controller.")
             return
 
         # Define the joint names and desired positions for the shutdown pose
@@ -47,44 +64,46 @@ class ShutdownController:
 
         point = JointTrajectoryPoint()
         point.positions = joint_positions
-        point.time_from_start = rospy.Duration(2.0)  # Smooth transition over 3 seconds
+        point.time_from_start = rospy.Duration(2.0)  # Smooth transition over 2 seconds
 
         traj_msg.points = [point]
 
         # Publish the trajectory message
         rospy.sleep(1)
-        rospy.loginfo("Publishing trajectory message for shutdown position...")
+        rospy.loginfo("ShutdownController : Publishing trajectory message")
+        self.console_log_pub.publish("INFO    : Publishing trajectory message")
+        self.console_log_pub.publish("INFO    : Going to idle position")
         self.joint_pub.publish(traj_msg)
         rospy.sleep(3)  # Allow time for the robot to complete the motion
 
 
         # Stop the controller
         if not self.controller_manager.stop_controller("joint_group_position_controller"):
-            rospy.logerr("Failed to stop the controller.")
+            rospy.logerr("ShutdownController : Failed to stop the controller.")
 
         self.shutdown_gazebo()
 
-        self.state_execution_status_pub.publish("Shutdown_Done")
-        rospy.loginfo("Completed shutdown position...")
+        self.state_execution_status_pub.publish("Shutdown_Pose_Done")
+        rospy.loginfo("ShutdownController : Completed shutdown position...")
 
     def shutdown_gazebo(self):
-        """Shuts down Gazebo by killing gzserver and gzclient processes."""
+        # Shuts down Gazebo by killing gzserver and gzclient processes
         try:
             # Check and kill gzserver
             gzserver_running = subprocess.call(["pgrep", "-f", "gzserver"])
             if gzserver_running == 0:
                 subprocess.call(["pkill", "-f", "gzserver"])
-                rospy.loginfo("Successfully terminated gzserver.")
+                rospy.loginfo("ShutdownController : Successfully terminated gzserver.")
             else:
-                rospy.logwarn("gzserver not running.")
+                rospy.logwarn("ShutdownController : gzserver not running.")
 
             # Check and kill gzclient
             gzclient_running = subprocess.call(["pgrep", "-f", "gzclient"])
             if gzclient_running == 0:
                 subprocess.call(["pkill", "-f", "gzclient"])
-                rospy.loginfo("Successfully terminated gzclient.")
+                rospy.loginfo("ShutdownController : Successfully terminated gzclient.")
             else:
-                rospy.logwarn("gzclient not running.")
+                rospy.logwarn("ShutdownController : gzclient not running.")
 
             # Give processes time to terminate
             time.sleep(2)
@@ -93,11 +112,11 @@ class ShutdownController:
             gzserver_running = subprocess.call(["pgrep", "-f", "gzserver"])
             gzclient_running = subprocess.call(["pgrep", "-f", "gzclient"])
             if gzserver_running != 0 and gzclient_running != 0:
-                rospy.loginfo("Gazebo completely shut down.")
+                rospy.loginfo("ShutdownController : Gazebo completely shut down.")
             else:
-                rospy.logerr("Failed to completely terminate Gazebo processes.")
+                rospy.logerr("ShutdownController : Failed to completely terminate Gazebo processes.")
         except Exception as e:
-            rospy.logerr("Error shutting down Gazebo: {}".format(e))
+            rospy.logerr("ShutdownController : Error shutting down Gazebo: {}".format(e))
 
 
 if __name__ == "__main__":

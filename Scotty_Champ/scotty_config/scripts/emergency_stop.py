@@ -1,16 +1,26 @@
 #!/usr/bin/env python
 
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : scotty_emergency_stop.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : This script handles the emergency shutdown of Scotty
+Usage       : These scripts are run from the scotty_controller.launch
+"""
+
 import rospy
 import rosnode
 import os
-import signal
 from std_msgs.msg import Bool
 import subprocess
+
 
 class EmergencyStop:
     def __init__(self):
         rospy.init_node('emergency_stop', anonymous=False)
-        rospy.loginfo("Emergency Stop Node Initialized")
+        rospy.loginfo("Emergency Stop Node is Initialized")
 
         # Subscriber to listen for emergency stop signal
         self.emergency_sub = rospy.Subscriber('/scotty_controller/emergency_stop', Bool, self.handle_emergency)
@@ -26,7 +36,9 @@ class EmergencyStop:
     def kill_all_ros_nodes(self):
         """Kills all active ROS nodes."""
         try:
+            # Kills the main controller
             subprocess.Popen(["rosnode", "kill", "/scotty_main_controller"])
+            # Kills the gazebo process
             subprocess.call(["pkill", "-f", "gzserver"])
             subprocess.call(["pkill", "-f", "gzclient"])
             # List all active ROS nodes

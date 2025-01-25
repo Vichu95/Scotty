@@ -154,7 +154,6 @@
                 </div>
             </div>
         </div>
-
  
 
         <!-- Simulation Controls Section -->
@@ -199,20 +198,27 @@
         ros.on('connection', function() {
             document.getElementById('controller-status').innerText = 'On';
             document.getElementById('controller-status').className = 'badge badge-success';
+            addToConsoleLog(`INFO : Connected to the controller`);
         }); 
 
         ros.on('error', function(error) {
             document.getElementById('controller-status').innerText = 'Off';
             document.getElementById('controller-status').className = 'badge badge-danger';
             disableGUI();
+            addToConsoleLog(`ERROR : Lost connection to the controller`);
         }); 
 
         ros.on('close', function() {
             document.getElementById('controller-status').innerText = 'Off';
             document.getElementById('controller-status').className = 'badge badge-danger';
             disableGUI();
+            addToConsoleLog(`ERROR : Lost connection to the controller`);
         });
 
+
+        ////////////////////////////
+        ///   R O S    T O P I C S
+        ////////////////////////////
 
         // ROS topic for emergency command
         let emergencyStopTopic = new ROSLIB.Topic({
@@ -221,32 +227,33 @@
             messageType: 'std_msgs/Bool'
         });
 
-        // ROS topic for sending state commands
+        // ROS topic for sending change of state request
         let changeStateTopic = new ROSLIB.Topic({
             ros: ros,
             name: '/scotty_controller/change_state',
             messageType: 'std_msgs/String'
         });
-
  
-        // ROS topic for sending state commands
+        // ROS topic for Controller states
         let stateTopic = new ROSLIB.Topic({
             ros: ros,
             name: '/scotty_controller/state',
             messageType: 'std_msgs/String'
         });
                 
-
+        // Current state
         stateTopic.subscribe(function(message) {
 
             const currentState = message.data;
             document.getElementById('current-state').innerText = currentState;
 
+            // Changing the color of buttons based on state
             document.getElementById('current-state').className =
                     'badge ' + (currentState === 'Idle' ? 'badge-warning' :
                                 currentState === 'Busy' ? 'badge-warning' :
-                                currentState === 'Ready' ? 'badge-success' : 'badge-primary');
-
+                                currentState === 'Ready' ? 'badge-success' : 
+                                currentState === 'Reset' ? 'badge-warning' : 
+                                currentState === 'Shutdown' ? 'badge-danger' : 'badge-primary');
 
             // Enable/Disable buttons based on the current state
             const downButton = document.getElementById('down-button');
@@ -254,7 +261,6 @@
             const walkButton = document.getElementById('walk-button');
             const shutdownButton = document.getElementById('shutdown-scotty');
             const resetSimButton = document.getElementById('reset-simulation');
-
 
             if (currentState === "Idle") {
                 downButton.disabled = true;
@@ -315,7 +321,7 @@
         });
 
 
-
+        // Handling the publishing of state change request
         function changeState(state) {
             const message = new ROSLIB.Message({
                 data: state
@@ -324,14 +330,14 @@
             console.log(`Sent state change request: ${state}`);
         }
 
+        // Handling the publishing of emergency stop
         function emergencyStopFunc() {
             const message = new ROSLIB.Message({
                 data: true
             });
             emergencyStopTopic.publish(message);
-            addToConsoleLog(`Emergency stop request`);
+            addToConsoleLog(`ERROR : Emergency stop requested`);
         }
-
 
         // Disable all buttons
         function disableGUI() {
@@ -342,9 +348,11 @@
             document.getElementById('reset-simulation').disabled = true;
         }
 
+
         //////////////////
         /// C O N S O L E
         //////////////////
+
         // Console Topic Subscription
         const consoleTopic = new ROSLIB.Topic({
             ros: ros,
@@ -371,7 +379,7 @@
             else if(/WARNING/.test(message.data)){
                 newMessage.style.color = 'yellow';
             } 
-else if(/SUCCESS/.test(message.data)){
+            else if(/SUCCESS/.test(message.data)){
                 newMessage.style.color = 'green';
             } 
             else {
@@ -422,5 +430,3 @@ else if(/SUCCESS/.test(message.data)){
 
 </body>
 </html>
-
-

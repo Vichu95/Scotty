@@ -1,5 +1,15 @@
 #!/usr/bin/env python
- 
+
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : scotty_controller_manager.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : The controller manager
+Usage       : These scripts are called from scotty_main_controller.py 
+"""
+
 import rospy
 from controller_manager_msgs.srv import ListControllers, LoadController, SwitchController
  
@@ -17,7 +27,7 @@ class ScottyControllerManager:
     def load_and_start_controller(self, controller_name):
         # Check if the controller is already loaded and running
         try:
-            rospy.loginfo("Checking if {} is already loaded...".format(controller_name))
+            rospy.loginfo("ControllerManager : Checking if {} is already loaded...".format(controller_name))
             list_response = self.list_controllers_srv()
             controller_found = False
             controller_running = False
@@ -31,31 +41,31 @@ class ScottyControllerManager:
             
             if controller_found:
                 if controller_running:
-                    rospy.loginfo("{} is already loaded and running.".format(controller_name))
+                    rospy.loginfo("ControllerManager : {} is already loaded and running.".format(controller_name))
                     return True
                 else:
-                    rospy.loginfo("{} is loaded but not running. Starting it now...".format(controller_name))
+                    rospy.loginfo("ControllerManager : {} is loaded but not running. Starting it now...".format(controller_name))
                     return self.start_controller(controller_name)
             else:
-                rospy.loginfo("{} not loaded. Loading and starting it now...".format(controller_name))
+                rospy.loginfo("ControllerManager : {} not loaded. Loading and starting it now...".format(controller_name))
                 return self.load_and_start_new_controller(controller_name)
  
         except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: {}".format(e))
+            rospy.logerr("ControllerManager : Service call failed: {}".format(e))
             return False
  
     def load_and_start_new_controller(self, controller_name):
         # Load the controller
         try:
-            rospy.loginfo("Loading {}...".format(controller_name))
+            rospy.loginfo("ControllerManager : Loading {}...".format(controller_name))
             load_response = self.load_controller_srv(controller_name)
             if load_response.ok:
-                rospy.loginfo("{} loaded successfully.".format(controller_name))
+                rospy.loginfo("ControllerManager : {} loaded successfully.".format(controller_name))
             else:
-                rospy.logerr("Failed to load {}.".format(controller_name))
+                rospy.logerr("ControllerManager : Failed to load {}.".format(controller_name))
                 return False
         except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: {}".format(e))
+            rospy.logerr("ControllerManager : Service call failed: {}".format(e))
             return False
  
         # Start the controller
@@ -63,36 +73,36 @@ class ScottyControllerManager:
  
     def start_controller(self, controller_name):
         try:
-            rospy.loginfo("Starting {}...".format(controller_name))
+            rospy.loginfo("ControllerManager : Starting {}...".format(controller_name))
             switch_response = self.switch_controller_srv(
                 start_controllers=[controller_name],
                 stop_controllers=[],
                 strictness=2
             )
             if switch_response.ok:
-                rospy.loginfo("{} started successfully.".format(controller_name))
+                rospy.loginfo("ControllerManager : {} started successfully.".format(controller_name))
                 return True
             else:
-                rospy.logerr("Failed to start {}.".format(controller_name))
+                rospy.logerr("ControllerManager : Failed to start {}.".format(controller_name))
                 return False
         except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: {}".format(e))
+            rospy.logerr("ControllerManager : Service call failed: {}".format(e))
             return False
 
     def stop_controller(self, controller_name):
         try:
-            rospy.loginfo("Stopping {}...".format(controller_name))
+            rospy.loginfo("ControllerManager : Stopping {}...".format(controller_name))
             switch_response = self.switch_controller_srv(
                 start_controllers=[],
                 stop_controllers=[controller_name],
                 strictness=2
             )
             if switch_response.ok:
-                rospy.loginfo("{} stopped successfully.".format(controller_name))
+                rospy.loginfo("ControllerManager : {} stopped successfully.".format(controller_name))
                 return True
             else:
-                rospy.logerr("Failed to stop {}.".format(controller_name))
+                rospy.logerr("ControllerManager : Failed to stop {}.".format(controller_name))
                 return False
         except rospy.ServiceException as e:
-            rospy.logerr("Service call failed: {}".format(e))
+            rospy.logerr("ControllerManager : Service call failed: {}".format(e))
             return False

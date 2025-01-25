@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : scotty_main_controller.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : The main script that controlls the states of the robot
+Usage       : These scripts are run from the scotty_controller.launch
+"""
+
 import rospy
 import subprocess
-import time
 from std_msgs.msg import String
 import webbrowser
 import rospkg
 
-## STATE MACHINE
+######
+## STATES
+######
 scotty_states = {
     "Idle"      : "Idle",
     "Ready"     : "Ready",
@@ -32,9 +43,10 @@ valid_transitions = {
 
 
 class MainController:
+
     def __init__(self):
         rospy.init_node("scotty_main_controller")
-        rospy.loginfo("Starting Scotty Main Controller...")
+        rospy.loginfo("Starting the Main Controller for Scotty...")
 
         ## Open the GUI
         rospack = rospkg.RosPack()
@@ -47,23 +59,31 @@ class MainController:
 
         # Publisher to broadcast current state
         self.state_pub = rospy.Publisher("/scotty_controller/state", String, queue_size=10)
+        # Publisher to broadcast logs to the GUI console
         self.console_log_pub = rospy.Publisher("/scotty_controller/console_log", String, queue_size=10)
 
-        # Subscribe to state change command
+        # Subscribe to state change command and execution status
         self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
         self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
         # Start the initial state
+        print("\n\n")
+        self.console_log_pub.publish("INFO    : Controller is loading...")
         self.start_current_state()
 
+    ##
+    ## This function handles the calling of the current state functions
+    ##
     def start_current_state(self):
-        """Start the current state based on the state index."""
         current_state = scotty_states[self.current_state_key]
-        rospy.loginfo("Entering state: {}".format(current_state))
+        rospy.loginfo("Entering state : {}".format(current_state))
 
         # Publish the current state
         self.state_pub.publish(current_state)
-        self.console_log_pub.publish(current_state)
+        self.console_log_pub.publish("INFO    : Entering state : " + current_state)
+        # self.console_log_pub.publish("ERROR   : Entering state : " + current_state)
+        # self.console_log_pub.publish("WARNING : Entering state : " + current_state)
+        # self.console_log_pub.publish("SUCCESS : Entering state : " + current_state)
 
         if(not self.state_already_processed):
             if current_state == "Idle":
@@ -95,24 +115,27 @@ class MainController:
         try:
             idle_process = subprocess.Popen(["rosrun", "scotty_config", "state_idle_startup.py"])
             idle_process.wait()  # Wait for the Idle state process to complete
-            rospy.loginfo("Idle state completed.")
+            rospy.loginfo("Completed Idle State.")
+            self.console_log_pub.publish("INFO    : Completed execution of Idle state")
+            self.console_log_pub.publish("INFO    : Going to Ready state shortly")
 
-            ## Going to ready state automatically in 3s
-            rospy.sleep(3)
+            ## Going to ready state automatically in 2s
+            rospy.sleep(2)
             self.current_state_key = 'Ready'
             self.start_current_state()
 
         except Exception as e:
             rospy.logerr("Failed to launch Idle state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Idle state")
+
 
     ##############
     #   R E A D Y 
     ##############
     def start_ready_state(self):
-        rospy.loginfo("In Ready state node...")
-        rospy.sleep(1)
+        # rospy.loginfo("Scotty is Ready...")
+        rospy.sleep(5)
         # Stay in Ready state
-        self.console_log_pub.publish('ready is ready 1')
         self.start_current_state()
 
 
@@ -120,53 +143,59 @@ class MainController:
     #   D O W N 
     ##############
     def start_down_state(self):
-        rospy.loginfo("Launching Down state node")
+        rospy.loginfo("Launching Down state node...")
         try:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
-            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_down_controller.py"])
-            stand_process.wait()  # Wait for the Down state process to complete
-            rospy.loginfo("Down state completed.")
+            self.console_log_pub.publish("INFO    : Entering state : Busy")
+            down_process = subprocess.Popen(["rosrun", "scotty_config", "state_down_controller.py"])
+            down_process.wait()  # Wait for the Down state process to complete
 
         except Exception as e:
             rospy.logerr("Failed to launch Down state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Down state")
 
 
     ##############
     #   S T A N D 
     ##############
     def start_stand_state(self):
-        rospy.loginfo("Launching Stand state node")
+        rospy.loginfo("Launching Stand state node...")
         try:
-            self.console_log_pub.publish('in stand mode')
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
+            self.console_log_pub.publish("INFO    : Entering state : Busy")
             stand_process = subprocess.Popen(["rosrun", "scotty_config", "stand_controller.py"])
             stand_process.wait()  # Wait for the Stand state process to complete
-            rospy.loginfo("Stand state completed.")
+            rospy.loginfo("Stand node wait finished")
 
         except Exception as e:
             rospy.logerr("Failed to launch Stand state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Stand state")
 
 
     ##############
     #   W A L K 
     ##############
     def start_walk_state(self):
-        rospy.loginfo("Launching Walk state node")
+        rospy.loginfo("Launching Walk state node...")
         try:
-            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_walk.py"])
-            stand_process.wait()  # Wait for the Walk state process to complete
-            rospy.loginfo("Walk state completed.")
+            walk_process = subprocess.Popen(["rosrun", "scotty_config", "state_walk.py"])
+            walk_process.wait()  # Wait for the Walk state process to complete
+            rospy.loginfo("Completed Walk State.")
+            self.console_log_pub.publish("SUCCESS : Completed execution of Walk state")
 
         except Exception as e:
             rospy.logerr("Failed to launch Walk state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Walk state")
 
     def stop_walk_state(self):
-        rospy.loginfo("Stopping Walk state node")
+        rospy.loginfo("Stopping Walk state node...")
         try:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
+            self.console_log_pub.publish("INFO    : Entering state : Busy")
+            ## Killing all the nodes that where started as a part of Walk via Champ
             subprocess.Popen(["rosnode", "kill", "/footprint_to_odom_ekf"])
             subprocess.Popen(["rosnode", "kill", "/base_to_footprint_ekf"])
             subprocess.Popen(["rosnode", "kill", "/state_estimator"])
@@ -175,26 +204,28 @@ class MainController:
             subprocess.Popen(["rosnode", "kill", "/nodelet_manager"])
 
             rospy.sleep(2)
-            rospy.loginfo("Walk state completly closed.")
+            rospy.loginfo("Stopped Walk State.")
 
         except Exception as e:
             rospy.logerr("Failed to launch Walk state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of stopping Walk state")
 
 
     ##############
     #   S H U T D O W N 
     ##############
     def start_shutdown_state(self):
-        rospy.loginfo("Launching Shutdown state node")
+        rospy.loginfo("Launching Shutdown state node...")
         try:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
-            stand_process = subprocess.Popen(["rosrun", "scotty_config", "state_shutdown_controller.py"])
-            stand_process.wait()  # Wait for the Shutdown state process to complete
-            rospy.loginfo("Shutdown state completed.")
+            self.console_log_pub.publish("INFO    : Entering state : Busy")
+            shutdown_process = subprocess.Popen(["rosrun", "scotty_config", "state_shutdown_controller.py"])
+            shutdown_process.wait()  # Wait for the Shutdown state process to complete
 
         except Exception as e:
             rospy.logerr("Failed to launch Shutdown state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Shutdown state")
 
 
     ##############
@@ -205,13 +236,15 @@ class MainController:
         try:
             reset_process = subprocess.Popen(["rosrun", "scotty_config", "state_idle_startup.py"])
             reset_process.wait()  # Wait for the Idle state process to complete
-            rospy.loginfo("Reset state completed.")
+            rospy.loginfo("Completed Reset State.")
+            self.console_log_pub.publish("INFO    : Completed resetting")
 
             ## Going to ready state automatically in 3s
+            self.console_log_pub.publish("INFO    : Going to Ready state shortly")
             rospy.sleep(3)
             # Subscribe to state change command
 
-            print("\n\nRegistering agian")
+            rospy.loginfo("Re-registering the subscribers.")
             self.state_change_sub.unregister()
             self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
             self.state_exec_status_sub.unregister()
@@ -222,21 +255,28 @@ class MainController:
 
         except Exception as e:
             rospy.logerr("Failed to launch Reset state node: {}".format(e))
+            self.console_log_pub.publish("ERROR   : Failed execution of Reset state")
 
+
+    ##############
+    #  Handling the change of state
+    ##############
 
     def check_valid_transition(self, _current_state, _next_state):
         return _next_state in valid_transitions.get(_current_state, [])
 
+    # Handles the callback to go to next state
     def change_state_callback(self, msg):
-        """Move to the next state if available."""
         desired_state = msg.data
         current_state = scotty_states[self.current_state_key ]
 
-        rospy.loginfo("\n\nRECEIVED")
+        print("\n\n")
+        rospy.loginfo("Received a state change request.")
         self.state_already_processed = False
 
         if self.check_valid_transition(current_state, desired_state):
             rospy.loginfo("Transitioning from {} to {}.".format(current_state,desired_state))
+            self.console_log_pub.publish("INFO    : " + current_state + " --> " + desired_state )
             
             ##Incase of Walk as previous state, killing all nodes related to this
             if(current_state == 'Walk'):
@@ -245,34 +285,38 @@ class MainController:
             self.current_state_key = desired_state
             self.start_current_state()
         else:
-            rospy.loginfo("Invalid state transition. Request ignored.")
+            rospy.loginfo("Invalid state transition from " + current_state + " to "+ desired_state +". Request ignored.")
+            self.console_log_pub.publish("WARNING : Invalid state transition from " + current_state + " to "+ desired_state +". Request ignored")
 
-    ## This callback stores the information about the status of state execution
+    ## This callback handles the status of state execution. Updated from state nodes
     def state_execution_status_callback(self, msg):
         status_recevied = msg.data        
         self.state_exec_status = status_recevied
-        rospy.loginfo("\n\nRECEIVED stateeuss exection {}".format(status_recevied))
+        rospy.loginfo("Received status of execution : {}".format(status_recevied))
 
         self.state_already_processed = True
 
         if self.state_exec_status == "Stand_Done":
             self.current_state_key = 'Stand'
             self.state_pub.publish("Stand")
-            print("\n\nstate stand execuion finishedd for finishing execution")
+            self.console_log_pub.publish("SUCCESS : Completed execution of Stand state")
+
         elif self.state_exec_status == "Down_Done":
             self.current_state_key = 'Down'
             self.state_pub.publish("Down")
-            print("\n\nstate Down execuion finishedd for finishing execution")
-        elif self.state_exec_status == "Shutdown_Done":
+            self.console_log_pub.publish("SUCCESS : Completed execution of Down state")
+
+        elif self.state_exec_status == "Shutdown_Pose_Done":
             self.current_state_key = 'Shutdown'
             self.state_pub.publish("Shutdown")
+            self.console_log_pub.publish("SUCCESS : Shuting down...")
 
-            print("\n\nstate Shutdown execuion finishedd for finishing execution")
             # Stop the ROS nodes cleanly
             rospy.signal_shutdown("Shutting down all nodes...")
     
         else:
             print("Waiting for finishing execution")
+
 
 if __name__ == "__main__":
     try:
