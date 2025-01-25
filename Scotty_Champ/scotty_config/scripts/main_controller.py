@@ -159,6 +159,24 @@ class MainController:
         except Exception as e:
             rospy.logerr("Failed to launch Walk state node: {}".format(e))
 
+    def stop_walk_state(self):
+        rospy.loginfo("Stopping Walk state node")
+        try:
+            self.current_state_key = 'Busy'
+            self.state_pub.publish("Busy")
+            subprocess.Popen(["rosnode", "kill", "/footprint_to_odom_ekf"])
+            subprocess.Popen(["rosnode", "kill", "/base_to_footprint_ekf"])
+            subprocess.Popen(["rosnode", "kill", "/state_estimator"])
+            subprocess.Popen(["rosnode", "kill", "/champ_controller"])
+            subprocess.Popen(["rosnode", "kill", "/velocity_smoother"])
+            subprocess.Popen(["rosnode", "kill", "/nodelet_manager"])
+
+            rospy.sleep(2)
+            rospy.loginfo("Walk state completly closed.")
+
+        except Exception as e:
+            rospy.logerr("Failed to launch Walk state node: {}".format(e))
+
 
     ##############
     #   S H U T D O W N 
@@ -215,6 +233,11 @@ class MainController:
 
         if self.check_valid_transition(current_state, desired_state):
             rospy.loginfo("Transitioning from {} to {}.".format(current_state,desired_state))
+            
+            ##Incase of Walk as previous state, killing all nodes related to this
+            if(current_state == 'Walk'):
+                self.stop_walk_state()
+            
             self.current_state_key = desired_state
             self.start_current_state()
         else:
