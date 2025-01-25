@@ -60,6 +60,66 @@
             font-size: 1.1rem;
         }
 
+        .console {
+            height: 120px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            border: 1px solid #444;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #888 #1e1e1e; /* Firefox */
+        }
+        .console::-webkit-scrollbar {
+            width: 8px;
+        }
+        .console::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 8px;
+        }
+        .console::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+        .console::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        .console-line {
+            margin: 0;
+        }
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .console-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .console-btn-clear {
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border: none;
+            color: #555;
+            background-color: #d0cccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .console-btn-clear:focus {
+            outline: none;
+        }
+        .console-btn-clear:hover {
+            background-color: #cfc6c6;
+            color: #333;
+        }
+        .console-btn-clear:active {
+            background-color: #ccc;
+        }
+
     </style>
 </head>
 <body>
@@ -106,6 +166,16 @@
                     <button class="btn btn-warning btn-state" id="reset-simulation" onclick="changeState('Reset')">Restart Simulation</button>
                 </div>
             </div>
+        </div>
+
+
+        <!-- Console Section -->
+        <div class="section">
+            <div class="console-header">
+                <span class="console-title">Console</span>
+                <button class="console-btn-clear" id="console-clear-button" onclick="clearConsole()">Clear</button>
+            </div>
+            <div id="console-container" class="console"></div>
         </div>
     </div>
 
@@ -213,7 +283,7 @@
                 walkButton.disabled = true;
                 shutdownButton.disabled = true;
             }           
-     });
+        });
 
 
 
@@ -235,6 +305,42 @@
             document.getElementById('reset-simulation').disabled = true;
         }
 
+        //////////////////
+        /// C O N S O L E
+        //////////////////
+        // Console Topic Subscription
+        const consoleTopic = new ROSLIB.Topic({
+            ros: ros,
+            name: '/scotty_controller/console_log',
+            messageType: 'std_msgs/String'
+        });
+
+        const consoleDiv = document.getElementById('console-container');
+        let isUserAtBottom = true;
+
+        consoleDiv.addEventListener('scroll', () => {
+            // Check if the user is at the bottom of the console
+            isUserAtBottom = consoleDiv.scrollTop + consoleDiv.clientHeight >= consoleDiv.scrollHeight - 5;
+        });
+
+        consoleTopic.subscribe(function(message) {
+            const newMessage = document.createElement('p');
+            newMessage.textContent = message.data;
+            newMessage.className = 'console-line';
+
+            // Add the new message to the console
+            consoleDiv.appendChild(newMessage);
+
+            // Scroll to the bottom only if the user is at the bottom
+            if (isUserAtBottom) {
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        });
+
+        // Clear Console
+        function clearConsole() {
+            consoleDiv.innerHTML = '';
+        }
     </script>
 
 </body>

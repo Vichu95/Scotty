@@ -46,6 +46,7 @@ class MainController:
 
         # Publisher to broadcast current state
         self.state_pub = rospy.Publisher("/scotty_controller/state", String, queue_size=10)
+        self.console_log_pub = rospy.Publisher("/scotty_controller/console_log", String, queue_size=10)
 
         # Subscribe to state change command
         self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
@@ -61,6 +62,7 @@ class MainController:
 
         # Publish the current state
         self.state_pub.publish(current_state)
+        self.console_log_pub.publish(current_state)
 
         if current_state == "Idle":
             self.start_idle_state()
@@ -107,6 +109,7 @@ class MainController:
         rospy.loginfo("In Ready state node...")
         rospy.sleep(1)
         # Stay in Ready state
+        self.console_log_pub.publish('ready is ready 1')
         self.start_current_state()
 
 
@@ -132,6 +135,7 @@ class MainController:
     def start_stand_state(self):
         rospy.loginfo("Launching Stand state node")
         try:
+            self.console_log_pub.publish('in stand mode')
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             stand_process = subprocess.Popen(["rosrun", "scotty_config", "stand_controller.py"])
