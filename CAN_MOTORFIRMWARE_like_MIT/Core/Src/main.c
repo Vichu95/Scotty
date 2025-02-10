@@ -19,8 +19,6 @@
 #include "main.h"
 #include "stdio.h"
 #include "math.h"
-//Keypad todo
-#include "MY_Keypad4x4.h"
 #include <stdbool.h>
 
 
@@ -134,7 +132,6 @@ int   float_to_uint(float x, float x_min, float x_max, int bits);
 void  delay_us(uint16_t us);
 
 void can_send_receive();
-void can_control();
 void spi_send_receive(void);
 uint32_t xor_checksum(uint32_t*, int);
 
@@ -207,7 +204,6 @@ uint32_t TxMailbox2; //todo
 
 int datacheck = 2;
 int count=2;
-int keycontrol=0;
 int motormode=0; //todo
 volatile spi_enabled = 0;
 volatile callback_enabled = 0;
@@ -216,10 +212,6 @@ volatile callback_enabled = 0;
 uint32_t time;
 uint32_t time2;
 
-//Keypad
-bool mySwitches[16];
-
-Keypad_WiresTypeDef myKeypadStruct;
 
 uint32_t spi_test=0;
 uint32_t Error_spi;
@@ -287,29 +279,6 @@ int main(void)
   TxHeader.RTR = CAN_RTR_DATA;
 
 
-  //Keypad
-  myKeypadStruct.IN0_Port=GPIOC;
-  myKeypadStruct.IN1_Port=GPIOC;
-  myKeypadStruct.IN2_Port=GPIOC;
-  myKeypadStruct.IN3_Port=GPIOC;
-
-  myKeypadStruct.OUT0_Port=GPIOB;
-  myKeypadStruct.OUT1_Port=GPIOB;
-  myKeypadStruct.OUT2_Port=GPIOB;
-  myKeypadStruct.OUT3_Port=GPIOB;
-
-  //PINS
-
-  myKeypadStruct.IN0pin=GPIO_PIN_6;
-  myKeypadStruct.IN1pin=GPIO_PIN_7;
-  myKeypadStruct.IN2pin=GPIO_PIN_8;
-  myKeypadStruct.IN3pin=GPIO_PIN_9;
-
-  myKeypadStruct.OUT0pin=GPIO_PIN_12;
-  myKeypadStruct.OUT1pin=GPIO_PIN_13;
-  myKeypadStruct.OUT2pin=GPIO_PIN_14;
-  myKeypadStruct.OUT3pin=GPIO_PIN_15;
-
 
   printf("start\n");
   HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
@@ -337,53 +306,51 @@ delay_us(1000);
 
 
 
-	// Only CAN
-	count=1;
-	  while (count==1)
-	  {
+//	// Only CAN
+//	count=1;
+//	  while (count==1)
+//	  {
+//
+//
+//			can_send_receive();
+//			time=__HAL_TIM_GET_COUNTER(&htim8);
+//	  }
 
 
-			can_send_receive();
-			time=__HAL_TIM_GET_COUNTER(&htim8);
-	  }
+
+
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+
+	__HAL_TIM_SET_COUNTER(&htim8,0);
+	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
+	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
+		spi_test=1;
+		spi_send_receive();
+		//can_send_receive();
+		count=1;
+	    //count=1;
+		time2=__HAL_TIM_GET_COUNTER(&htim8);
+
+	}
+
+	if(count==1){
 
 
 
-//
-//  while (1)
-//  {
-//    /* USER CODE END WHILE */
-//
-//    /* USER CODE BEGIN 3 */
-//
-//	__HAL_TIM_SET_COUNTER(&htim8,0);
-//	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
-//	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
-//		spi_test=1;
-//		spi_send_receive();
-//		//can_control();
-//		//can_send_receive();
-//		count=1;
-//	    //count=1;
-//		time2=__HAL_TIM_GET_COUNTER(&htim8);
-//
-//	}
-//
-//	if(count==1){
-////		can_control();
-//
-//
-//
-//		can_send_receive();
-//		count=2;
-//		time=__HAL_TIM_GET_COUNTER(&htim8);
-//	}
-//
-//	Error_spi=HAL_SPI_GetError(&hspi1);
-//	State_spi=HAL_SPI_GetState(&hspi1);
-//	//HAL_Delay(1);
-//
-//  }
+		can_send_receive();
+		count=2;
+		time=__HAL_TIM_GET_COUNTER(&htim8);
+	}
+
+	Error_spi=HAL_SPI_GetError(&hspi1);
+	State_spi=HAL_SPI_GetState(&hspi1);
+	//HAL_Delay(1);
+
+  }
 
 
 	exit_mode(Ab_CAN, &TxHeader, TxData);
@@ -1003,89 +970,6 @@ void can_send_receive(){
 
 }
 
-void can_control(){
-	//Kepad	layout
-	//S1 start Motor
-	//S2 stop Motor
-	//S3 set Motorposition to zero
-	//S4 start Key control(only for STM32 Board)
-	//S9 increase Ab-Motor position
-	//S13 decrease Ab-Motor position
-	//S10 increase Hip-Motor position
-	//S14 decrease Hip-Motor position
-	//S11 increase Knee-Motor position
-	//S15 decrease Knee-Motor position
-
-	Keypad4x4_ReadKeypad(mySwitches);
-		if(mySwitches[3]==true){
-			keycontrol=1;
-		}
-		if(mySwitches[7]==true){
-			keycontrol=0;
-		}
-
-
-	if(keycontrol==0){
-		if(control.flags[0]==1 && control.flags[1]==1){
-			motor_mode(Ab_CAN, &TxHeader, TxData);
-			motor_mode(Hip_CAN, &TxHeader, TxData);
-			motor_mode(Knee_CAN, &TxHeader, TxData);
-			//motormode=1;
-			}
-		if(control.flags[0]==0 && control.flags[1]==0){
-			exit_mode(Ab_CAN, &TxHeader, TxData);
-			exit_mode(Hip_CAN, &TxHeader, TxData);
-			exit_mode(Knee_CAN, &TxHeader, TxData);
-		 	}
-		if(control.flags[0]==2 && control.flags[1]==2){
-			zero(Ab_CAN, &TxHeader, TxData);
-			zero(Hip_CAN, &TxHeader, TxData);
-			zero(Knee_CAN, &TxHeader, TxData);
-			}
-		}
-
-	if(keycontrol==1){
-		if(mySwitches[0]==true){
-			motor_mode(Ab_CAN, &TxHeader, TxData);
-			motor_mode(Hip_CAN, &TxHeader, TxData);
-			motor_mode(Knee_CAN, &TxHeader, TxData);
-			}
-		if(mySwitches[1]==true){
-			exit_mode(Ab_CAN, &TxHeader, TxData);
-			exit_mode(Hip_CAN, &TxHeader, TxData);
-			exit_mode(Knee_CAN, &TxHeader, TxData);
-			 }
-		if(mySwitches[2]==true){
-			zero(Ab_CAN, &TxHeader, TxData);
-			zero(Hip_CAN, &TxHeader, TxData);
-			zero(Knee_CAN, &TxHeader, TxData);
-			}
-		if(mySwitches[8]==true){
-			control.ab_p[0]=control.ab_p[0]+p_step;
-			control.ab_p[1]=control.ab_p[1]+p_step;
-			}
-		if(mySwitches[12]==true){
-			control.ab_p[0]=control.ab_p[0]-p_step;
-			control.ab_p[1]=control.ab_p[1]-p_step;
-			}
-		if(mySwitches[9]==true){
-			control.hip_p[0]=control.hip_p[0]-p_step;
-			control.hip_p[1]=control.hip_p[1]-p_step;
-			}
-		if(mySwitches[13]==true){
-			control.hip_p[0]=control.hip_p[0]+p_step;
-			control.hip_p[1]=control.hip_p[1]+p_step;
-			}
-		if(mySwitches[10]==true){
-			control.knee_p[0]=control.knee_p[0]-p_step;
-			control.knee_p[1]=control.knee_p[1]-p_step;
-			}
-		if(mySwitches[14]==true){
-			control.knee_p[0]=control.knee_p[0]+p_step;
-			control.knee_p[1]=control.knee_p[1]+p_step;
-			}
-		}
-}
 
 /////////////////////////////////math/////////////////////////////////////////
 
@@ -1204,32 +1088,6 @@ void spi_send_receive(void){
 		spi_tx_buffer[i] = ((uint16_t*)(&state))[i];
 		}
 
-
-	//SPI transmission and receive
-//	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
-//		spi_enabled = 1;
-		//HAL_SPI_TransmitReceive(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN, HAL_MAX_DELAY); //HAL_MAX_DELAY
-//		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-		//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-//		}
-
-	//unpack the received bytes from rx buffer into †he valuesrec structur
-	/*
-	for(int i = 0; i < RX_LEN; i++){
-		((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
-		//printf("%d\n", spi_rx_buffer[i]);
-		}
-	//if the communication has no issues the values will write in the control structure
-	if(keycontrol==0){
-	check = xor_checksum((uint32_t*)&valuesrec,32);
-	if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3)){
-		for(int i = 0; i < CONTROL_LEN; i++){
-			((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
-		    }
-		}
-	}
-*/
-
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
@@ -1242,7 +1100,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 				//printf("%d\n", spi_rx_buffer[i]);
 				}
 			//if the communication has no issues the values will write in the control structure
-			if(keycontrol==0){
+
 			check = xor_checksum((uint32_t*)&valuesrec,32);
 
 			//Retrieve the current control Mode and reset flags to its value
@@ -1255,7 +1113,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
 					}
 				}
-			}
+
 		}
 		// Disable the SPI //vishnu : I think this actually enables SPI callback for next
 		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
