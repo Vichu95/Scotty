@@ -70,9 +70,18 @@
 /****************************    HANDLING DEVIATIONS	**********************/
 #define KNEE_GEARRATIO 1.5 //1.25 //todo for testing
 
-const int ab_mitdirection[2]    = {-1, -1};
-const int hip_mitdirection[2] 	= { 1,  1};
-const int knee_mitdirection[2] 	= { 1,  1};
+
+#ifdef STM2_FRONT
+	const int ab_mitdirection[2]    = {-1, -1};
+	const int hip_mitdirection[2] 	= { 1,  1};
+	const int knee_mitdirection[2] 	= { 1,  1};
+#endif
+
+#ifdef STM1_BACK
+    const int ab_mitdirection[2]    = {-1, -1};
+    const int hip_mitdirection[2] 	= { 1,  1};
+    const int knee_mitdirection[2] 	= { 1,  1};
+#endif
 
 
 
@@ -178,10 +187,6 @@ torque_rx 	torque;
 //State Variables
 uint32_t check; //to store calculated checksum
 
-//to detect a falling edge
-uint8_t spi_enable; //todo
-uint8_t merker = 0; //todo
-
 //set values
 float p_in 	= 0.0f;
 float v_in 	= 0.0f;
@@ -237,41 +242,41 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 int main(void)
 {
 
-  /* MCU Configuration--------------------------------------------------------*/
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* MCU Configuration--------------------------------------------------------*/
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_CAN1_Init();
-  MX_TIM1_Init();
-  MX_SPI1_Init();
-  MX_CAN2_Init();
-  MX_TIM8_Init();
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_CAN1_Init();
+	MX_TIM1_Init();
+	MX_SPI1_Init();
+	MX_CAN2_Init();
+	MX_TIM8_Init();
 
-  HAL_CAN_Start(&hcan1);
-  HAL_CAN_Start(&hcan2);
-  HAL_TIM_Base_Start(&htim1);
-  HAL_TIM_Base_Start(&htim8);
-
-
-  // Activate the notification
-  HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-  HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
+	HAL_CAN_Start(&hcan1);
+	HAL_CAN_Start(&hcan2);
+	HAL_TIM_Base_Start(&htim1);
+	HAL_TIM_Base_Start(&htim8);
 
 
-  TxHeader.DLC = 8;  // data length
-  TxHeader.IDE = CAN_ID_STD;
-  TxHeader.RTR = CAN_RTR_DATA;
+	// Activate the notification
+	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+	HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
+
+
+	TxHeader.DLC = 8;  // data length
+	TxHeader.IDE = CAN_ID_STD;
+	TxHeader.RTR = CAN_RTR_DATA;
 
 
 
-  printf("start\n");
-  HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+	printf("start\n");
+	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
 
 
