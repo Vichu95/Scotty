@@ -177,7 +177,6 @@ uint16_t spi_tx_buffer[TX_LEN];
 uint16_t spi_rx_buffer[RX_LEN];
 
 //structures
-spi_tx 		values; //todo
 spi_rx 		valuesrec;
 spi_rx 		control;
 uint32_t 	currentControlMode = 99;
@@ -185,7 +184,7 @@ spi_tx 		state;
 torque_rx 	torque;
 
 //State Variables
-uint32_t check; //to store calculated checksum
+uint32_t checksum_calc; //to store calculated checksum
 
 //set values
 float p_in 	= 0.0f;
@@ -200,20 +199,17 @@ float v_out = 0.0f;     //velocity
 float t_out = 0.0f;     //torque
 
 
-int datacheck = 2;
+int receivedCanBus = 2;
 int count=2;
-int motormode=0; //todo
 
 //Time
 uint32_t time;
 uint32_t time2;
 
 
-uint32_t spi_test=0;
 uint32_t Error_spi;
 uint32_t CallbackError_spi;
 uint32_t State_spi;
-HAL_StatusTypeDef spierror;
 
 
 // CAN Rx Callback
@@ -222,7 +218,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 	if (RxHeader.DLC == 8)
 	{
-		datacheck=0;
+		receivedCanBus=0;
 	}
 }
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -230,7 +226,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
 	if (RxHeader.DLC == 8)
 	{
-		datacheck=1;
+		receivedCanBus=1;
 	}
 }
 
@@ -308,14 +304,12 @@ int main(void)
 
 
 
-
 	while (1)
 	{
 		__HAL_TIM_SET_COUNTER(&htim8,0);
 
 		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
 		{
-			spi_test=1;
 			spi_send_receive();
 			count=1;
 			time2=__HAL_TIM_GET_COUNTER(&htim8);
@@ -375,14 +369,14 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 		}
 
 		//if the communication has no issues the values will write in the control structure
-		check = xor_checksum((uint32_t*)&valuesrec,32);
+		checksum_calc = xor_checksum((uint32_t*)&valuesrec,32);
 
 		//Retrieve the current control Mode stored at higher 16 bits and reset flags to its value
 		currentControlMode = (valuesrec.flags[0]>>16);
 		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
 		valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
 
-		if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
+		if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
 		{
 			for(int i = 0; i < CONTROL_LEN; i++)
 			{
@@ -422,19 +416,19 @@ void can_send_receive(){
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==0){
+	if (receivedCanBus==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==0){
+	if (receivedCanBus==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==0){
+	if (receivedCanBus==0){
 		unpack_replay(RxData);
 	}
 
@@ -442,19 +436,19 @@ void can_send_receive(){
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==1){
+	if (receivedCanBus==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==1){
+	if (receivedCanBus==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	if (datacheck==1){
+	if (receivedCanBus==1){
 		unpack_replay(RxData);
 	}
 
@@ -557,21 +551,21 @@ void unpack_replay(uint8_t*Data){
 
 	if(id==1)
 	{
-		state.ab_p[datacheck]=(p_out * ab_mitdirection[datacheck]);
-		state.ab_v[datacheck]=v_out;
-		torque.ab_t[datacheck]=t_out;
+		state.ab_p[receivedCanBus]=(p_out * ab_mitdirection[receivedCanBus]);
+		state.ab_v[receivedCanBus]=v_out;
+		torque.ab_t[receivedCanBus]=t_out;
 	}
 	if(id==2)
 	{
-		state.hip_p[datacheck]=(p_out * hip_mitdirection[datacheck]);
-		state.hip_v[datacheck]=v_out;
-		torque.hip_t[datacheck]=t_out;
+		state.hip_p[receivedCanBus]=(p_out * hip_mitdirection[receivedCanBus]);
+		state.hip_v[receivedCanBus]=v_out;
+		torque.hip_t[receivedCanBus]=t_out;
 	}
 	if(id==3)
 	{
-		state.knee_p[datacheck]= (p_out * knee_mitdirection[datacheck])/ KNEE_GEARRATIO;
-		state.knee_v[datacheck]=v_out;
-		torque.knee_t[datacheck]=t_out;
+		state.knee_p[receivedCanBus]= (p_out * knee_mitdirection[receivedCanBus])/ KNEE_GEARRATIO;
+		state.knee_v[receivedCanBus]=v_out;
+		torque.knee_t[receivedCanBus]=t_out;
     }
 }
 
