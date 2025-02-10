@@ -1,94 +1,84 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  * Type: Lower-level-Controller firmware
-  * communicate as slave over SPI
-  * communicate with two can-bus-systems and control with this ability three actuators per bus
-  * Autor: Dave Mangatter
-  * Datum: 16.03.2022
-  * Version: 1.02
+  * @brief          : Lower-level-Controller firmware
+  * Last Updated by : Vishnudev Kurumbaparambil
+  * Datum			: 10.02.2025
+  * Base Author		: Dave Mangatter
+  * Description		: This is the lower level program that runs in STM. This handles the data exchange between the UP board
+  * 				  and Robot Leg motors. It contains a SPI and CAN part.
+  * License 		: This software component is licensed by ST under BSD 3-Clause license
   ******************************************************************************
   */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
-#include "main.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+
+
+/***********************************************************************************************************
+*										I N C L U D E S
+************************************************************************************************************/
+#include "main.h"
 #include "stdio.h"
 #include "math.h"
-
-//Keypad
+//Keypad todo
 #include "MY_Keypad4x4.h"
 #include <stdbool.h>
 
-/* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
 
-/* USER CODE END PTD */
+/***********************************************************************************************************
+*										M A C R O S
+************************************************************************************************************/
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-// Range in the Motor controller
+/****************************    RANGES AND LIMITS      **********************/
+// Motor range controll
 #define MOTOR_P_MIN -12.5f
-#define MOTOR_P_MAX 12.5f
+#define MOTOR_P_MAX  12.5f
 #define MOTOR_V_MIN -50.0f
-#define MOTOR_V_MAX 50.0f
+#define MOTOR_V_MAX  50.0f
 #define MOTOR_T_MIN -65.0f
-#define MOTOR_T_MAX 65.0f
+#define MOTOR_T_MAX  65.0f
 #define MOTOR_KP_MIN 0.0f
 #define MOTOR_KP_MAX 500.0f
 #define MOTOR_KD_MIN 0.0f
 #define MOTOR_KD_MAX 5.0f
 
+// Max torque that can be requested from the motor
 #define TRQ_REQ_MAX 3.0f
 
-// Value limits in ST
+// STM limits for P V T Kd Kp
 #define P_MIN -12.5f
-#define P_MAX 12.5f
+#define P_MAX  12.5f
 #define V_MIN -26.0f
-#define V_MAX 26.0f
-//#define T_MIN -48.0f
-//#define T_MAX 48.0f
+#define V_MAX  26.0f
 #define T_MIN -1.5f
-#define T_MAX 1.5f
+#define T_MAX  1.5f
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
 #define KD_MAX 5.0f
 
 /// Joint Soft Stops
-#define AB_LIM_P 1.5708f //90°
-#define AB_LIM_N -1.5708f //-90°
-#define HIP_LIM_P 2.0944f //120°
-#define HIP_LIM_N -2.0944f //120°
-#define KNEE_LIM_P 0.0f //0°
-#define KNEE_LIM_N -4.01426f //-230°
-#define KP_SOFTSTOP 100.0f
-#define KD_SOFTSTOP 0.4f
+#define AB_LIM_P 	 1.5708f 	//90°
+#define AB_LIM_N 	-1.5708f 	//-90°
+#define HIP_LIM_P 	 2.0944f 	//120°
+#define HIP_LIM_N 	-2.0944f 	//120°
+#define KNEE_LIM_P	 0.0f 		//0°
+#define KNEE_LIM_N 	-4.01426f	//-230°
+#define KP_SOFTSTOP  100.0f
+#define KD_SOFTSTOP  0.4f
 
+
+
+/****************************    HANDLING DEVIATIONS	**********************/
 #define KNEE_GEARRATIO 1.5 //1.25 //todo for testing
-const int ab_mitdirection[2] = {-1, -1};
-const int hip_mitdirection[2] = {1, 1};
-const int knee_mitdirection[2] = {1, 1};
 
+const int ab_mitdirection[2] 	= {-1, -1};
+const int hip_mitdirection[2] 	= { 1,  1};
+const int knee_mitdirection[2] 	= { 1,  1};
+
+
+
+/****************************    DRIVER AND INTERFACES	**********************/
 // length of receive/transmit buffers
 #define RX_LEN 66
 #define TX_LEN 66
@@ -97,17 +87,19 @@ const int knee_mitdirection[2] = {1, 1};
 #define STATE_LEN 30
 #define CONTROL_LEN 66
 
+//Can ID
+uint8_t Ab_CAN = 1;
+uint8_t Hip_CAN = 2;
+uint8_t Knee_CAN = 3;
+uint8_t CAN;
 
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
 CAN_HandleTypeDef hcan2;
+CAN_TxHeaderTypeDef TxHeader;
+CAN_RxHeaderTypeDef RxHeader;
+uint8_t TxData[8];
+uint8_t RxData[8];
+uint32_t TxMailbox;
 
 SPI_HandleTypeDef hspi1;
 DMA_HandleTypeDef hdma_spi1_rx;
@@ -116,9 +108,6 @@ DMA_HandleTypeDef hdma_spi1_tx;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim8;
 
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -129,76 +118,69 @@ static void MX_TIM1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_CAN2_Init(void);
 static void MX_TIM8_Init(void);
-/* USER CODE BEGIN PFP */
-//function declaration
 
+// MOTOR RELATED
 void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
 void unpack_replay(uint8_t* Data);
-int softstop_joint(float *control,float state, float limit_p, float limit_n);
+
+int  softstop_joint(float *control,float state, float limit_p, float limit_n);
 void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
+
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
-int float_to_uint(float x, float x_min, float x_max, int bits);
+int   float_to_uint(float x, float x_min, float x_max, int bits);
+void  delay_us(uint16_t us);
 
 void can_send_receive();
 void can_control();
-
-uint32_t xor_checksum(uint32_t*, int);
 void spi_send_receive(void);
+uint32_t xor_checksum(uint32_t*, int);
 
-void delay_us(uint16_t us);
 
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
+/****************************    STRUCTURES AND VARIABLES	**********************/
 
-//9*4*2+2*4=68
-
-//structur definition
 typedef struct {
     float ab_p[2],hip_p[2],knee_p[2];
     float ab_v[2],hip_v[2],knee_v[2];
-    //float ab_t[2],hip_t[2],knee_t[2];
+  //float ab_t[2],hip_t[2],knee_t[2];
     uint32_t flags[2],checksum;
 }spi_tx;
 
-//15*4*2+2*4=68
 typedef struct {
-    float ab_p[2],hip_p[2],knee_p[2];
-    float ab_v[2],hip_v[2],knee_v[2];
+    float ab_p[2], hip_p[2], knee_p[2];
+    float ab_v[2], hip_v[2], knee_v[2];
     float ab_kp[2],hip_kp[2],knee_kp[2];
     float ab_kd[2],hip_kd[2],knee_kd[2];
-    float ab_t[2],hip_t[2],knee_t[2];
+    float ab_t[2], hip_t[2], knee_t[2];
     uint32_t flags[2],checksum;
 }spi_rx;
 
 typedef struct {
     float ab_t[2],hip_t[2],knee_t[2];
-}test;
+}torque_rx;
 
 
 //spi buffer
 uint16_t spi_tx_buffer[TX_LEN];
 uint16_t spi_rx_buffer[RX_LEN];
 
-//structurs
-spi_tx values;
-spi_rx valuesrec;
-spi_rx control;
-uint32_t currentControlMode = 99;
-//spi_tx state={1.12,1.12,3.16,3.16,5.4,5.4,1.12,1.12,3.16,3.16,5.4,5.4,1,1,4};
-spi_tx state;
-test torque;
+//structures
+spi_tx 		values; //todo
+spi_rx 		valuesrec;
+spi_rx 		control;
+uint32_t 	currentControlMode = 99;
+spi_tx 		state;
+torque_rx 	torque;
 
 //State Variables
-uint32_t check;
+uint32_t check; //to store calculated checksum
 
 //to detect a falling edge
-uint8_t spi_enable;
-uint8_t merker = 0;
+uint8_t spi_enable; //todo
+uint8_t merker = 0; //todo
 
 //set values
 float p_in = 0.0f;
@@ -214,35 +196,19 @@ float t_out = 0.0f;     //torque
 
 
 //steap Variable which change the position of the gear
-float p_step = 0.1f;
+float p_step = 0.1f; //todo
 
-//Can ID
 
-uint8_t Ab_CAN = 1;
-uint8_t Hip_CAN = 2;
-uint8_t Knee_CAN = 3;
 
-uint8_t CAN;
+uint8_t TxData2[8]; //todo
+uint8_t RxData2[8]; //todo
 
-//Can variables
-
-CAN_TxHeaderTypeDef TxHeader;
-CAN_RxHeaderTypeDef RxHeader;
-
-uint8_t TxData[8];
-uint8_t RxData[8];
-
-uint32_t TxMailbox;
-
-uint8_t TxData2[8];
-uint8_t RxData2[8];
-
-uint32_t TxMailbox2;
+uint32_t TxMailbox2; //todo
 
 int datacheck = 2;
 int count=2;
 int keycontrol=0;
-int motormode=0;
+int motormode=0; //todo
 volatile spi_enabled = 0;
 volatile callback_enabled = 0;
 
@@ -289,25 +255,12 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -317,7 +270,6 @@ int main(void)
   MX_SPI1_Init();
   MX_CAN2_Init();
   MX_TIM8_Init();
-  /* USER CODE BEGIN 2 */
 
   HAL_CAN_Start(&hcan1);
   HAL_CAN_Start(&hcan2);
@@ -361,12 +313,8 @@ int main(void)
 
   printf("start\n");
   HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-//  HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
 
 
 
@@ -442,7 +390,7 @@ delay_us(1000);
 	exit_mode(Hip_CAN, &TxHeader, TxData);
 	exit_mode(Knee_CAN, &TxHeader, TxData);
 
-  /* USER CODE END 3 */
+
 }
 
 /**
