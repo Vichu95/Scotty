@@ -304,30 +304,29 @@ int main(void)
 
 
 
-  while (1)
-  {
-
-	__HAL_TIM_SET_COUNTER(&htim8,0);
-
-	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
+	while (1)
 	{
-		spi_test=1;
-		spi_send_receive();
-		count=1;
-		time2=__HAL_TIM_GET_COUNTER(&htim8);
-	}
+		__HAL_TIM_SET_COUNTER(&htim8,0);
 
-	if(count==1)
-	{
-		can_send_receive();
-		count=2;
-		time=__HAL_TIM_GET_COUNTER(&htim8);
-	}
+		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
+		{
+			spi_test=1;
+			spi_send_receive();
+			count=1;
+			time2=__HAL_TIM_GET_COUNTER(&htim8);
+		}
 
-	Error_spi=HAL_SPI_GetError(&hspi1);
-	State_spi=HAL_SPI_GetState(&hspi1);
+		if(count==1)
+		{
+			can_send_receive();
+			count=2;
+			time=__HAL_TIM_GET_COUNTER(&htim8);
+		}
 
-  }//end of while
+		Error_spi=HAL_SPI_GetError(&hspi1);
+		State_spi=HAL_SPI_GetState(&hspi1);
+
+	}//end of while
 
 
 	exit_mode(Ab_CAN, &TxHeader, TxData);
@@ -373,12 +372,12 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 		//if the communication has no issues the values will write in the control structure
 		check = xor_checksum((uint32_t*)&valuesrec,32);
 
-		//Retrieve the current control Mode and reset flags to its value
+		//Retrieve the current control Mode stored at higher 16 bits and reset flags to its value
 		currentControlMode = (valuesrec.flags[0]>>16);
 		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
-		valuesrec.flags[1] = (valuesrec.flags[0] & 0xFFFF);
+		valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
 
-		if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3))
+		if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
 		{
 			for(int i = 0; i < CONTROL_LEN; i++)
 			{
