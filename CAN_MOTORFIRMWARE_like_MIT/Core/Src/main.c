@@ -380,11 +380,11 @@ int main(void)
 delay_us(1000);
 
 
-zero(Ab_CAN, &TxHeader, TxData);
-zero(Hip_CAN, &TxHeader, TxData);
-zero(Knee_CAN, &TxHeader, TxData);
-
- delay_us(1000);
+//zero(Ab_CAN, &TxHeader, TxData);
+//zero(Hip_CAN, &TxHeader, TxData);
+//zero(Knee_CAN, &TxHeader, TxData);
+//
+// delay_us(1000);
 
 
 
@@ -899,7 +899,7 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				}
 
 			// Safety Limit
-			safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t);
+			safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t[CAN]);
 	    	}
 		if(ID==2){
 			p_in = (control.hip_p[CAN] * hip_mitdirection[CAN]);
@@ -914,7 +914,7 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				}
 
 			// Safety Limit
-			safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t);
+			safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t[CAN]);
 	    	}
 		if(ID==3){
 			p_in = (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
@@ -929,7 +929,7 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 				}
 
 			// Safety Limit
-			safetycheck_reqTrq(state.knee_p[CAN], state.knee_v[CAN], torque.knee_t);
+			safetycheck_reqTrq(state.knee_p[CAN], state.knee_v[CAN], torque.knee_t[CAN]);
 	    	}
 
 	Header->StdId = ID;
