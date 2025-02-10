@@ -70,7 +70,7 @@
 /****************************    HANDLING DEVIATIONS	**********************/
 #define KNEE_GEARRATIO 1.5 //1.25 //todo for testing
 
-const int ab_mitdirection[2] 	= {-1, -1};
+const int ab_mitdirection[2]    = {-1, -1};
 const int hip_mitdirection[2] 	= { 1,  1};
 const int knee_mitdirection[2] 	= { 1,  1};
 
@@ -136,7 +136,7 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
 float uint_to_float(int x_int, float x_min, float x_max, int bits);
 int   float_to_uint(float x, float x_min, float x_max, int bits);
 void  delay_us(uint16_t us);
-
+uint32_t encode_floats(float a, float b, float c);
 
 
 
@@ -198,8 +198,6 @@ float t_out = 0.0f;     //torque
 int datacheck = 2;
 int count=2;
 int motormode=0; //todo
-volatile spi_enabled = 0;
-volatile callback_enabled = 0;
 
 //Time
 uint32_t time;
@@ -282,17 +280,13 @@ int main(void)
 	motor_mode(Ab_CAN, &TxHeader, TxData);
 	motor_mode(Hip_CAN, &TxHeader, TxData);
 	motor_mode(Knee_CAN, &TxHeader, TxData);
-
-
-
-delay_us(1000);
+ 	delay_us(1000);
 
 
 //zero(Ab_CAN, &TxHeader, TxData);
 //zero(Hip_CAN, &TxHeader, TxData);
 //zero(Knee_CAN, &TxHeader, TxData);
-//
-// delay_us(1000);
+//delay_us(1000);
 
 
 
@@ -312,26 +306,19 @@ delay_us(1000);
 
   while (1)
   {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
 
 	__HAL_TIM_SET_COUNTER(&htim8,0);
-	 	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2 && spi_enabled==0){
-	//if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 ){
+
+	if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
+	{
 		spi_test=1;
 		spi_send_receive();
-		//can_send_receive();
 		count=1;
-	    //count=1;
 		time2=__HAL_TIM_GET_COUNTER(&htim8);
-
 	}
 
-	if(count==1){
-
-
-
+	if(count==1)
+	{
 		can_send_receive();
 		count=2;
 		time=__HAL_TIM_GET_COUNTER(&htim8);
@@ -339,9 +326,8 @@ delay_us(1000);
 
 	Error_spi=HAL_SPI_GetError(&hspi1);
 	State_spi=HAL_SPI_GetState(&hspi1);
-	//HAL_Delay(1);
 
-  }
+  }//end of while
 
 
 	exit_mode(Ab_CAN, &TxHeader, TxData);
@@ -352,6 +338,72 @@ delay_us(1000);
 }
 
 
+							/***************************************************
+							 *  				 S P I
+							 ***************************************************/
+
+void spi_send_receive(void)
+{
+	//Pack the torques into the flag.
+	 state.flags[0] = encode_floats(torque.ab_t[0], torque.hip_t[0], torque.knee_t[0]) | (state.flags[0]& 0x03);
+	 state.flags[1] = encode_floats(torque.ab_t[1], torque.hip_t[1], torque.knee_t[1]) | (state.flags[1]& 0x03);
+
+
+	//calculate the checksum
+	state.checksum = xor_checksum((uint32_t*)&state,14);
+
+	//pack the status variables into the tx buffer
+	for(int i = 0; i < STATE_LEN ; i++)
+	{
+		spi_tx_buffer[i] = ((uint16_t*)(&state))[i];
+	}
+
+}
+
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
+{
+	//unpack the received bytes from rx buffer into †he valuesrec structur
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0)
+	{
+		for(int i = 0; i < RX_LEN; i++)
+		{
+			((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
+		}
+
+		//if the communication has no issues the values will write in the control structure
+		check = xor_checksum((uint32_t*)&valuesrec,32);
+
+		//Retrieve the current control Mode and reset flags to its value
+		currentControlMode = (valuesrec.flags[0]>>16);
+		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
+		valuesrec.flags[1] = (valuesrec.flags[0] & 0xFFFF);
+
+		if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3))
+		{
+			for(int i = 0; i < CONTROL_LEN; i++)
+			{
+				((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
+			}
+		}
+
+	}
+
+	// Disable the SPI //vishnu : I think this actually enables SPI callback for next
+	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+
+}
+
+void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
+	CallbackError_spi=HAL_SPI_GetError(&hspi1);
+
+	HAL_SPI_DeInit(&hspi1);
+	HAL_SPI_Init(&hspi1);
+
+	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+}
+
+/* USER CODE END 4 */
 /* USER CODE BEGIN 4 */
 
 //Printfunction
@@ -368,66 +420,6 @@ int _write(int file, char *ptr, int len)
 	return len;
 }
 
-
-
-///////////////////////////modes/////////////////////////////////
-
-//Start motor
-void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFC;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(300);
-	//wait(100);
-    }
-
-//stop motor
-void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFD;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(300);
-	//wait(100);
-    }
-
-//set motorposition to zero
-void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFE;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    /*if(CAN==0){
-    	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-    }
-    if(CAN==1){
-    	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    }*/
-    delay_us(300);
-	//wait(100);
-    }
 
 /////////////////////////pack and unpack//////////////////////////
 
@@ -505,15 +497,7 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
     Data[6] = ((kd_int&0xF)<<4)|(t_int>>8);
     Data[7] = t_int&0xff;
 
-
-//	float t_ffTest = uint_to_float(t_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
-//	float p_out = uint_to_float(p_int, MOTOR_P_MIN, MOTOR_P_MAX, 16);
-//	float v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
-//	float kp_out = uint_to_float(kp_int, MOTOR_KP_MIN, MOTOR_KP_MAX, 12);
-//	float kd_out = uint_to_float(kd_int, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
-//	float vas_out = uint_to_float(kd_int, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
-
-    }
+}
 
 
 void unpack_replay(uint8_t*Data){
@@ -531,19 +515,16 @@ void unpack_replay(uint8_t*Data){
 	if(id==1){
 		state.ab_p[datacheck]=(p_out * ab_mitdirection[datacheck]);
 		state.ab_v[datacheck]=v_out;
-		//state.ab_t[datacheck]=t_out;
 		torque.ab_t[datacheck]=t_out;
 	}
 	if(id==2){
 		state.hip_p[datacheck]=(p_out * hip_mitdirection[datacheck]);
 		state.hip_v[datacheck]=v_out;
-		//state.hip_t[datacheck]=t_out;
 		torque.hip_t[datacheck]=t_out;
 	}
 	if(id==3){
 		state.knee_p[datacheck]= (p_out * knee_mitdirection[datacheck])/ KNEE_GEARRATIO;
 		state.knee_v[datacheck]=v_out;
-		//state.knee_t[datacheck]=t_out;
 		torque.knee_t[datacheck]=t_out;
     }
 }
@@ -601,6 +582,7 @@ void can_send_receive(){
 	}
 
 }
+
 
 
 /////////////////////////////////math/////////////////////////////////////////
@@ -663,14 +645,20 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff){
   }
 
 
-////////////////////////delay//////////////////////////////////
+
+									/***************************************************
+									 *  		 U T I L I T I E S
+									 ***************************************************/
+
+
+//delay
 void delay_us (uint16_t us)
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0);  // set the counter value a 0
 	while ((uint16_t)__HAL_TIM_GET_COUNTER(&htim1) < us);
 }
 
-////////////////////////spi//////////////////////////////////
+//spi checksum
 uint32_t xor_checksum(uint32_t* data, int len)
 {
     uint32_t t = 0;
@@ -679,7 +667,8 @@ uint32_t xor_checksum(uint32_t* data, int len)
     return t;
 }
 
-uint32_t encode_floats(float a, float b, float c) {
+uint32_t encode_floats(float a, float b, float c)
+{
     uint32_t encoded = 0;
 
     // Clamp each value to the range [-70, 70] using conditional statements
@@ -706,66 +695,78 @@ uint32_t encode_floats(float a, float b, float c) {
     return encoded;
 }
 
-void spi_send_receive(void){
-
-	//Pack the torques into the flag.
-	 state.flags[0] = encode_floats(torque.ab_t[0], torque.hip_t[0], torque.knee_t[0]) | (state.flags[0]& 0x03);
-	 state.flags[1] = encode_floats(torque.ab_t[1], torque.hip_t[1], torque.knee_t[1]) | (state.flags[1]& 0x03);
 
 
-	//calculatet the checksum
-	//pack the status variables into the tx buffer
-	state.checksum = xor_checksum((uint32_t*)&state,14);
-	for(int i = 0; i < STATE_LEN ; i++){
-		spi_tx_buffer[i] = ((uint16_t*)(&state))[i];
-		}
-
-}
-
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
-{
-	//unpack the received bytes from rx buffer into †he valuesrec structur
-		callback_enabled = 1;
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0){
-			for(int i = 0; i < RX_LEN; i++){
-				((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
-				//printf("%d\n", spi_rx_buffer[i]);
-				}
-			//if the communication has no issues the values will write in the control structure
-
-			check = xor_checksum((uint32_t*)&valuesrec,32);
-
-			//Retrieve the current control Mode and reset flags to its value
-			currentControlMode = (valuesrec.flags[0]>>16);
-			valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
-			valuesrec.flags[1] = (valuesrec.flags[0] & 0xFFFF);
-
-			if(valuesrec.checksum == check && (valuesrec.flags[0]<=3 ||valuesrec.flags[1]<=3)){
-				for(int i = 0; i < CONTROL_LEN; i++){
-					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
-					}
-				}
-
-		}
-		// Disable the SPI //vishnu : I think this actually enables SPI callback for next
-		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-//		HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
 
-		spi_enabled = 0;
 
-}
+							/***************************************************
+							 *  		M O T O R    M O D E S
+							 ***************************************************/
 
-void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
-	CallbackError_spi=HAL_SPI_GetError(&hspi1);
 
-	HAL_SPI_DeInit(&hspi1);
-	HAL_SPI_Init(&hspi1);
+//Start motor
+void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+    Data[0] = 0xFF;
+    Data[1] = 0xFF;
+    Data[2] = 0xFF;
+    Data[3] = 0xFF;
+    Data[4] = 0xFF;
+    Data[5] = 0xFF;
+    Data[6] = 0xFF;
+    Data[7] = 0xFC;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+    delay_us(300);
+    }
 
-	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-}
+//stop motor
+void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+    Data[0] = 0xFF;
+    Data[1] = 0xFF;
+    Data[2] = 0xFF;
+    Data[3] = 0xFF;
+    Data[4] = 0xFF;
+    Data[5] = 0xFF;
+    Data[6] = 0xFF;
+    Data[7] = 0xFD;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+    delay_us(300);
+    }
 
-/* USER CODE END 4 */
+//set motorposition to zero
+void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+    Data[0] = 0xFF;
+    Data[1] = 0xFF;
+    Data[2] = 0xFF;
+    Data[3] = 0xFF;
+    Data[4] = 0xFF;
+    Data[5] = 0xFF;
+    Data[6] = 0xFF;
+    Data[7] = 0xFE;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+    delay_us(300);
+    }
+
+
+
+
+
+
+
+
+										/***************************************************
+										*  				H A L    B A S I C S
+										***************************************************/
+
+
+
+
 
 
 /**
