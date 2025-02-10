@@ -334,7 +334,7 @@ int main(void)
 	exit_mode(Knee_CAN, &TxHeader, TxData);
 
 
-}
+}// end of main
 
 
 							/***************************************************
@@ -417,21 +417,18 @@ void can_send_receive(){
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==0){
 		unpack_replay(RxData);
 	}
@@ -440,21 +437,18 @@ void can_send_receive(){
 	pack_message(Ab_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Hip_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
 	pack_message(Knee_CAN, &TxHeader, TxData);
 	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
     delay_us(300);
-	//wait(100);
 	if (datacheck==1){
 		unpack_replay(RxData);
 	}
@@ -468,11 +462,11 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 
 	if(ID==1)
 	{
-		p_in = (control.ab_p[CAN] * ab_mitdirection[CAN]);
-		v_in = control.ab_v[CAN];
-		kp_in = control.ab_kp[CAN];   //stifness
-		kd_in = control.ab_kd[CAN];     //damper
-		t_in = control.ab_t[CAN];
+		p_in 	= (control.ab_p[CAN] * ab_mitdirection[CAN]);
+		v_in 	= control.ab_v[CAN];
+		kp_in 	= control.ab_kp[CAN];   //stifness
+		kd_in 	= control.ab_kd[CAN];     //damper
+		t_in 	= control.ab_t[CAN];
 
 		if(softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N))
 		{	//Incase of wrong request
@@ -484,11 +478,11 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 	}
 	if(ID==2)
 	{
-		p_in = (control.hip_p[CAN] * hip_mitdirection[CAN]);
-		v_in = control.hip_v[CAN];
-		kp_in = control.hip_kp[CAN];   //stifness
-		kd_in = control.hip_kd[CAN];     //damper
-		t_in = control.hip_t[CAN];
+		p_in 	= (control.hip_p[CAN] * hip_mitdirection[CAN]);
+		v_in 	= control.hip_v[CAN];
+		kp_in	= control.hip_kp[CAN];   //stifness
+		kd_in	= control.hip_kd[CAN];     //damper
+		t_in	= control.hip_t[CAN];
 
 		if(softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N))
 		{	//Incase of wrong request
@@ -500,11 +494,11 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 	}
 	if(ID==3)
 	{
-		p_in = (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
-		v_in = control.knee_v[CAN];
-		kp_in = control.knee_kp[CAN];   //stifness
-		kd_in = control.knee_kd[CAN];     //damper
-		t_in = control.knee_t[CAN];
+		p_in 	= (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
+		v_in 	= control.knee_v[CAN];
+		kp_in 	= control.knee_kp[CAN];   //stifness
+		kd_in	= control.knee_kd[CAN];     //damper
+		t_in 	= control.knee_t[CAN];
 
 		if(softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N))
 		{	//Incase of wrong request
