@@ -402,132 +402,11 @@ void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
 	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 }
 
-/* USER CODE END 4 */
-/* USER CODE BEGIN 4 */
 
-//Printfunction
+							/***************************************************
+							 *  				 C A N
+							 ***************************************************/
 
-int _write(int file, char *ptr, int len)
-{
-	int DataIdx;
-
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-		//__io_putchar(*ptr++);
-		ITM_SendChar(*ptr++);
-	}
-	return len;
-}
-
-
-/////////////////////////pack and unpack//////////////////////////
-
-void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-
-		if(ID==1){
-			p_in = (control.ab_p[CAN] * ab_mitdirection[CAN]);
-			v_in = control.ab_v[CAN];
-			kp_in = control.ab_kp[CAN];   //stifness
-			kd_in = control.ab_kd[CAN];     //damper
-			t_in = control.ab_t[CAN];
-
-			if(softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N))
-				{	//Incase of wrong request
-					state.flags[CAN] |= 0b01;
-				}
-
-			// Safety Limit
-			safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t[CAN]);
-	    	}
-		if(ID==2){
-			p_in = (control.hip_p[CAN] * hip_mitdirection[CAN]);
-			v_in = control.hip_v[CAN];
-			kp_in = control.hip_kp[CAN];   //stifness
-			kd_in = control.hip_kd[CAN];     //damper
-			t_in = control.hip_t[CAN];
-
-			if(softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N))
-				{	//Incase of wrong request
-					state.flags[CAN] |= 0b10;
-				}
-
-			// Safety Limit
-			safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t[CAN]);
-	    	}
-		if(ID==3){
-			p_in = (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
-			v_in = control.knee_v[CAN];
-			kp_in = control.knee_kp[CAN];   //stifness
-			kd_in = control.knee_kd[CAN];     //damper
-			t_in = control.knee_t[CAN];
-
-			if(softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N))
-				{	//Incase of wrong request
-					state.flags[CAN] |= 0b11;
-				}
-
-			// Safety Limit
-			safetycheck_reqTrq(state.knee_p[CAN], state.knee_v[CAN], torque.knee_t[CAN]);
-	    	}
-
-	Header->StdId = ID;
-
-    /// limit data to be within bounds ///
-	float p_des = fminf(fmaxf(P_MIN, p_in), P_MAX);
-	float v_des = fminf(fmaxf(V_MIN, v_in), V_MAX);
-	float kp = fminf(fmaxf(KP_MIN, kp_in), KP_MAX);
-	float kd = fminf(fmaxf(KD_MIN, kd_in), KD_MAX);
-	float t_ff = fminf(fmaxf(T_MIN, t_in), T_MAX);
-
-    /// convert floats to unsigned ints ///
-    uint16_t p_int = float_to_uint(p_des, MOTOR_P_MIN, MOTOR_P_MAX, 16);
-    uint16_t v_int = float_to_uint(v_des, MOTOR_V_MIN, MOTOR_V_MAX, 12);
-    uint16_t kp_int = float_to_uint(kp, MOTOR_KP_MIN, MOTOR_KP_MAX, 12);
-    uint16_t kd_int = float_to_uint(kd, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
-    uint16_t t_int = float_to_uint(t_ff, MOTOR_T_MIN, MOTOR_T_MAX, 12);
-
-    /// pack ints into the can buffer ///
-    Data[0] = p_int>>8;
-    Data[1] = p_int&0xFF;
-    Data[2] = v_int>>4;
-    Data[3] = ((v_int&0xF)<<4)|(kp_int>>8);
-    Data[4] = kp_int&0xFF;
-    Data[5] = kd_int>>4;
-    Data[6] = ((kd_int&0xF)<<4)|(t_int>>8);
-    Data[7] = t_int&0xff;
-
-}
-
-
-void unpack_replay(uint8_t*Data){
-	/// unpack ints from can buffer ///
-
-	uint16_t id = Data[0];
-	uint16_t p_int = (Data[1]<<8)|Data[2];
-	uint16_t v_int = (Data[3]<<4)|(Data[4]>>4);
-	uint16_t i_int = ((Data[4]&0xF)<<8)|Data[5];
-	/// convert uints to floats ///
-	p_out = uint_to_float(p_int, MOTOR_P_MIN, MOTOR_P_MAX, 16);
-	v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
-	t_out = uint_to_float(i_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
-
-	if(id==1){
-		state.ab_p[datacheck]=(p_out * ab_mitdirection[datacheck]);
-		state.ab_v[datacheck]=v_out;
-		torque.ab_t[datacheck]=t_out;
-	}
-	if(id==2){
-		state.hip_p[datacheck]=(p_out * hip_mitdirection[datacheck]);
-		state.hip_v[datacheck]=v_out;
-		torque.hip_t[datacheck]=t_out;
-	}
-	if(id==3){
-		state.knee_p[datacheck]= (p_out * knee_mitdirection[datacheck])/ KNEE_GEARRATIO;
-		state.knee_v[datacheck]=v_out;
-		torque.knee_t[datacheck]=t_out;
-    }
-}
-/////////////////////////////////math/////////////////////////////////////////
 void can_send_receive(){
 
 	// Reset the flags before each CAN communication
@@ -582,53 +461,157 @@ void can_send_receive(){
 
 }
 
+/////////////////////////pack and unpack//////////////////////////
+
+void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
+{
+
+	if(ID==1)
+	{
+		p_in = (control.ab_p[CAN] * ab_mitdirection[CAN]);
+		v_in = control.ab_v[CAN];
+		kp_in = control.ab_kp[CAN];   //stifness
+		kd_in = control.ab_kd[CAN];     //damper
+		t_in = control.ab_t[CAN];
+
+		if(softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N))
+		{	//Incase of wrong request
+			state.flags[CAN] |= 0b01;
+		}
+
+		// Safety Limit
+		safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t[CAN]);
+	}
+	if(ID==2)
+	{
+		p_in = (control.hip_p[CAN] * hip_mitdirection[CAN]);
+		v_in = control.hip_v[CAN];
+		kp_in = control.hip_kp[CAN];   //stifness
+		kd_in = control.hip_kd[CAN];     //damper
+		t_in = control.hip_t[CAN];
+
+		if(softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N))
+		{	//Incase of wrong request
+			state.flags[CAN] |= 0b10;
+		}
+
+		// Safety Limit
+		safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t[CAN]);
+	}
+	if(ID==3)
+	{
+		p_in = (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
+		v_in = control.knee_v[CAN];
+		kp_in = control.knee_kp[CAN];   //stifness
+		kd_in = control.knee_kd[CAN];     //damper
+		t_in = control.knee_t[CAN];
+
+		if(softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N))
+		{	//Incase of wrong request
+			state.flags[CAN] |= 0b11;
+		}
+
+		// Safety Limit
+		safetycheck_reqTrq(state.knee_p[CAN], state.knee_v[CAN], torque.knee_t[CAN]);
+	}
+
+	Header->StdId = ID;
+
+    /// limit data to be within bounds ///
+	float p_des = fminf(fmaxf(P_MIN, p_in), P_MAX);
+	float v_des = fminf(fmaxf(V_MIN, v_in), V_MAX);
+	float kp = fminf(fmaxf(KP_MIN, kp_in), KP_MAX);
+	float kd = fminf(fmaxf(KD_MIN, kd_in), KD_MAX);
+	float t_ff = fminf(fmaxf(T_MIN, t_in), T_MAX);
+
+    /// convert floats to unsigned ints ///
+    uint16_t p_int = float_to_uint(p_des, MOTOR_P_MIN, MOTOR_P_MAX, 16);
+    uint16_t v_int = float_to_uint(v_des, MOTOR_V_MIN, MOTOR_V_MAX, 12);
+    uint16_t kp_int = float_to_uint(kp, MOTOR_KP_MIN, MOTOR_KP_MAX, 12);
+    uint16_t kd_int = float_to_uint(kd, MOTOR_KD_MIN, MOTOR_KD_MAX, 12);
+    uint16_t t_int = float_to_uint(t_ff, MOTOR_T_MIN, MOTOR_T_MAX, 12);
+
+    /// pack ints into the can buffer ///
+    Data[0] = p_int>>8;
+    Data[1] = p_int&0xFF;
+    Data[2] = v_int>>4;
+    Data[3] = ((v_int&0xF)<<4)|(kp_int>>8);
+    Data[4] = kp_int&0xFF;
+    Data[5] = kd_int>>4;
+    Data[6] = ((kd_int&0xF)<<4)|(t_int>>8);
+    Data[7] = t_int&0xff;
+
+}
 
 
-/////////////////////////////////math/////////////////////////////////////////
+void unpack_replay(uint8_t*Data){
+	/// unpack ints from can buffer ///
 
-int float_to_uint(float x, float x_min, float x_max, int bits){
-    /// Converts a float to an unsigned int, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return (int) ((x-offset)*((float)((1<<bits)-1))/span);
+	uint16_t id = Data[0];
+	uint16_t p_int = (Data[1]<<8)|Data[2];
+	uint16_t v_int = (Data[3]<<4)|(Data[4]>>4);
+	uint16_t i_int = ((Data[4]&0xF)<<8)|Data[5];
+	/// convert uints to floats ///
+	p_out = uint_to_float(p_int, MOTOR_P_MIN, MOTOR_P_MAX, 16);
+	v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
+	t_out = uint_to_float(i_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
+
+	if(id==1)
+	{
+		state.ab_p[datacheck]=(p_out * ab_mitdirection[datacheck]);
+		state.ab_v[datacheck]=v_out;
+		torque.ab_t[datacheck]=t_out;
+	}
+	if(id==2)
+	{
+		state.hip_p[datacheck]=(p_out * hip_mitdirection[datacheck]);
+		state.hip_v[datacheck]=v_out;
+		torque.hip_t[datacheck]=t_out;
+	}
+	if(id==3)
+	{
+		state.knee_p[datacheck]= (p_out * knee_mitdirection[datacheck])/ KNEE_GEARRATIO;
+		state.knee_v[datacheck]=v_out;
+		torque.knee_t[datacheck]=t_out;
     }
+}
 
-float uint_to_float(int x_int, float x_min, float x_max, int bits){
-    /// converts unsigned int to float, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
-    }
+
 
 ////////////////////////softstop//////////////////////////////////
 //actuator only can move to a limit position
 
-int softstop_joint(float *control,float state, float limit_p, float limit_n){
-  if(*control>=limit_p){
-//	    *control = limit_p;
-    p_in = limit_p;
-    v_in = 0.0f;
-    kp_in = 0.0f;
-    kd_in = KD_SOFTSTOP;
-    t_in += KP_SOFTSTOP*(limit_p - state);
-    return 1;
-    }
-  if(*control<=limit_n){
-//	    *control = limit_n;
-	p_in = limit_n;
-    v_in = 0.0f;
-    kp_in = 0.0f;
-    kd_in = KD_SOFTSTOP;
-    t_in += KP_SOFTSTOP*(limit_n - state);
-    return 1;
-    }
+int softstop_joint(float *control,float state, float limit_p, float limit_n)
+{
+	if(*control>=limit_p)
+	{
+		//*control = limit_p;
+		p_in = limit_p;
+		v_in = 0.0f;
+		kp_in = 0.0f;
+		kd_in = KD_SOFTSTOP;
+		t_in += KP_SOFTSTOP*(limit_p - state);
+		return 1;
+	}
+	if(*control<=limit_n)
+	{
+		//*control = limit_n;
+		p_in = limit_n;
+		v_in = 0.0f;
+		kp_in = 0.0f;
+		kd_in = KD_SOFTSTOP;
+		t_in += KP_SOFTSTOP*(limit_n - state);
+		return 1;
+	}
+
   return 0;
-  }
+}
 
 
 ////////////////////////safetycheck_reqTrq//////////////////////////////////
 //To add additional check on the torque requested to the motor. Calculated based on the PID model of motor.
-void safetycheck_reqTrq(float p_act, float v_act, float t_ff){
+void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
+{
 
 	float trqreq = (p_in - p_act)*kp_in + (v_in - v_act)*kd_in + t_ff;
 
@@ -641,7 +624,63 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff){
 		kd_in = 0.0f;
 		t_in = 0.0f;
 	}
-  }
+}
+
+
+
+									/***************************************************
+									 *  		M O T O R    M O D E S
+									 ***************************************************/
+
+
+//Start motor
+void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+	Data[0] = 0xFF;
+	Data[1] = 0xFF;
+	Data[2] = 0xFF;
+	Data[3] = 0xFF;
+	Data[4] = 0xFF;
+	Data[5] = 0xFF;
+	Data[6] = 0xFF;
+	Data[7] = 0xFC;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+	delay_us(300);
+}
+
+//stop motor
+void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+	Data[0] = 0xFF;
+	Data[1] = 0xFF;
+	Data[2] = 0xFF;
+	Data[3] = 0xFF;
+	Data[4] = 0xFF;
+	Data[5] = 0xFF;
+	Data[6] = 0xFF;
+	Data[7] = 0xFD;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+	delay_us(300);
+}
+
+//set motorposition to zero
+void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+	Header->StdId = ID;
+	Data[0] = 0xFF;
+	Data[1] = 0xFF;
+	Data[2] = 0xFF;
+	Data[3] = 0xFF;
+	Data[4] = 0xFF;
+	Data[5] = 0xFF;
+	Data[6] = 0xFF;
+	Data[7] = 0xFE;
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
+	delay_us(300);
+}
+
 
 
 
@@ -649,6 +688,23 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff){
 									 *  		 U T I L I T I E S
 									 ***************************************************/
 
+
+//math
+int float_to_uint(float x, float x_min, float x_max, int bits)
+{
+    /// Converts a float to an unsigned int, given range and number of bits ///
+    float span = x_max - x_min;
+    float offset = x_min;
+    return (int) ((x-offset)*((float)((1<<bits)-1))/span);
+}
+
+float uint_to_float(int x_int, float x_min, float x_max, int bits)
+{
+    /// converts unsigned int to float, given range and number of bits ///
+    float span = x_max - x_min;
+    float offset = x_min;
+    return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
+}
 
 //delay
 void delay_us (uint16_t us)
@@ -695,62 +751,18 @@ uint32_t encode_floats(float a, float b, float c)
 }
 
 
+//Printfunction
+int _write(int file, char *ptr, int len)
+{
+	int DataIdx;
 
-
-
-
-							/***************************************************
-							 *  		M O T O R    M O D E S
-							 ***************************************************/
-
-
-//Start motor
-void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFC;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(300);
-    }
-
-//stop motor
-void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFD;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(300);
-    }
-
-//set motorposition to zero
-void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
-	Header->StdId = ID;
-    Data[0] = 0xFF;
-    Data[1] = 0xFF;
-    Data[2] = 0xFF;
-    Data[3] = 0xFF;
-    Data[4] = 0xFF;
-    Data[5] = 0xFF;
-    Data[6] = 0xFF;
-    Data[7] = 0xFE;
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, Data, &TxMailbox);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, Data, &TxMailbox);
-    delay_us(300);
-    }
+	for (DataIdx = 0; DataIdx < len; DataIdx++)
+	{
+		//__io_putchar(*ptr++);
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
 
 
 
