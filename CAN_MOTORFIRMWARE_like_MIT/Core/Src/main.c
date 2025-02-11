@@ -95,8 +95,8 @@
 #define CONTROL_LEN 66
 
 //Can ID
-uint8_t Ab_CAN = 1;
-uint8_t Hip_CAN = 2;
+uint8_t Ab_CAN 	 = 1;
+uint8_t Hip_CAN  = 2;
 uint8_t Knee_CAN = 3;
 uint8_t CAN;
 
@@ -171,22 +171,23 @@ typedef struct {
     float ab_t[2],hip_t[2],knee_t[2];
 }torque_rx;
 
+//structures
+spi_rx 		valuesrec;
+spi_rx 		control;
+spi_tx 		state;
+torque_rx 	torque;
 
 //spi buffer
 uint16_t spi_tx_buffer[TX_LEN];
 uint16_t spi_rx_buffer[RX_LEN];
 
-//structures
-spi_rx 		valuesrec;
-spi_rx 		control;
+
 uint32_t 	currentControlMode = 99;
-spi_tx 		state;
-torque_rx 	torque;
 
 //State Variables
 uint32_t checksum_calc; //to store calculated checksum
 
-//set values
+//input values
 float p_in 	= 0.0f;
 float v_in 	= 0.0f;
 float kp_in = 2.0f;     //stifness
@@ -277,7 +278,7 @@ int main(void)
 
 
 
-
+	// START MOTOR
 	motor_mode(Ab_CAN, &TxHeader, TxData);
 	motor_mode(Hip_CAN, &TxHeader, TxData);
 	motor_mode(Knee_CAN, &TxHeader, TxData);
@@ -303,11 +304,12 @@ int main(void)
 //	  }
 
 
-
-	while (1)
+ 	// Loop only if count is 2 (SPI) or 1 (CAN)
+	while (count == 2 || count == 1)
 	{
 		__HAL_TIM_SET_COUNTER(&htim8,0);
 
+		//count = 2 executes the SPI
 		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
 		{
 			spi_send_receive();
@@ -315,6 +317,7 @@ int main(void)
 			time2=__HAL_TIM_GET_COUNTER(&htim8);
 		}
 
+		//count = 1 executes the CAN
 		if(count==1)
 		{
 			can_send_receive();
@@ -322,12 +325,10 @@ int main(void)
 			time=__HAL_TIM_GET_COUNTER(&htim8);
 		}
 
-		Error_spi=HAL_SPI_GetError(&hspi1);
-		State_spi=HAL_SPI_GetState(&hspi1);
-
 	}//end of while
 
 
+	// STOP MOTOR
 	exit_mode(Ab_CAN, &TxHeader, TxData);
 	exit_mode(Hip_CAN, &TxHeader, TxData);
 	exit_mode(Knee_CAN, &TxHeader, TxData);
@@ -715,6 +716,11 @@ uint32_t xor_checksum(uint32_t* data, int len)
     return t;
 }
 
+
+/*
+ * This funciton encodes the torque value into high 30 bits of a 32bit variable.
+ * This is used to encode torque into flag for logging it in UP
+ */
 uint32_t encode_floats(float a, float b, float c)
 {
     uint32_t encoded = 0;
