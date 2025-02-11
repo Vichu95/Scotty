@@ -125,10 +125,10 @@ static void MX_CAN2_Init(void);
 static void MX_TIM8_Init(void);
 
 // MOTOR RELATED
-void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
-void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
-void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
-void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data);
+void motor_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void exit_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void zero(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
 void unpack_replay(uint8_t* Data);
 
 // Communication
@@ -458,7 +458,7 @@ void can_send_receive(){
 
 /////////////////////////pack and unpack//////////////////////////
 
-void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
+void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 {
 
 	if(ID == Abad_CANID)
@@ -635,7 +635,7 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 
 
 //Start motor
-void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+void motor_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data){
 	Header->StdId = ID;
 	Data[0] = 0xFF;
 	Data[1] = 0xFF;
@@ -651,7 +651,7 @@ void motor_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 }
 
 //stop motor
-void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+void exit_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data){
 	Header->StdId = ID;
 	Data[0] = 0xFF;
 	Data[1] = 0xFF;
@@ -667,7 +667,7 @@ void exit_mode(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
 }
 
 //set motorposition to zero
-void zero(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data){
+void zero(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data){
 	Header->StdId = ID;
 	Data[0] = 0xFF;
 	Data[1] = 0xFF;
