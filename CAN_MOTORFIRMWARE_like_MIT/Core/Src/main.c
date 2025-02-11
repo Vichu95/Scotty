@@ -472,6 +472,8 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 		if(softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N))
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b01;
+			p_in = p_in * ab_mitdirection[CAN]; // Direction update
+			t_in = t_in * ab_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
@@ -488,6 +490,8 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 		if(softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N))
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b10;
+			p_in = p_in * hip_mitdirection[CAN]; // Direction update
+			t_in = t_in * hip_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
@@ -504,6 +508,8 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 		if(softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N))
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b11;
+			p_in = (p_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
+			t_in = (t_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
 		}
 
 		// Safety Limit
