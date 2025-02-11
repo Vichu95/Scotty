@@ -60,7 +60,7 @@
 #define AB_LIM_N 	-1.5708f 	//-90°
 #define HIP_LIM_P 	 2.0944f 	//120°
 #define HIP_LIM_N 	-2.0944f 	//120°
-#define KNEE_LIM_P	 0.0f 		//0°
+#define KNEE_LIM_P	 0.1f 		//5.7°
 #define KNEE_LIM_N 	-4.01426f	//-230°
 #define KP_SOFTSTOP  100.0f
 #define KD_SOFTSTOP  0.4f
@@ -294,39 +294,39 @@ int main(void)
 
 
 
-//	// Only CAN
-//	count=1;
-//	  while (count==1)
-//	  {
-//
-//
-//			can_send_receive();
-//			time=__HAL_TIM_GET_COUNTER(&htim8);
-//	  }
+	// Only CAN
+	count=1;
+	  while (count==1)
+	  {
 
 
- 	// Loop only if count is 2 (SPI) or 1 (CAN)
-	while (count == 2 || count == 1)
-	{
-		__HAL_TIM_SET_COUNTER(&htim8,0);
-
-		//count = 2 executes the SPI
-		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
-		{
-			spi_send_receive();
-			count=1;
-			time2=__HAL_TIM_GET_COUNTER(&htim8);
-		}
-
-		//count = 1 executes the CAN
-		if(count==1)
-		{
 			can_send_receive();
-			count=2;
 			time=__HAL_TIM_GET_COUNTER(&htim8);
-		}
+	  }
 
-	}//end of while
+
+// 	// Loop only if count is 2 (SPI) or 1 (CAN)
+//	while (count == 2 || count == 1)
+//	{
+//		__HAL_TIM_SET_COUNTER(&htim8,0);
+//
+//		//count = 2 executes the SPI
+//		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
+//		{
+//			spi_send_receive();
+//			count=1;
+//			time2=__HAL_TIM_GET_COUNTER(&htim8);
+//		}
+//
+//		//count = 1 executes the CAN
+//		if(count==1)
+//		{
+//			can_send_receive();
+//			count=2;
+//			time=__HAL_TIM_GET_COUNTER(&htim8);
+//		}
+//
+//	}//end of while
 
 
 	// STOP MOTOR
