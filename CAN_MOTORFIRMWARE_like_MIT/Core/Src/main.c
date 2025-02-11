@@ -95,7 +95,7 @@
 #define CONTROL_LEN 66
 
 //Can ID
-#define Hip_CANID 	  1
+#define Abad_CANID 	1
 #define Hip_CANID   2
 #define Knee_CANID  3
 uint8_t CAN;
@@ -461,13 +461,13 @@ void can_send_receive(){
 void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 {
 
-	if(ID==1)
+	if(ID == Abad_CANID)
 	{
 		p_in 	= (control.ab_p[CAN] * ab_mitdirection[CAN]);
-		v_in 	= control.ab_v[CAN];
-		kp_in 	= control.ab_kp[CAN];   //stifness
-		kd_in 	= control.ab_kd[CAN];     //damper
-		t_in 	= control.ab_t[CAN];
+		v_in 	= (control.ab_v[CAN] * ab_mitdirection[CAN]);
+		kp_in 	=  control.ab_kp[CAN];   //stifness
+		kd_in 	=  control.ab_kd[CAN];     //damper
+		t_in 	= (control.ab_t[CAN] * ab_mitdirection[CAN]);
 
 		if(softstop_joint(&control.ab_p[CAN],state.ab_p[CAN],AB_LIM_P, AB_LIM_N))
 		{	//Incase of wrong request
@@ -477,13 +477,13 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 		// Safety Limit
 		safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t[CAN]);
 	}
-	if(ID==2)
+	if(ID == Hip_CANID)
 	{
 		p_in 	= (control.hip_p[CAN] * hip_mitdirection[CAN]);
-		v_in 	= control.hip_v[CAN];
-		kp_in	= control.hip_kp[CAN];   //stifness
-		kd_in	= control.hip_kd[CAN];     //damper
-		t_in	= control.hip_t[CAN];
+		v_in 	= (control.hip_v[CAN] * hip_mitdirection[CAN]);
+		kp_in	=  control.hip_kp[CAN];   //stifness
+		kd_in	=  control.hip_kd[CAN];     //damper
+		t_in	= (control.hip_t[CAN] * hip_mitdirection[CAN]);
 
 		if(softstop_joint(&control.hip_p[CAN],state.hip_p[CAN], HIP_LIM_P, HIP_LIM_N))
 		{	//Incase of wrong request
@@ -493,13 +493,13 @@ void pack_message(uint8_t ID,CAN_RxHeaderTypeDef*Header,uint8_t*Data)
 		// Safety Limit
 		safetycheck_reqTrq(state.hip_p[CAN], state.hip_v[CAN], torque.hip_t[CAN]);
 	}
-	if(ID==3)
+	if(ID == Knee_CANID)
 	{
 		p_in 	= (control.knee_p[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
-		v_in 	= control.knee_v[CAN];
-		kp_in 	= control.knee_kp[CAN];   //stifness
-		kd_in	= control.knee_kd[CAN];     //damper
-		t_in 	= control.knee_t[CAN];
+		v_in 	= (control.knee_v[CAN] * knee_mitdirection[CAN]) / KNEE_GEARRATIO;
+		kp_in 	=  control.knee_kp[CAN];   //stifness
+		kd_in	=  control.knee_kd[CAN];     //damper
+		t_in 	= (control.knee_t[CAN] * knee_mitdirection[CAN]) * KNEE_GEARRATIO;
 
 		if(softstop_joint(&control.knee_p[CAN], state.knee_p[CAN], KNEE_LIM_P, KNEE_LIM_N))
 		{	//Incase of wrong request
@@ -551,23 +551,23 @@ void unpack_replay(uint8_t*Data){
 	v_out = uint_to_float(v_int, MOTOR_V_MIN, MOTOR_V_MAX, 12);
 	t_out = uint_to_float(i_int, MOTOR_T_MIN, MOTOR_T_MAX, 12);
 
-	if(id==1)
+	if(id == Abad_CANID)
 	{
-		state.ab_p[receivedCanBus]=(p_out * ab_mitdirection[receivedCanBus]);
-		state.ab_v[receivedCanBus]=v_out;
-		torque.ab_t[receivedCanBus]=t_out;
+		state.ab_p[receivedCanBus]=  (p_out * ab_mitdirection[receivedCanBus]);
+		state.ab_v[receivedCanBus]=  (v_out * ab_mitdirection[receivedCanBus]);
+		torque.ab_t[receivedCanBus]= (t_out * ab_mitdirection[receivedCanBus]);
 	}
-	if(id==2)
+	if(id == Hip_CANID)
 	{
-		state.hip_p[receivedCanBus]=(p_out * hip_mitdirection[receivedCanBus]);
-		state.hip_v[receivedCanBus]=v_out;
-		torque.hip_t[receivedCanBus]=t_out;
+		state.hip_p[receivedCanBus]=  (p_out * hip_mitdirection[receivedCanBus]);
+		state.hip_v[receivedCanBus]=  (v_out * hip_mitdirection[receivedCanBus]);
+		torque.hip_t[receivedCanBus]= (t_out * hip_mitdirection[receivedCanBus]);
 	}
-	if(id==3)
+	if(id == Knee_CANID)
 	{
-		state.knee_p[receivedCanBus]= (p_out * knee_mitdirection[receivedCanBus])/ KNEE_GEARRATIO;
-		state.knee_v[receivedCanBus]=v_out;
-		torque.knee_t[receivedCanBus]=t_out;
+		state.knee_p[receivedCanBus]=  (p_out * knee_mitdirection[receivedCanBus])/ KNEE_GEARRATIO;
+		state.knee_v[receivedCanBus]=  (v_out * knee_mitdirection[receivedCanBus])* KNEE_GEARRATIO;
+		torque.knee_t[receivedCanBus]= (t_out * knee_mitdirection[receivedCanBus])/ KNEE_GEARRATIO;
     }
 }
 
