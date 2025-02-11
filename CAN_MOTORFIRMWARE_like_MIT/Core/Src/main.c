@@ -95,17 +95,15 @@
 #define CONTROL_LEN 66
 
 //Can ID
-uint8_t Ab_CAN 	 = 1;
-uint8_t Hip_CAN  = 2;
-uint8_t Knee_CAN = 3;
+#define Hip_CANID 	  1
+#define Hip_CANID   2
+#define Knee_CANID  3
 uint8_t CAN;
 
 CAN_HandleTypeDef hcan1;
 CAN_HandleTypeDef hcan2;
 CAN_TxHeaderTypeDef TxHeader;
 CAN_RxHeaderTypeDef RxHeader;
-uint8_t TxData[8];
-uint8_t RxData[8];
 uint32_t TxMailbox;
 
 SPI_HandleTypeDef hspi1;
@@ -181,6 +179,9 @@ torque_rx 	torque;
 uint16_t spi_tx_buffer[TX_LEN];
 uint16_t spi_rx_buffer[RX_LEN];
 
+// CAN buffer
+uint8_t CAN_TxData_buf[8];
+uint8_t CAN_RxData_buf[8];
 
 uint32_t 	currentControlMode = 99;
 
@@ -216,7 +217,7 @@ uint32_t State_spi;
 // CAN Rx Callback
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, CAN_RxData_buf);
 	if (RxHeader.DLC == 8)
 	{
 		receivedCanBus=0;
@@ -224,7 +225,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 }
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData);
+	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, CAN_RxData_buf);
 	if (RxHeader.DLC == 8)
 	{
 		receivedCanBus=1;
@@ -279,15 +280,15 @@ int main(void)
 
 
 	// START MOTOR
-	motor_mode(Ab_CAN, &TxHeader, TxData);
-	motor_mode(Hip_CAN, &TxHeader, TxData);
-	motor_mode(Knee_CAN, &TxHeader, TxData);
+	motor_mode(Abad_CANID, &TxHeader, CAN_TxData_buf);
+	motor_mode(Hip_CANID, &TxHeader, CAN_TxData_buf);
+	motor_mode(Knee_CANID, &TxHeader, CAN_TxData_buf);
  	delay_us(1000);
 
 
-//zero(Ab_CAN, &TxHeader, TxData);
-//zero(Hip_CAN, &TxHeader, TxData);
-//zero(Knee_CAN, &TxHeader, TxData);
+//zero(Abad_CANID, &TxHeader, CAN_TxData_buf);
+//zero(Hip_CANID, &TxHeader, CAN_TxData_buf);
+//zero(Knee_CANID, &TxHeader, CAN_TxData_buf);
 //delay_us(1000);
 
 
@@ -329,9 +330,9 @@ int main(void)
 
 
 	// STOP MOTOR
-	exit_mode(Ab_CAN, &TxHeader, TxData);
-	exit_mode(Hip_CAN, &TxHeader, TxData);
-	exit_mode(Knee_CAN, &TxHeader, TxData);
+	exit_mode(Abad_CANID, &TxHeader, CAN_TxData_buf);
+	exit_mode(Hip_CANID, &TxHeader, CAN_TxData_buf);
+	exit_mode(Knee_CANID, &TxHeader, CAN_TxData_buf);
 
 
 }// end of main
@@ -414,43 +415,43 @@ void can_send_receive(){
 	state.flags[1] = 0;
 
 	CAN=0;
-	pack_message(Ab_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+	pack_message(Abad_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==0){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
-	pack_message(Hip_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+	pack_message(Hip_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==0){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
-	pack_message(Knee_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, TxData, &TxMailbox);
+	pack_message(Knee_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan1, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==0){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
 
 	CAN=1;
-	pack_message(Ab_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+	pack_message(Abad_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==1){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
-	pack_message(Hip_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+	pack_message(Hip_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==1){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
-	pack_message(Knee_CAN, &TxHeader, TxData);
-	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, TxData, &TxMailbox);
+	pack_message(Knee_CANID, &TxHeader, CAN_TxData_buf);
+	HAL_CAN_AddTxMessage(&hcan2, &TxHeader, CAN_TxData_buf, &TxMailbox);
     delay_us(300);
 	if (receivedCanBus==1){
-		unpack_replay(RxData);
+		unpack_replay(CAN_RxData_buf);
 	}
 
 }
