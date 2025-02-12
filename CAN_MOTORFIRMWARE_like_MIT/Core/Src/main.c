@@ -135,6 +135,9 @@ void unpack_replay(uint8_t* Data);
 void can_send_receive();
 void spi_send_receive(void);
 uint32_t xor_checksum(uint32_t*, int);
+void CAN_Start(void);
+void CAN_Exit(void);
+void SPI_Exit(void);
 
 int  softstop_joint(float *control,float state, float limit_p, float limit_n);
 void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
@@ -255,15 +258,9 @@ int main(void)
 	MX_CAN2_Init();
 	MX_TIM8_Init();
 
-	HAL_CAN_Start(&hcan1);
-	HAL_CAN_Start(&hcan2);
+	CAN_Start();
 	HAL_TIM_Base_Start(&htim1);
 	HAL_TIM_Base_Start(&htim8);
-
-
-	// Activate the notification
-	HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-	HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
 
 
 	TxHeader.DLC = 8;  // data length
@@ -335,6 +332,13 @@ int main(void)
 	exit_mode(Knee_CANID, &TxHeader, CAN_TxData_buf);
 
 
+	// Wait before shutting down communication
+	delay_us(1000);
+
+	// Exit communication
+	CAN_Exit();
+	SPI_Exit();
+
 }// end of main
 
 
@@ -403,10 +407,80 @@ void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
 	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 }
 
+void SPI_Exit(void) {
+    // Disable SPI Interrupts
+    HAL_NVIC_DisableIRQ(DMA2_Stream0_IRQn); // If SPI uses DMA Rx
+    HAL_NVIC_DisableIRQ(DMA2_Stream3_IRQn); // If SPI uses DMA Tx
+
+    // Abort any ongoing SPI transactions
+    HAL_SPI_Abort(&hspi1);
+
+    // Stop SPI DMA if enabled
+    if (hspi1.hdmatx) {
+        HAL_DMA_Abort(hspi1.hdmatx);
+    }
+    if (hspi1.hdmarx) {
+        HAL_DMA_Abort(hspi1.hdmarx);
+    }
+
+    // Disable SPI Peripheral
+    HAL_SPI_DeInit(&hspi1);
+}
 
 							/***************************************************
 							 *  				 C A N
 							 ***************************************************/
+
+void CAN_Start(void) {
+    // Stop CAN to prevent any ongoing transmissions
+    HAL_CAN_Stop(&hcan1);
+    HAL_CAN_Stop(&hcan2);
+
+    // Abort any pending transmissions safely using HAL functions
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX0);
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX1);
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX2);
+
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX0);
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX1);
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX2);
+
+    // Restart CAN
+    HAL_CAN_Start(&hcan1);
+    HAL_CAN_Start(&hcan2);
+
+    // Reactivate CAN notifications (if used)
+    HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_CAN_ActivateNotification(&hcan2, CAN_IT_RX_FIFO1_MSG_PENDING);
+}
+
+void CAN_Exit(void) {
+
+    // Disable CAN interrupts
+    HAL_NVIC_DisableIRQ(CAN1_TX_IRQn);
+    HAL_NVIC_DisableIRQ(CAN1_RX0_IRQn);
+    HAL_NVIC_DisableIRQ(CAN1_RX1_IRQn);
+    HAL_NVIC_DisableIRQ(CAN1_SCE_IRQn);
+    HAL_NVIC_DisableIRQ(CAN2_TX_IRQn);
+    HAL_NVIC_DisableIRQ(CAN2_RX0_IRQn);
+    HAL_NVIC_DisableIRQ(CAN2_RX1_IRQn);
+    HAL_NVIC_DisableIRQ(CAN2_SCE_IRQn);
+
+    // Abort any pending CAN transmissions
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX0);
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX1);
+    HAL_CAN_AbortTxRequest(&hcan1, CAN_TX_MAILBOX2);
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX0);
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX1);
+    HAL_CAN_AbortTxRequest(&hcan2, CAN_TX_MAILBOX2);
+
+    // Disable CAN
+    HAL_CAN_Stop(&hcan1);
+    HAL_CAN_Stop(&hcan2);
+
+	HAL_CAN_DeInit(&hcan1);
+	HAL_CAN_DeInit(&hcan2);
+}
 
 void can_send_receive(){
 
@@ -1152,6 +1226,8 @@ static void MX_GPIO_Init(void)
   */
 void Error_Handler(void)
 {
+    CAN_Exit();  // Clean up CAN and SPI before entering infinite loop
+	SPI_Exit();
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
