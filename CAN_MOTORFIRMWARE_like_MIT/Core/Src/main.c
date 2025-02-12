@@ -70,17 +70,21 @@
 /****************************    HANDLING DEVIATIONS	**********************/
 #define KNEE_GEARRATIO 1.5 //1.25 //todo for testing
 
+/*
+ *  STM 2 on Right/Front A[0]A[1]  a[0]a[1]  FR FL
+ *  STM 1 on Left /Rear  A[2]A[3]  a[0]a[1]  RR RL
+ */
 
 #ifdef STM2_FRONT
-	const int ab_mitdirection[2]    = {-1, -1};
+	const int ab_mitdirection[2]    = {-1,  1};
 	const int hip_mitdirection[2] 	= { 1,  1};
 	const int knee_mitdirection[2] 	= { 1,  1};
 #endif
 
 #ifdef STM1_BACK
-    const int ab_mitdirection[2]    = {-1, -1};
-    const int hip_mitdirection[2] 	= { 1,  1};
-    const int knee_mitdirection[2] 	= { 1,  1};
+    const int ab_mitdirection[2]    = { 1, -1};
+    const int hip_mitdirection[2] 	= {-1,  1};
+    const int knee_mitdirection[2] 	= {-1,  1};
 #endif
 
 
