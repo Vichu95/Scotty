@@ -371,12 +371,19 @@ void spi_send_receive(void)
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
+uint8_t validData = 1;
 	//unpack the received bytes from rx buffer into †he valuesrec structur
 	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0)
 	{
 		for(int i = 0; i < RX_LEN; i++)
 		{
 			((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
+
+		}
+		
+		if (check_nan_in_spi_rx(&valuesrec))
+		{
+			validData = 0;
 		}
 
 		//if the communication has no issues the values will write in the control structure
@@ -387,11 +394,14 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
 		valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
 
+if(validData == 1)
+		{
 		if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
 		{
 			for(int i = 0; i < CONTROL_LEN; i++)
 			{
 				((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
+}
 			}
 		}
 
@@ -846,6 +856,23 @@ uint32_t encode_floats(float a, float b, float c)
     return encoded;
 }
 
+
+int check_nan_in_spi_rx(spi_rx *data)
+{
+	
+    float *values_ptr = (float *)data;  // Treat struct as float array
+    int num_floats = (sizeof(spi_rx) - sizeof(data->flags) - sizeof(data->checksum)) / sizeof(float);
+
+    for (int i = 0; i < num_floats; i++)
+    {
+        if (isnan(values_ptr[i]))
+        {
+            // printf("ERROR: NaN detected at index %d! Value: %f\n", i, values_ptr[i]);
+            return 1;  // Return error if NaN is found
+        }
+    }
+    return 0;  // No NaN detected
+}
 
 //Printfunction
 int _write(int file, char *ptr, int len)
