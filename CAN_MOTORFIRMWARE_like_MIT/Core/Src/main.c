@@ -60,8 +60,8 @@
 #define AB_LIM_N 	-1.5708f 	//-90°
 #define HIP_LIM_P 	 2.0944f 	//120°
 #define HIP_LIM_N 	-2.0944f 	//120°
-#define KNEE_LIM_P	 0.1f 		//5.7°
-#define KNEE_LIM_N 	-4.01426f	//-230°
+#define KNEE_LIM_P	 4.01426f 		//-230°
+#define KNEE_LIM_N 	-0.1f	//5.7°
 #define KP_SOFTSTOP  100.0f
 #define KD_SOFTSTOP  0.4f
 
