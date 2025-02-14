@@ -702,6 +702,17 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 		kp_in = 0.0f;
 		kd_in = 0.0f;
 		t_in = 0.0f;
+} // Else, limit only the torque (`t_in`) to max or min
+    else if (t_in >= TRQ_REQ_MAX || t_in <= -TRQ_REQ_MAX) 
+	{
+        // Limit `t_in` to max/min allowed torque
+        if (t_in > TRQ_REQ_MAX) 
+		{
+            t_in = TRQ_REQ_MAX;
+        } else if (t_in < -TRQ_REQ_MAX) 
+		{
+            t_in = -TRQ_REQ_MAX;
+        }
 	}
 }
 
