@@ -118,42 +118,6 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim8;
 
 
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
-static void MX_CAN1_Init(void);
-static void MX_TIM1_Init(void);
-static void MX_SPI1_Init(void);
-static void MX_CAN2_Init(void);
-static void MX_TIM8_Init(void);
-
-// MOTOR RELATED
-void motor_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
-void exit_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
-void zero(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
-void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
-void unpack_replay(uint8_t* Data);
-
-// Communication
-void can_send_receive();
-void spi_send_receive(void);
-uint32_t xor_checksum(uint32_t*, int);
-void CAN_Start(void);
-void CAN_Exit(void);
-void SPI_Exit(void);
-
-int  softstop_joint(float *control,float state, float limit_p, float limit_n);
-void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
-
-//Utilities
-float uint_to_float(int x_int, float x_min, float x_max, int bits);
-int   float_to_uint(float x, float x_min, float x_max, int bits);
-void  delay_us(uint16_t us);
-uint32_t encode_floats(float a, float b, float c);
-
-
-
 /****************************    STRUCTURES AND VARIABLES	**********************/
 
 typedef struct {
@@ -219,6 +183,43 @@ uint32_t time2;
 uint32_t Error_spi;
 uint32_t CallbackError_spi;
 uint32_t State_spi;
+
+
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
+static void MX_CAN1_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_SPI1_Init(void);
+static void MX_CAN2_Init(void);
+static void MX_TIM8_Init(void);
+
+// MOTOR RELATED
+void motor_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void exit_mode(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void zero(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data);
+void unpack_replay(uint8_t* Data);
+
+// Communication
+void can_send_receive();
+void spi_send_receive(void);
+uint32_t xor_checksum(uint32_t*, int);
+void CAN_Start(void);
+void CAN_Exit(void);
+void SPI_Exit(void);
+
+int  softstop_joint(float *control,float state, float limit_p, float limit_n);
+void safetycheck_reqTrq(float p_act, float v_act, float t_ff);
+
+//Utilities
+float uint_to_float(int x_int, float x_min, float x_max, int bits);
+int   float_to_uint(float x, float x_min, float x_max, int bits);
+void  delay_us(uint16_t us);
+uint32_t encode_floats(float a, float b, float c);
+int check_nan_in_spi_rx(spi_rx *data);
 
 
 // CAN Rx Callback
