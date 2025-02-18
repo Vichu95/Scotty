@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include <linux/spi/spidev.h>
 #include "rt/rt_spi.h"
@@ -67,6 +68,19 @@ const float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};
 const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
 const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f}; //reset to mit
 const float knee_side_sign[4] = {-1.f, 1.f, -1.f, 1.f};
+
+
+// For logging
+static char log_timestamp[15] = "";
+static void init_log_timestamp(void)
+{
+    if(log_timestamp[0] == '\0')
+    {
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        strftime(log_timestamp, sizeof(log_timestamp), "%Y%m%d%H%M", t);
+    }
+}
 
 /*!
  * Compute SPI message checksum
@@ -220,8 +234,12 @@ int spi_driver_iterations = 0;
  */
 void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t currentControlMode) {
 
+  // Init timestamp
+  init_log_timestamp();
+  char commandlog_file_name[128];
+  sprintf(commandlog_file_name,"spi_command_log_%s.csv",log_timestamp);
   // Open the CSV file in append mode
-  FILE *file = fopen("spi_command_log.csv", "a");
+  FILE *file = fopen(commandlog_file_name, "a");
   if (!file) {
       perror("Failed to open file");
       return;
@@ -232,7 +250,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
   static int header_written = 0; // Ensure header is written only once
   if (!header_written) {
       fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
-                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Flags\n");
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Checksum, Flags\n");
       header_written = 1;
   }
 
@@ -280,22 +298,22 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
     //Adding control_mode to the higher 16 bits of the flag
     spine_cmd->flags[i] = (spine_cmd->flags[i] & 0x0000FFFF) | (currentControlMode & 0xFFFF)<<16;
   
-    // Write the data row to the file
-    if(leg_0 + i == 2)
-    {
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d\n",
+   }
+  spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
+
+
+  // Adding log
+  for (int i = 0; i < 2; i++) {  
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d\n",
             leg_0 + i,
             spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
             spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
             spine_cmd->kp_abad[i], spine_cmd->kp_hip[i], spine_cmd->kp_knee[i],
             spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
             spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
-            currentControlMode, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
-    }
-
+            currentControlMode, spine_cmd->checksum, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
+    
    }
-  spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
-
 
     // Close the file
     fclose(file);
@@ -306,8 +324,12 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
  */
 void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
+  // Init timestamp
+  init_log_timestamp();
+  char datalog_file_name[128];
+  sprintf(datalog_file_name,"spi_data_log_%s.csv",log_timestamp);
   // Open the CSV file in append mode
-  FILE *file = fopen("spi_data_log.csv", "a");
+  FILE *file = fopen(datalog_file_name, "a");
   if (!file) {
       perror("Failed to open file");
       return;
@@ -317,7 +339,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
   static int header_data_written = 0; // Ensure header is written only once
   if (!header_data_written) {
-      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, Flag_data\n");
+      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, CalcChecksum, RcvdChecksum, Flag_data\n");
       header_data_written = 1;
   }
 
@@ -336,8 +358,16 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     data->qd_knee[i + leg_0] =
         spine_data->qd_knee[i] * knee_side_sign[i + leg_0];
 
+    data->flags[i + leg_0] = spine_data->flags[i] & 0x03;
+  }
 
+  uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
+  if (calc_checksum != (uint32_t)spine_data->checksum)
+    printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
+           spine_data->checksum);
 
+  // Log the data
+  for (int i = 0; i < 2; i++) {
 
     // Extract each 10-bit segment
     uint16_t a_enc = (spine_data->flags[i] >> 2) & 0x3FF; // First 10 bits (bits 2–11) 
@@ -349,31 +379,15 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     float tau_m_knee = (c_enc * (140.0 / 1023.0)) - 70; 
 
 
-
-    data->flags[i + leg_0] = spine_data->flags[i] & 0x03;
-
-
-
-
-
-    // Write the data row to the file
-    if(leg_0 + i == 2)
-    {
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d\n",
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d\n",
             leg_0 + i,
             spine_data->q_abad[i], spine_data->q_hip[i], spine_data->q_knee[i],
             spine_data->qd_abad[i], spine_data->qd_hip[i], spine_data->qd_knee[i],
             tau_m_abad, tau_m_hip, tau_m_knee,
+            calc_checksum, (uint32_t)spine_data->checksum,
             data->flags[i + leg_0]);
-    }
 
   }
-
-  uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
-  if (calc_checksum != (uint32_t)spine_data->checksum)
-    printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
-           spine_data->checksum);
-
 
   // Close the file
   fclose(file);
