@@ -19,29 +19,26 @@
 template <typename T>
 Quadruped<T> buildMiniCheetah() {
   Quadruped<T> cheetah;
-  cheetah._robotType = RobotType::MINI_CHEETAH;
+  cheetah._robotType = RobotType::MINI_CHEETAH; //SCOTTY
 
-  cheetah._bodyMass = 3.3;
-  cheetah._bodyLength = 0.19 * 2;
-  cheetah._bodyWidth = 0.049 * 2;
-  cheetah._bodyHeight = 0.05 * 2;
+  cheetah._bodyMass = 19.31;
+  cheetah._bodyLength = 0.4;
+  cheetah._bodyWidth = 0.25;
+  cheetah._bodyHeight = 0.15;
   cheetah._abadGearRatio = 9;
   cheetah._hipGearRatio = 9;
-  cheetah._kneeGearRatio = 13.5;//11.25; //todo Additionally connected to a sprocket (16 Teeth) - plate (20 Teeth) setup Gear Ratio 20/16= 1.25. Total is 9*1.25
-  cheetah._abadLinkLength = 0.062;
-  cheetah._hipLinkLength = 0.209;
-  //cheetah._kneeLinkLength = 0.175;
-  //cheetah._maxLegLength = 0.384;
-  cheetah._kneeLinkY_offset = 0.004;
-  //cheetah._kneeLinkLength = 0.20;
-  cheetah._kneeLinkLength = 0.195;
-  cheetah._maxLegLength = 0.409;
+  cheetah._kneeGearRatio = 9;
+  cheetah._abadLinkLength = 0.07;
+  cheetah._hipLinkLength = 0.3175;
+  cheetah._kneeLinkY_offset = 0.09;
+  cheetah._kneeLinkLength = 0.3375;
+  cheetah._maxLegLength = 0.655;
 
 
   cheetah._motorTauMax = 3.f;
   cheetah._batteryV = 24;
-  cheetah._motorKT = .05;  // this is flux linkage * pole pairs
-  cheetah._motorR = 0.173;
+  cheetah._motorKT = 0.198;  // this is flux linkage * pole pairs
+  cheetah._motorR = 0.195;
   cheetah._jointDamping = .01;
   cheetah._jointDryFriction = .2;
   //cheetah._jointDamping = .0;
@@ -50,8 +47,8 @@ Quadruped<T> buildMiniCheetah() {
 
   // rotor inertia if the rotor is oriented so it spins around the z-axis
   Mat3<T> rotorRotationalInertiaZ;
-  rotorRotationalInertiaZ << 33, 0, 0, 0, 33, 0, 0, 0, 63;
-  rotorRotationalInertiaZ = 1e-6 * rotorRotationalInertiaZ;
+  rotorRotationalInertiaZ << 0.01002, 0, 0, 0, 0.01002, 0, 0, 0, 0.01002;
+//   rotorRotationalInertiaZ = 1e-6 * rotorRotationalInertiaZ;
 
   Mat3<T> RY = coordinateRotation<T>(CoordinateAxis::Y, M_PI / 2);
   Mat3<T> RX = coordinateRotation<T>(CoordinateAxis::X, M_PI / 2);
@@ -62,34 +59,34 @@ Quadruped<T> buildMiniCheetah() {
 
   // spatial inertias
   Mat3<T> abadRotationalInertia;
-  abadRotationalInertia << 381, 58, 0.45, 58, 560, 0.95, 0.45, 0.95, 444;
-  abadRotationalInertia = abadRotationalInertia * 1e-6;
-  Vec3<T> abadCOM(0, 0.036, 0);  // LEFT
-  SpatialInertia<T> abadInertia(0.54, abadCOM, abadRotationalInertia);
+  abadRotationalInertia << 0.00,  0.00,  0.00, 0.00,  0.01,  0.00, 0.00,  0.00,  0.00;
+  // abadRotationalInertia = abadRotationalInertia * 1e-6;
+  Vec3<T> abadCOM(0.06, 0.00, 0.00);  // FRONT LEFT
+  SpatialInertia<T> abadInertia(1.03, abadCOM, abadRotationalInertia);
 
   Mat3<T> hipRotationalInertia;
-  hipRotationalInertia << 1983, 245, 13, 245, 2103, 1.5, 13, 1.5, 408;
-  hipRotationalInertia = hipRotationalInertia * 1e-6;
-  Vec3<T> hipCOM(0, 0.016, -0.02);
-  SpatialInertia<T> hipInertia(0.634, hipCOM, hipRotationalInertia);
+  hipRotationalInertia << 0.02,  0.00,  0.00, 0.00,  0.02, -0.01, 0.00, -0.01,  0.01;
+  // hipRotationalInertia = hipRotationalInertia * 1e-6;
+  Vec3<T> hipCOM(0.00, 0.06, -0.04);
+  SpatialInertia<T> hipInertia(1.74, hipCOM, hipRotationalInertia);
 
   Mat3<T> kneeRotationalInertia, kneeRotationalInertiaRotated;
-  kneeRotationalInertiaRotated << 6, 0, 0, 0, 248, 0, 0, 0, 245;
-  kneeRotationalInertiaRotated = kneeRotationalInertiaRotated * 1e-6;
+  kneeRotationalInertiaRotated << 0.01,  0.00,  0.00, 0.00,  0.01,  0.00, 0.00,  0.00,  0.00;
+  // kneeRotationalInertiaRotated = kneeRotationalInertiaRotated * 1e-6;
   kneeRotationalInertia = RY * kneeRotationalInertiaRotated * RY.transpose();
-  Vec3<T> kneeCOM(0, 0, -0.061);
-  SpatialInertia<T> kneeInertia(0.064, kneeCOM, kneeRotationalInertia);
+  Vec3<T> kneeCOM(0.01, 0.00, -0.11);
+  SpatialInertia<T> kneeInertia(0.54, kneeCOM, kneeRotationalInertia);
 
   Vec3<T> rotorCOM(0, 0, 0);
-  SpatialInertia<T> rotorInertiaX(0.055, rotorCOM, rotorRotationalInertiaX);
-  SpatialInertia<T> rotorInertiaY(0.055, rotorCOM, rotorRotationalInertiaY);
+  SpatialInertia<T> rotorInertiaX(0.384 , rotorCOM, rotorRotationalInertiaX);
+  SpatialInertia<T> rotorInertiaY(0.384 , rotorCOM, rotorRotationalInertiaY);
 
   Mat3<T> bodyRotationalInertia;
-  bodyRotationalInertia << 11253, 0, 0, 0, 36203, 0, 0, 0, 42673;
-  bodyRotationalInertia = bodyRotationalInertia * 1e-6;
-  Vec3<T> bodyCOM(0, 0, 0);
-  SpatialInertia<T> bodyInertia(cheetah._bodyMass, bodyCOM,
-                                bodyRotationalInertia);
+  bodyRotationalInertia << 0.05,  0.00,  0.00, 0.00,  0.24,  0.00, 0.00,  0.00,  0.27;
+  // bodyRotationalInertia = bodyRotationalInertia * 1e-6;
+  Vec3<T> bodyCOM(0.00, 0.00, 0.02);
+  SpatialInertia<T> bodyInertia(6.03 , bodyCOM,
+                                bodyRotationalInertia); //only body link mass
 
   cheetah._abadInertia = abadInertia;
   cheetah._hipInertia = hipInertia;
@@ -100,11 +97,11 @@ Quadruped<T> buildMiniCheetah() {
   cheetah._bodyInertia = bodyInertia;
 
   // locations
-  cheetah._abadRotorLocation = Vec3<T>(0.125, 0.049, 0);
+  cheetah._abadRotorLocation = Vec3<T>(cheetah._bodyLength, cheetah._bodyWidth, 0) * 0.5;
   cheetah._abadLocation =
       Vec3<T>(cheetah._bodyLength, cheetah._bodyWidth, 0) * 0.5;
   cheetah._hipLocation = Vec3<T>(0, cheetah._abadLinkLength, 0);
-  cheetah._hipRotorLocation = Vec3<T>(0, 0.04, 0);
+  cheetah._hipRotorLocation = Vec3<T>(0, cheetah._abadLinkLength, 0);
   cheetah._kneeLocation = Vec3<T>(0, 0, -cheetah._hipLinkLength);
   cheetah._kneeRotorLocation = Vec3<T>(0, 0, 0);
 
