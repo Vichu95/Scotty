@@ -60,9 +60,9 @@ const float disabled_torque[3] = {0.f, 0.f, 0.f};
 
 
 
-const float abad_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-const float hip_offset[4] = {-0.f, 0.f, 0.f, 0.f};
-const float knee_offset[4] = {-0.f, 0.f, 0.f, 0.f};
+const float abad_offset[4] = {0.42f, 0.f, 0.f, 0.f};
+const float hip_offset[4] = {0.f, 0.f, 0.f, 0.f};
+const float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};
 
 const float abad_side_sign[4] = {-1.f, -1.f, 1.f, 1.f};
 const float hip_side_sign[4] = {-1.f, 1.f, -1.f, 1.f}; //reset to mit
