@@ -323,11 +323,11 @@ int main(void)
 
 		//count = 1 executes the CAN
 		if(count==1)
-	  {
+		{
 			can_send_receive();
 			count=2;
 			time=__HAL_TIM_GET_COUNTER(&htim8);
-	  }
+		}
 
 	}//end of while
 
@@ -372,14 +372,14 @@ void spi_send_receive(void)
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-uint8_t validData = 1;
+	uint8_t validData = 1;
 	//unpack the received bytes from rx buffer into †he valuesrec structur
 	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0)
 	{
 		for(int i = 0; i < RX_LEN; i++)
 		{
 			((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
-
+			
 		}
 		
 		if (check_nan_in_spi_rx(&valuesrec))
@@ -395,16 +395,16 @@ uint8_t validData = 1;
 		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
 		valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
 
-if(validData == 1)
+		if(validData == 1)
 		{
-		if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
-		{
-			for(int i = 0; i < CONTROL_LEN; i++)
+			if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
 			{
-				((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
-}
+				for(int i = 0; i < CONTROL_LEN; i++)
+				{
+					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
+				}
 			}
-		}
+		}		
 
 	}
 
@@ -674,7 +674,7 @@ void unpack_replay(uint8_t*Data){
 
 int softstop_joint(float *control,float state, float limit_p, float limit_n)
 {
-	if(*control>=limit_p)
+	if(*control>limit_p)
 	{
 		//*control = limit_p;
 		p_in = limit_p;
@@ -684,7 +684,7 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 		t_in += KP_SOFTSTOP*(limit_p - state);
 		return 1;
 	}
-	if(*control<=limit_n)
+	if(*control<limit_n)
 	{
 		//*control = limit_n;
 		p_in = limit_n;
@@ -714,7 +714,7 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 		kp_in = 0.0f;
 		kd_in = 0.0f;
 		t_in = 0.0f;
-} // Else, limit only the torque (`t_in`) to max or min
+	} // Else, limit only the torque (`t_in`) to max or min
     else if (t_in >= TRQ_REQ_MAX || t_in <= -TRQ_REQ_MAX) 
 	{
         // Limit `t_in` to max/min allowed torque
@@ -725,7 +725,7 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 		{
             t_in = -TRQ_REQ_MAX;
         }
-	}
+    } 
 }
 
 
