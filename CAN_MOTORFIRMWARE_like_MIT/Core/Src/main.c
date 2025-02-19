@@ -174,6 +174,7 @@ float t_out = 0.0f;     //torque
 
 int receivedCanBus = 2;
 int count=2;
+int exit_command = 0;
 
 //Time
 uint32_t time;
@@ -296,39 +297,39 @@ int main(void)
 
 
 
-	// Only CAN
-	count=1;
-	  while (count==1)
+////	 Only CAN
+//	count=1;
+//	  while (exit_command == 0)
+//	  {
+//
+//
+//			can_send_receive();
+//			time=__HAL_TIM_GET_COUNTER(&htim8);
+//	  }
+
+
+ 	// Loop until exited
+	while (exit_command == 0)
+	{
+		__HAL_TIM_SET_COUNTER(&htim8,0);
+
+		//count = 2 executes the SPI
+		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
+		{
+			spi_send_receive();
+			count=1;
+			time2=__HAL_TIM_GET_COUNTER(&htim8);
+		}
+
+		//count = 1 executes the CAN
+		if(count==1)
 	  {
-
-
 			can_send_receive();
+			count=2;
 			time=__HAL_TIM_GET_COUNTER(&htim8);
 	  }
 
-
-// 	// Loop only if count is 2 (SPI) or 1 (CAN)
-//	while (count == 2 || count == 1)
-//	{
-//		__HAL_TIM_SET_COUNTER(&htim8,0);
-//
-//		//count = 2 executes the SPI
-//		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
-//		{
-//			spi_send_receive();
-//			count=1;
-//			time2=__HAL_TIM_GET_COUNTER(&htim8);
-//		}
-//
-//		//count = 1 executes the CAN
-//		if(count==1)
-//		{
-//			can_send_receive();
-//			count=2;
-//			time=__HAL_TIM_GET_COUNTER(&htim8);
-//		}
-//
-//	}//end of while
+	}//end of while
 
 
 	// STOP MOTOR
