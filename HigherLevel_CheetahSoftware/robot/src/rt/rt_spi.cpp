@@ -89,7 +89,7 @@ static void init_log_timestamp(void)
  * @return
  */
 uint32_t xor_checksum(uint32_t *data, size_t len) {
-  uint32_t t = 0;
+  uint32_t t = 0;  
   for (size_t i = 0; i < len; i++) t = t ^ data[i];
   return t;
 }
@@ -250,7 +250,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
   static int header_written = 0; // Ensure header is written only once
   if (!header_written) {
       fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
-                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Checksum, Flags\n");
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Control Mode, Checksum, Flags_raw, Flags\n");
       header_written = 1;
   }
 
@@ -304,14 +304,15 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
 
   // Adding log
   for (int i = 0; i < 2; i++) {  
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d\n",
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d\n",
             leg_0 + i,
             spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
             spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
             spine_cmd->kp_abad[i], spine_cmd->kp_hip[i], spine_cmd->kp_knee[i],
             spine_cmd->kd_abad[i], spine_cmd->kd_hip[i], spine_cmd->kd_knee[i],
             spine_cmd->tau_abad_ff[i], spine_cmd->tau_hip_ff[i], spine_cmd->tau_knee_ff[i],
-            currentControlMode, spine_cmd->checksum, cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
+            currentControlMode, spine_cmd->checksum, spine_cmd->flags[i], 
+            cmd->flags[i + leg_0]); // control mode, flag(not using spine_cmd as it is already embedded with control mode)
     
    }
 
@@ -339,7 +340,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
   static int header_data_written = 0; // Ensure header is written only once
   if (!header_data_written) {
-      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, CalcChecksum, RcvdChecksum, Flag_data\n");
+      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, CalcChecksum, RcvdChecksum, Flag_dataraw, Flag_data\n");
       header_data_written = 1;
   }
 
@@ -379,13 +380,13 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     float tau_m_knee = (c_enc * (140.0 / 1023.0)) - 70; 
 
 
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d\n",
+    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d\n",
             leg_0 + i,
             spine_data->q_abad[i], spine_data->q_hip[i], spine_data->q_knee[i],
             spine_data->qd_abad[i], spine_data->qd_hip[i], spine_data->qd_knee[i],
             tau_m_abad, tau_m_hip, tau_m_knee,
             calc_checksum, (uint32_t)spine_data->checksum,
-            data->flags[i + leg_0]);
+            spine_data->flags[i], data->flags[i + leg_0]);
 
   }
 
