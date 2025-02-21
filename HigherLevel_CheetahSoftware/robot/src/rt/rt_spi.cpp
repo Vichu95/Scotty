@@ -4,6 +4,9 @@
  */
 #ifdef linux
 
+
+// #define DEBUG_PRINT_SPI_DATA_RCVD
+
 #include <byteswap.h>
 #include <math.h>
 #include <pthread.h>
@@ -364,8 +367,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
 
   uint32_t calc_checksum = xor_checksum((uint32_t *)spine_data, 14);
   if (calc_checksum != (uint32_t)spine_data->checksum)
-    printf("SPI ERROR BAD CHECKSUM GOT 0x%hx EXPECTED 0x%hx\n", calc_checksum,
-           spine_data->checksum);
+    printf("SPI ERROR BAD CHECKSUM in Leg %d : Calculated 0x%08X  Received 0x%08X \n", leg_0, calc_checksum,(uint32_t)spine_data->checksum);
 
   // Log the data
   for (int i = 0; i < 2; i++) {
@@ -440,14 +442,28 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data, int32_t currentC
       spi_message[i].len = word_len * 66;
       spi_message[i].rx_buf = (uint64_t)rx_buf; //original
       spi_message[i].tx_buf = (uint64_t)tx_buf; //original
-     // spi_message[i].rx_buf = (uint32_t)rx_buf; //Dave matched
-     // spi_message[i].tx_buf = (uint32_t)tx_buf; //Dave matched
+    // spi_message[i].rx_buf = (uint32_t)rx_buf; //Dave matched
+    // spi_message[i].tx_buf = (uint32_t)tx_buf; //Dave matched
     }
 
     // do spi communication
     int rv = ioctl(spi_board == 0 ? spi_1_fd : spi_2_fd, SPI_IOC_MESSAGE(1),
-                   &spi_message);
-    (void)rv;
+                  &spi_message);
+
+    #if DEBUG_PRINT_SPI_DATA_RCVD
+      if (rv < 0) { perror("[ERROR] ioctl (SPI) failed"); } 
+      else { 
+        // Print the raw data 
+        printf("\n=== SPI BOARD %d RAW RX DATA ===\n", spi_board); 
+        for(int i = 0; i < K_WORDS_PER_MESSAGE; i++) 
+        { 
+          printf("rx_buf[%02d] = 0x%04X\n", i, rx_buf[i]);
+        }
+        printf("===============================\n\n"); 
+      }
+    #else         
+      (void)rv;
+    #endif
 
     //usleep(10);
 
