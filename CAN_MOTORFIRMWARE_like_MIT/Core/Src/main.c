@@ -255,6 +255,14 @@ int main(void)
 	/* Configure the system clock */
 	SystemClock_Config();
 
+	//Initialize the spi buffers to avoid junk values
+	for(int i = 0; i < TX_LEN ; i++)
+		spi_tx_buffer[i] = 0;
+	for(int i = 0; i < RX_LEN ; i++)
+		spi_rx_buffer[i] = 0;
+
+
+
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
