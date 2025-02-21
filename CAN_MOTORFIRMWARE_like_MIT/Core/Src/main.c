@@ -371,16 +371,16 @@ void spi_send_receive(void)
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
 	if (hspi->Instance == SPI1 && count == 2)
-{
-	uint8_t validData = 1;
-	//unpack the received bytes from rx buffer into †he valuesrec structur
+	{
+		uint8_t validData = 1;
+		//unpack the received bytes from rx buffer into †he valuesrec structur
 
 		for(int i = 0; i < RX_LEN; i++)
 		{
 			((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
-			
+
 		}
-		
+
 		if (check_nan_in_spi_rx(&valuesrec))
 		{
 			validData = 0;
@@ -403,15 +403,15 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
 				}
 			}
-		}		
+		}
 
 		// ***** Now prepare for the NEXT transaction *****
 		// 1. Update spi_tx_buffer with fresh data
 		spi_send_receive();
 
 		// 2. Re-arm the SPI in interrupt mode
-	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
-	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+		//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
 		count = 1;
 	}//If it is SPI1
@@ -564,7 +564,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b01;
 			p_in = p_in * ab_mitdirection[CAN]; // Direction update
-			t_in = t_in * ab_mitdirection[CAN]; // Direction update
+//			t_in = t_in * ab_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
@@ -582,7 +582,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b10;
 			p_in = p_in * hip_mitdirection[CAN]; // Direction update
-			t_in = t_in * hip_mitdirection[CAN]; // Direction update
+//			t_in = t_in * hip_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
@@ -600,7 +600,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b11;
 			p_in = (p_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
-			t_in = (t_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
+//			t_in = (t_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
 		}
 
 		// Safety Limit
@@ -679,20 +679,20 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 	{
 		//*control = limit_p;
 		p_in = limit_p;
-		v_in = 0.0f;
-		kp_in = 0.0f;
-		kd_in = KD_SOFTSTOP;
-		t_in += KP_SOFTSTOP*(limit_p - state);
+//		v_in = 0.0f;
+//		kp_in = 0.0f;
+//		kd_in = KD_SOFTSTOP;
+//		t_in += KP_SOFTSTOP*(limit_p - state);
 		return 1;
 	}
 	if(*control<limit_n)
 	{
 		//*control = limit_n;
 		p_in = limit_n;
-		v_in = 0.0f;
-		kp_in = 0.0f;
-		kd_in = KD_SOFTSTOP;
-		t_in += KP_SOFTSTOP*(limit_n - state);
+//		v_in = 0.0f;
+//		kp_in = 0.0f;
+//		kd_in = KD_SOFTSTOP;
+//		t_in += KP_SOFTSTOP*(limit_n - state);
 		return 1;
 	}
 
@@ -704,25 +704,25 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 //To add additional check on the torque requested to the motor. Calculated based on the PID model of motor.
 void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 {
-//𝜏 = 𝜏ff   + 𝐾𝑝(𝑞des − 𝑞) + 𝐾𝑑(𝑞_des − 𝑞_) (2.2) Software and Control Design for the MIT Cheetah Quadruped Robots by Jared Di Carlo
+			 //𝜏 = 𝜏ff   + 𝐾𝑝(𝑞des − 𝑞) + 𝐾𝑑(𝑞_des − 𝑞_) (2.2) Software and Control Design for the MIT Cheetah Quadruped Robots by Jared Di Carlo
 	float trqreq = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
 
-		// Incase the Trq to be calculated at the motor is too high, cancel the req by setting Kp, Kd to zero
+	// Incase the Trq to be calculated at the motor is too high, cancel the req by setting Kp, Kd to zero
 	if (trqreq >= TRQ_REQ_MAX || trqreq <= -TRQ_REQ_MAX)
 	{
 		//Only reset kp, kd. Let other signals remain same. Trq will be limited in the next check
 		kp_in = 0.0f;
 		kd_in = 0.0f;
-		} 
+	} 
 
-        // Limit `t_in` to max/min allowed torque
-        if (t_in > TRQ_REQ_MAX) 
-		{
-            t_in = TRQ_REQ_MAX;
-        } else if (t_in < -TRQ_REQ_MAX) 
-		{
-            t_in = -TRQ_REQ_MAX;
-            } 
+	// Limit `t_in` to max/min allowed torque
+	if (t_in > TRQ_REQ_MAX)
+	{
+		t_in = TRQ_REQ_MAX;
+	} else if (t_in < -TRQ_REQ_MAX)
+	{
+		t_in = -TRQ_REQ_MAX;
+	}
 }
 
 
