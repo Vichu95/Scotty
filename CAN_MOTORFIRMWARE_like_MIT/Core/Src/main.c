@@ -704,20 +704,17 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 //To add additional check on the torque requested to the motor. Calculated based on the PID model of motor.
 void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 {
+//𝜏 = 𝜏ff   + 𝐾𝑝(𝑞des − 𝑞) + 𝐾𝑑(𝑞_des − 𝑞_) (2.2) Software and Control Design for the MIT Cheetah Quadruped Robots by Jared Di Carlo
+	float trqreq = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
 
-	float trqreq = (p_in - p_act)*kp_in + (v_in - v_act)*kd_in + t_ff;
-
-	// Incase the Trq to be calculated at the motor is too high, cancel the req by setting everything to zero
+		// Incase the Trq to be calculated at the motor is too high, cancel the req by setting Kp, Kd to zero
 	if (trqreq >= TRQ_REQ_MAX || trqreq <= -TRQ_REQ_MAX)
 	{
-		p_in = 0.0f;
-		v_in = 0.0f;
+		//Only reset kp, kd. Let other signals remain same. Trq will be limited in the next check
 		kp_in = 0.0f;
 		kd_in = 0.0f;
-		t_in = 0.0f;
-	} // Else, limit only the torque (`t_in`) to max or min
-    else if (t_in >= TRQ_REQ_MAX || t_in <= -TRQ_REQ_MAX) 
-	{
+		} 
+
         // Limit `t_in` to max/min allowed torque
         if (t_in > TRQ_REQ_MAX) 
 		{
@@ -725,8 +722,7 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
         } else if (t_in < -TRQ_REQ_MAX) 
 		{
             t_in = -TRQ_REQ_MAX;
-        }
-    } 
+            } 
 }
 
 
