@@ -386,16 +386,16 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 			validData = 0;
 		}
 
-		//if the communication has no issues the values will write in the control structure
-		checksum_calc = xor_checksum((uint32_t*)&valuesrec,32);
-
-		//Retrieve the current control Mode stored at higher 16 bits and reset flags to its value
-		currentControlMode = (valuesrec.flags[0]>>16);
-		valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
-		valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
-
 		if(validData == 1)
 		{
+			//if the communication has no issues the values will write in the control structure
+			checksum_calc = xor_checksum((uint32_t*)&valuesrec,32);
+
+			//Retrieve the current control Mode stored at higher 16 bits and reset flags to its value
+			currentControlMode = (valuesrec.flags[0]>>16);
+			valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
+			valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
+
 			if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
 			{
 				for(int i = 0; i < CONTROL_LEN; i++)
@@ -413,6 +413,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 		HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 		//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
+		//Start CAN
 		count = 1;
 	}//If it is SPI1
 }
@@ -422,7 +423,7 @@ void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
 
 	HAL_SPI_DeInit(&hspi1);
 	HAL_SPI_Init(&hspi1);
-HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
+	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
 	//Start CAN
 	count = 1;
