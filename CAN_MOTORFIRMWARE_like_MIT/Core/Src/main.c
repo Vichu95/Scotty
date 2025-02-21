@@ -284,6 +284,8 @@ int main(void)
 
 
 	printf("start\n");
+
+    // ***** ARM SPI once, in interrupt mode *****
 	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
@@ -319,22 +321,11 @@ int main(void)
  	// Loop until exited
 	while (exit_command == 0)
 	{
-		__HAL_TIM_SET_COUNTER(&htim8,0);
-
-		//count = 2 executes the SPI
-		if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_15) == 0 && count==2)
-		{
-			spi_send_receive();
-			count=1;
-			time2=__HAL_TIM_GET_COUNTER(&htim8);
-		}
-
 		//count = 1 executes the CAN
 		if(count==1)
 		{
 			can_send_receive();
 			count=2;
-			time=__HAL_TIM_GET_COUNTER(&htim8);
 		}
 
 	}//end of while
@@ -375,15 +366,15 @@ void spi_send_receive(void)
 	{
 		spi_tx_buffer[i] = ((uint16_t*)(&state))[i];
 	}
-
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
+	if (hspi->Instance == SPI1 && count == 2)
+{
 	uint8_t validData = 1;
 	//unpack the received bytes from rx buffer into †he valuesrec structur
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15)==0)
-	{
+
 		for(int i = 0; i < RX_LEN; i++)
 		{
 			((uint16_t*) &valuesrec)[i] = spi_rx_buffer[i];
@@ -414,12 +405,16 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 			}
 		}		
 
-	}
+		// ***** Now prepare for the NEXT transaction *****
+		// 1. Update spi_tx_buffer with fresh data
+		spi_send_receive();
 
-	// Disable the SPI //vishnu : I think this actually enables SPI callback for next
+		// 2. Re-arm the SPI in interrupt mode
 	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 	//HAL_SPI_TransmitReceive_DMA(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 
+		count = 1;
+	}//If it is SPI1
 }
 
 void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
@@ -427,8 +422,6 @@ void HAL_SPI_ErrorCallback (SPI_HandleTypeDef* hspi){
 
 	HAL_SPI_DeInit(&hspi1);
 	HAL_SPI_Init(&hspi1);
-
-	HAL_SPI_TransmitReceive_IT(&hspi1, (uint8_t *)spi_tx_buffer, (uint8_t *)spi_rx_buffer, RX_LEN);
 }
 
 void SPI_Exit(void) {
@@ -1091,7 +1084,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -1260,15 +1253,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  /*Configure PA15 for SPI1_NSS in Alternate Function mode */
+  GPIO_InitStruct.Pin       = GPIO_PIN_15;
+  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;     // Or AF_OD if required, usually AF_PP is correct
+  GPIO_InitStruct.Pull      = GPIO_NOPULL;         // Typically no pull for NSS
+  GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW; // Speed not critical for NSS
+  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;       // On STM32F446, AF5 is SPI1_NSS
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+
+//  /* EXTI interrupt init > Vishnu : Now this interrupt is not required as NSS hanldes the SPI enable/disable*/
+//  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+//  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
