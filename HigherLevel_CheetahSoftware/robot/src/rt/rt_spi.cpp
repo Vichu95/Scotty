@@ -183,10 +183,10 @@ void init_spi() {
  */
 int spi_open() {
   int rv = 0;
-  spi_1_fd = open("/dev/spidev2.0", O_RDWR);
-  if (spi_1_fd < 0) perror("[ERROR] Couldn't open spidev 2.0");
-  spi_2_fd = open("/dev/spidev2.1", O_RDWR);
-  if (spi_2_fd < 0) perror("[ERROR] Couldn't open spidev 2.1");
+  spi_2_fd = open("/dev/spidev2.0", O_RDWR);
+  if (spi_2_fd < 0) perror("[ERROR] Couldn't open spidev 2.0");
+  spi_1_fd = open("/dev/spidev2.1", O_RDWR);
+  if (spi_1_fd < 0) perror("[ERROR] Couldn't open spidev 2.1");
 
   rv = ioctl(spi_1_fd, SPI_IOC_WR_MODE, &spi_mode);
   if (rv < 0) perror("[ERROR] ioctl spi_ioc_wr_mode (1)");
