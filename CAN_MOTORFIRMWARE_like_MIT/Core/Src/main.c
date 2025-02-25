@@ -76,15 +76,15 @@
  */
 
 #ifdef STM2_FRONT
-	const int ab_mitdirection[2]    = {-1,  1};
+	const int ab_mitdirection[2]    = { 1,  1};
 	const int hip_mitdirection[2] 	= { 1,  1};
 	const int knee_mitdirection[2] 	= { 1,  1};
 #endif
 
 #ifdef STM1_BACK
-    const int ab_mitdirection[2]    = { 1, -1};
-    const int hip_mitdirection[2] 	= {-1,  1};
-    const int knee_mitdirection[2] 	= {-1,  1};
+    const int ab_mitdirection[2]    = { 1,  1};
+    const int hip_mitdirection[2] 	= { 1,  1};
+    const int knee_mitdirection[2] 	= { 1,  1};
 #endif
 
 
