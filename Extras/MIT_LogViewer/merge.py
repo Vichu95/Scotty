@@ -1,31 +1,37 @@
 import pandas as pd
 
 # Load both CSV files
-timestamp = '202502241221'
+timestamp = '202502251147'
 command_file = "spi_command_log_" + timestamp + ".csv"
 data_file = "spi_data_log_" + timestamp + ".csv"
+stm_cmd_file = "stm_command_" + timestamp + ".csv"
 
 # Read CSVs
 command_df = pd.read_csv(command_file)
 data_df = pd.read_csv(data_file)
+stm_cmd_df = pd.read_csv(stm_cmd_file)
 
 # Ensure Columns Are Named Uniquely (Prefixing)
 command_df = command_df.add_prefix("cmd_")  # Prefix all command columns with "cmd_"
 data_df = data_df.add_prefix("data_")  # Prefix all data columns with "data_"
+stm_cmd_df = stm_cmd_df.add_prefix("stm_")
 
 # Restore `Leg_Index` (remove prefix from this specific column)
 command_df.rename(columns={"cmd_Leg_Index": "Leg_Index"}, inplace=True)
 data_df.rename(columns={"data_Leg_Index": "Leg_Index"}, inplace=True)
+stm_cmd_df.rename(columns={"stm_Leg_Index": "Leg_Index"}, inplace=True)
 
-# **Check if both logs have the same number of rows**
-if len(command_df) != len(data_df):
-    print(f"WARNING: Command log ({len(command_df)}) and Data log ({len(data_df)}) have different lengths!")
-    min_rows = min(len(command_df), len(data_df))
-    command_df = command_df.iloc[:min_rows]  # Trim to the smaller size
-    data_df = data_df.iloc[:min_rows]  # Trim to the smaller size
+# **Check if all logs have the same number of rows**
+min_rows = min(len(command_df), len(data_df), len(stm_cmd_df))
+if len(command_df) != len(data_df) or len(command_df) != len(stm_cmd_df):
+    print(f"WARNING: Logs have different lengths! Trimming to {min_rows} rows.")
+    command_df = command_df.iloc[:min_rows]
+    data_df = data_df.iloc[:min_rows]
+    stm_cmd_df = stm_cmd_df.iloc[:min_rows]
 
-# **Merge row by row while keeping Leg_Index order intact**
-merged_df = pd.concat([command_df, data_df.drop(columns=["Leg_Index"])], axis=1)  # Drop redundant Leg_Index column
+# **Merge all logs row by row while keeping Leg_Index**
+merged_df = pd.concat([command_df, data_df.drop(columns=["Leg_Index"]), stm_cmd_df.drop(columns=["Leg_Index"])], axis=1)
+
 
 # Save to a new CSV file
 merged_file = "merged_log.csv"
