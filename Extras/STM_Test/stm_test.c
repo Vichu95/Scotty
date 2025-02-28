@@ -40,8 +40,14 @@
 
 
 #ifdef TEST_CODE
-char *timestamp = "202502251147";  // Manually given timestamp
+char *timestamp = "202502271330";  // Manually given timestamp
+// const char *mit_plot_dir = "C:\\Users\\Vishnudev K\\Nextcloud\\DataV_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27\\";
+const char *mit_plot_dir ="D:\\Learn\\Anhalt\\0_Study\\5_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27\\";
+
 FILE *log_file;
+int log_nanrcvd = 0;
+int log_chcksm_errspi = 0;
+float log_motor_trqCalc = 0.0f;
 // Dummy definitions for HAL types and constants
 typedef int HAL_StatusTypeDef;
 #define HAL_OK 0
@@ -347,14 +353,15 @@ void log_spi_rx_data(spi_rx *cmd, int base_leg_index) {
   for (int i = 0; i < 2; i++) {  // Loop through two legs in STM
       int leg_index = base_leg_index + i;
 
-      fprintf(log_file, "%d, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %.6f, %u, %u\n",
+      fprintf(log_file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %u, %u, %u, %u, %f\n",
               leg_index,
               cmd->ab_p[i], cmd->hip_p[i], cmd->knee_p[i],
               cmd->ab_v[i], cmd->hip_v[i], cmd->knee_v[i],
               cmd->ab_kp[i], cmd->hip_kp[i], cmd->knee_kp[i],
               cmd->ab_kd[i], cmd->hip_kd[i], cmd->knee_kd[i],
               cmd->ab_t[i], cmd->hip_t[i], cmd->knee_t[i],
-              cmd->flags[i], cmd->checksum);
+              cmd->flags[i], cmd->checksum,
+              log_nanrcvd, log_chcksm_errspi, log_motor_trqCalc);
   }
 
   fflush(log_file); // Flush the data to ensure it's saved
@@ -537,8 +544,8 @@ void process_data(FILE *spi_file, FILE *can_file)
     // printf("Processed STM1 (Legs 0,1)\n");
 
 
-    // printf("\nPress ENTER to continue...");
-    // getchar();  // Waits for ENTER key press
+    printf("\nPress ENTER to continue...");
+    getchar();  // Waits for ENTER key press
 
 
 
@@ -581,8 +588,6 @@ int main(void)
   char stm_command_filename[256];
   char spi_filename[256];
   char can_filename[256];
-  const char *mit_plot_dir = "../MIT_LogViewer/";
-
 
   // Create filenames using the provided timestamp
   snprintf(stm_command_filename, sizeof(stm_command_filename), "%sstm_command_%s.csv", mit_plot_dir,timestamp);
@@ -598,7 +603,7 @@ int main(void)
   // Write header
   fprintf(log_file, "Leg_Index, stm_ab_p, stm_hip_p, stm_knee_p, stm_ab_v, stm_hip_v, stm_knee_v, "
     "stm_ab_kp, stm_hip_kp, stm_knee_kp, stm_ab_kd, stm_hip_kd, stm_knee_kd, "
-    "stm_ab_t, stm_hip_t, stm_knee_t, stm_flags, stm_checksum\n");
+    "stm_ab_t, stm_hip_t, stm_knee_t, stm_flags, stm_checksum, stm_nan_rcvd, stm_checksumerror, stm_motorTrqCalc\n");
   fflush(log_file);
 
 
@@ -788,7 +793,20 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 		if (check_nan_in_spi_rx(&valuesrec))
 		{
 			validData = 0;
+      
+      #ifdef TEST_CODE
+      log_nanrcvd = 1;
+        #ifdef PRINTF_LOG
+        printf("NAN received\n");
+        #endif
+      #endif
 		}
+    #ifdef TEST_CODE
+    else
+    {
+      log_nanrcvd = 0;
+    }
+    #endif
 
 		if(validData == 1)
 		{
@@ -800,18 +818,31 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 			valuesrec.flags[0] = (valuesrec.flags[0] & 0xFFFF);
 			valuesrec.flags[1] = (valuesrec.flags[1] & 0xFFFF);
 
-			// if(valuesrec.checksum == checksum_calc && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
-			// {
+      
+      #ifdef PRINTF_LOG
+      printf(" Calculated checksum %d Received checksum %d\n",checksum_calc, valuesrec.checksum);
+      printf(" (uint32_t)Calculated checksum %d (uint32_t)Received checksum %d\n",(uint32_t)checksum_calc, (uint32_t)valuesrec.checksum);
+      #endif
+
+			if((checksum_calc == (uint32_t)valuesrec.checksum) && (valuesrec.flags[0]<=3 || valuesrec.flags[1]<=3))
+			{
+        #ifdef TEST_CODE
+          log_chcksm_errspi = 0;
+        #endif
+
 				for(int i = 0; i < CONTROL_LEN; i++)
 				{
 					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
 				}
-			// }
-      #if defined TEST_CODE && defined PRINTF_LOG
-      // else
-      // {
-		  //   printf("Checksum or Flag error in SPI. Calculated checksum 0x%08X Received checksum 0x%08X\n",checksum_calc, valuesrec.checksum);
-      // }
+			}
+      #ifdef TEST_CODE
+      else
+      {
+        log_chcksm_errspi = 1;
+        #ifdef PRINTF_LOG
+		    printf("Checksum or Flag error in SPI. Calculated checksum 0x%08X Received checksum 0x%08X\n",checksum_calc, valuesrec.checksum);
+        #endif
+      }
       #endif
 		}
 
@@ -1212,6 +1243,12 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 	{
 		t_in = -TRQ_REQ_MAX;
 	}
+
+  #ifdef TEST_CODE
+  log_motor_trqCalc = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
+  #endif
+
+  
 }
 
 

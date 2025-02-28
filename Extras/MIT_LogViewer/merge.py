@@ -1,10 +1,12 @@
 import pandas as pd
 
 # Load both CSV files
-timestamp = '202502251147'
-command_file = "spi_command_log_" + timestamp + ".csv"
-data_file = "spi_data_log_" + timestamp + ".csv"
-stm_cmd_file = "stm_command_" + timestamp + ".csv"
+# folderpath="C:\\Users\\Vishnudev K\\Nextcloud\\DataV_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27"
+folderpath="D:\\Learn\\Anhalt\\0_Study\\5_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27"
+timestamp = '202502271330'
+command_file = folderpath + "\\" + "spi_command_log_" + timestamp + ".csv"
+data_file = folderpath + "\\" + "spi_data_log_" + timestamp + ".csv"
+stm_cmd_file = folderpath + "\\" + "stm_command_" + timestamp + ".csv"
 
 # Read CSVs
 command_df = pd.read_csv(command_file)
