@@ -6,6 +6,11 @@
 
 
 // #define DEBUG_PRINT_SPI_DATA_RCVD
+#define DEBUG_PRINT_SPI_DATA_TRANSMIT
+#define DEBUG_PRINT_CHECKSUM_CALC
+#define DEBUG_PRINT_SPINE_COMMAND
+// #define DEBUG_STUB_COMMAND_HARDCODE
+// #define DEBUG_PAUSE_AFTER_EACHLEG_SPI
 
 #include <byteswap.h>
 #include <math.h>
@@ -71,7 +76,7 @@ const float hip_offset[4] = {0.f, 0.f, 0.f, 0.f};
 const float knee_offset[4] = {0.f, 0.f, 0.f, 0.f};
 
 const float abad_side_sign[4] = {-1.f, 1.f, 1.f, -1.f};
-const float hip_side_sign[4] = {1.f, 1.f, -1.f, 1.f};
+const float hip_side_sign[4] = {1.f, 1.f, -1.f, 1.f}; 
 const float knee_side_sign[4] = {1.f, 1.f, -1.f, 1.f};
 
 
@@ -87,6 +92,36 @@ static void init_log_timestamp(void)
     }
 }
 
+#ifdef DEBUG_PRINT_SPINE_COMMAND
+//Printing Spine command
+void printSpineCmd(spine_cmd_t *spine_cmd) {
+    printf("====================== Debugging spine_cmd ======================\n");
+    for (int i = 0; i < 2; i++) {
+        printf("Leg Index: %d\n", i);
+        printf("  q_des_abad  : % .6f\n", spine_cmd->q_des_abad[i]);
+        printf("  q_des_hip   : % .6f\n", spine_cmd->q_des_hip[i]);
+        printf("  q_des_knee  : % .6f\n", spine_cmd->q_des_knee[i]);
+        printf("  qd_des_abad : % .6f\n", spine_cmd->qd_des_abad[i]);
+        printf("  qd_des_hip  : % .6f\n", spine_cmd->qd_des_hip[i]);
+        printf("  qd_des_knee : % .6f\n", spine_cmd->qd_des_knee[i]);
+        printf("  kp_abad     : % .6f\n", spine_cmd->kp_abad[i]);
+        printf("  kp_hip      : % .6f\n", spine_cmd->kp_hip[i]);
+        printf("  kp_knee     : % .6f\n", spine_cmd->kp_knee[i]);
+        printf("  kd_abad     : % .6f\n", spine_cmd->kd_abad[i]);
+        printf("  kd_hip      : % .6f\n", spine_cmd->kd_hip[i]);
+        printf("  kd_knee     : % .6f\n", spine_cmd->kd_knee[i]);
+        printf("  tau_abad_ff : % .6f\n", spine_cmd->tau_abad_ff[i]);
+        printf("  tau_hip_ff  : % .6f\n", spine_cmd->tau_hip_ff[i]);
+        printf("  tau_knee_ff : % .6f\n", spine_cmd->tau_knee_ff[i]);
+        printf("  flags       : %d\n", spine_cmd->flags[i]);
+        printf("  checksum    : %d\n", spine_cmd->flags[i]);
+        printf("--------------------------------------------------------------\n");
+    }
+    printf("  checksum    : %d\n", spine_cmd->checksum);
+    printf("===============================================================\n");
+}
+#endif
+
 /*!
  * Compute SPI message checksum
  * @param data : input
@@ -94,8 +129,29 @@ static void init_log_timestamp(void)
  * @return
  */
 uint32_t xor_checksum(uint32_t *data, size_t len) {
-  uint32_t t = 0;  
-  for (size_t i = 0; i < len; i++) t = t ^ data[i];
+  uint32_t t = 0;
+  
+
+  #ifdef DEBUG_PRINT_CHECKSUM_CALC
+  int idx = 0;
+  printf("-------- checksum calculation -----------");
+  #endif
+
+  for (size_t i = 0; i < len; i++) 
+  {
+    t = t ^ data[i];
+
+    #ifdef DEBUG_PRINT_CHECKSUM_CALC
+    printf("Step %d Data[%d] = 0x%08X, Current Checksum = 0x%08X\n", idx + 1, idx, data[idx], t);
+    idx = idx + 1;
+    #endif
+
+  }
+
+  #ifdef DEBUG_PRINT_CHECKSUM_CALC
+  printf("Final computed checksum = 0x%08X\n",t);
+  #endif
+
   return t;
 }
 
@@ -304,8 +360,62 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
     spine_cmd->flags[i] = (spine_cmd->flags[i] & 0x0000FFFF) | (currentControlMode & 0xFFFF)<<16;
   
    }
-  spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
 
+
+  #ifdef DEBUG_STUB_COMMAND_HARDCODE
+  //testing value
+  spine_cmd->q_des_abad[0] = -0.110023;
+  spine_cmd->q_des_hip[0] = 0.005643;
+  spine_cmd->q_des_knee[0] = -0.699701;
+
+  spine_cmd->qd_des_abad[0] = -0.000000;
+  spine_cmd->qd_des_hip[0] = 0.000000;
+  spine_cmd->qd_des_knee[0] = 0.000000;
+
+  spine_cmd->kp_abad[0] = 5.000000 ;
+  spine_cmd->kp_hip[0] = 5.000000 ;
+  spine_cmd->kp_knee[0] =  5.000000;
+
+  spine_cmd->kd_abad[0] =  0.100000;
+  spine_cmd->kd_hip[0] =  0.100000;
+  spine_cmd->kd_knee[0] =  0.100000;
+
+  spine_cmd->tau_abad_ff[0] =-0.000000;
+  spine_cmd->tau_hip_ff[0] =0.000000;
+  spine_cmd->tau_knee_ff[0] = 0.000000;
+
+  spine_cmd->flags[0] = 1 ;
+
+
+  spine_cmd->q_des_abad[1] = 0.293105;
+  spine_cmd->q_des_hip[1] = -0.045398;
+  spine_cmd->q_des_knee[1] = -1.019152;
+
+  spine_cmd->qd_des_abad[1] = 0.000000;
+  spine_cmd->qd_des_hip[1] = 0.000000;
+  spine_cmd->qd_des_knee[1] = 0.000000;
+
+  spine_cmd->kp_abad[1] = 5.000000 ;
+  spine_cmd->kp_hip[1] =  5.000000;
+  spine_cmd->kp_knee[1] = 5.000000 ;
+
+  spine_cmd->kd_abad[1] = 0.100000 ;
+  spine_cmd->kd_hip[1] = 0.100000 ;
+  spine_cmd->kd_knee[1] = 0.100000 ;
+
+  spine_cmd->tau_abad_ff[1] = 0.000000;
+  spine_cmd->tau_hip_ff[1] = 0.000000;
+  spine_cmd->tau_knee_ff[1] = 0.000000;
+
+  spine_cmd->flags[1] = 1;
+  #endif
+
+
+  spine_cmd->checksum = xor_checksum((uint32_t *)spine_cmd, 32);
+  
+  #ifdef DEBUG_PRINT_SPINE_COMMAND
+  printSpineCmd(spine_cmd);
+  #endif
 
   // Adding log
   for (int i = 0; i < 2; i++) {  
@@ -411,6 +521,13 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data, int32_t currentC
   uint16_t rx_buf[K_WORDS_PER_MESSAGE];
 
   for (int spi_board = 0; spi_board < 2; spi_board++) {
+
+
+    #ifdef DEBUG_PAUSE_AFTER_EACHLEG_SPI
+    printf("Press a key");
+    getchar();   
+    #endif
+
     // copy command into spine type:
     spi_to_spine(command, &g_spine_cmd, spi_board * 2, currentControlMode);
 
@@ -452,7 +569,19 @@ void spi_send_receive(spi_command_t *command, spi_data_t *data, int32_t currentC
     int rv = ioctl(spi_board == 0 ? spi_1_fd : spi_2_fd, SPI_IOC_MESSAGE(1),
                   &spi_message);
 
-    #if DEBUG_PRINT_SPI_DATA_RCVD
+
+
+    #ifdef DEBUG_PRINT_SPI_DATA_TRANSMIT
+        // Print the raw data 
+        printf("\n=== SPI BOARD %d RAW TX DATA ===\n", spi_board); 
+        for(int i = 0; i < K_WORDS_PER_MESSAGE; i++) 
+        { 
+          printf("tx_buf[%02d] = 0x%08X\n", i, tx_buf[i]);
+        }
+        printf("===============================\n\n");       
+    #endif
+
+    #ifdef DEBUG_PRINT_SPI_DATA_RCVD
       if (rv < 0) { perror("[ERROR] ioctl (SPI) failed"); } 
       else { 
         // Print the raw data 
