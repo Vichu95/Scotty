@@ -98,23 +98,22 @@ void printSpineCmd(spine_cmd_t *spine_cmd) {
     printf("====================== Debugging spine_cmd ======================\n");
     for (int i = 0; i < 2; i++) {
         printf("Leg Index: %d\n", i);
-        printf("  q_des_abad  : % .6f\n", spine_cmd->q_des_abad[i]);
-        printf("  q_des_hip   : % .6f\n", spine_cmd->q_des_hip[i]);
-        printf("  q_des_knee  : % .6f\n", spine_cmd->q_des_knee[i]);
-        printf("  qd_des_abad : % .6f\n", spine_cmd->qd_des_abad[i]);
-        printf("  qd_des_hip  : % .6f\n", spine_cmd->qd_des_hip[i]);
-        printf("  qd_des_knee : % .6f\n", spine_cmd->qd_des_knee[i]);
-        printf("  kp_abad     : % .6f\n", spine_cmd->kp_abad[i]);
-        printf("  kp_hip      : % .6f\n", spine_cmd->kp_hip[i]);
-        printf("  kp_knee     : % .6f\n", spine_cmd->kp_knee[i]);
-        printf("  kd_abad     : % .6f\n", spine_cmd->kd_abad[i]);
-        printf("  kd_hip      : % .6f\n", spine_cmd->kd_hip[i]);
-        printf("  kd_knee     : % .6f\n", spine_cmd->kd_knee[i]);
-        printf("  tau_abad_ff : % .6f\n", spine_cmd->tau_abad_ff[i]);
-        printf("  tau_hip_ff  : % .6f\n", spine_cmd->tau_hip_ff[i]);
-        printf("  tau_knee_ff : % .6f\n", spine_cmd->tau_knee_ff[i]);
+        printf("  q_des_abad  : %.9g\n", spine_cmd->q_des_abad[i]);
+        printf("  q_des_hip   : %.9g\n", spine_cmd->q_des_hip[i]);
+        printf("  q_des_knee  : %.9g\n", spine_cmd->q_des_knee[i]);
+        printf("  qd_des_abad : %.9g\n", spine_cmd->qd_des_abad[i]);
+        printf("  qd_des_hip  : %.9g\n", spine_cmd->qd_des_hip[i]);
+        printf("  qd_des_knee : %.9g\n", spine_cmd->qd_des_knee[i]);
+        printf("  kp_abad     : %.9g\n", spine_cmd->kp_abad[i]);
+        printf("  kp_hip      : %.9g\n", spine_cmd->kp_hip[i]);
+        printf("  kp_knee     : %.9g\n", spine_cmd->kp_knee[i]);
+        printf("  kd_abad     : %.9g\n", spine_cmd->kd_abad[i]);
+        printf("  kd_hip      : %.9g\n", spine_cmd->kd_hip[i]);
+        printf("  kd_knee     : %.9g\n", spine_cmd->kd_knee[i]);
+        printf("  tau_abad_ff : %.9g\n", spine_cmd->tau_abad_ff[i]);
+        printf("  tau_hip_ff  : %.9g\n", spine_cmd->tau_hip_ff[i]);
+        printf("  tau_knee_ff : %.9g\n", spine_cmd->tau_knee_ff[i]);
         printf("  flags       : %d\n", spine_cmd->flags[i]);
-        printf("  checksum    : %d\n", spine_cmd->flags[i]);
         printf("--------------------------------------------------------------\n");
     }
     printf("  checksum    : %d\n", spine_cmd->checksum);
@@ -419,7 +418,7 @@ void spi_to_spine(spi_command_t *cmd, spine_cmd_t *spine_cmd, int leg_0, int32_t
 
   // Adding log
   for (int i = 0; i < 2; i++) {  
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d\n",
+    fprintf(file, "%d, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %d, %d, %d, %d\n",
             leg_0 + i,
             spine_cmd->q_des_abad[i], spine_cmd->q_des_hip[i], spine_cmd->q_des_knee[i],
             spine_cmd->qd_des_abad[i], spine_cmd->qd_des_hip[i], spine_cmd->qd_des_knee[i],
@@ -494,7 +493,7 @@ void spine_to_spi(spi_data_t *data, spine_data_t *spine_data, int leg_0) {
     float tau_m_knee = (c_enc * (140.0 / 1023.0)) - 70; 
 
 
-    fprintf(file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d, %d, %d\n",
+    fprintf(file, "%d, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %d, %d, %d, %d\n",
             leg_0 + i,
             spine_data->q_abad[i], spine_data->q_hip[i], spine_data->q_knee[i],
             spine_data->qd_abad[i], spine_data->qd_hip[i], spine_data->qd_knee[i],
