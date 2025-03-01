@@ -17,6 +17,8 @@
 // #define PRINTF_LOG
 #define SPI_CODE
 #define STM2_FRONT
+// #define PAUSE_AT_EACHITERATION
+// #define PRINTF_LOG_READCSV
 
 
 /***********************************************************************************************************
@@ -40,14 +42,24 @@
 
 
 #ifdef TEST_CODE
-char *timestamp = "202502271330";  // Manually given timestamp
+char *timestamp = "202502281110";  // Manually given timestamp
 // const char *mit_plot_dir = "C:\\Users\\Vishnudev K\\Nextcloud\\DataV_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27\\";
-const char *mit_plot_dir ="D:\\Learn\\Anhalt\\0_Study\\5_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb27\\";
+const char *mit_plot_dir ="D:\\Learn\\Anhalt\\0_Study\\5_Thesis\\Scotty\\01_Documentation\\01_Report\\Gallery\\Feb28\\";
 
 FILE *log_file;
+
 int log_nanrcvd = 0;
 int log_chcksm_errspi = 0;
-float log_motor_trqCalc = 0.0f;
+float log_motor_trqCalcAfterLimit = 0.0f;
+float log_motor_trqCalcBeforeLimit = 0.0f;
+
+// Struct to log error and debug info for each stm
+typedef struct {
+  float ab_trqCalcAfterLimit[2], hip_trqCalcAfterLimit[2], knee_trqCalcAfterLimit[2];
+  float ab_trqCalcBeforeLimit[2], hip_trqCalcBeforeLimit[2], knee_trqCalcBeforeLimit[2];
+}stm_test;
+stm_test stm_test_struct;
+
 // Dummy definitions for HAL types and constants
 typedef int HAL_StatusTypeDef;
 #define HAL_OK 0
@@ -143,8 +155,8 @@ HAL_StatusTypeDef HAL_CAN_AddTxMessage(CAN_HandleTypeDef *hcan,
 #define P_MAX  12.5f
 #define V_MIN -26.0f
 #define V_MAX  26.0f
-#define T_MIN -1.5f
-#define T_MAX  1.5f
+#define T_MIN -TRQ_REQ_MAX
+#define T_MAX  TRQ_REQ_MAX
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
@@ -268,6 +280,8 @@ float p_out = 0.0f;     //position
 float v_out = 0.0f;     //velocity
 float t_out = 0.0f;     //torque
 
+//Torque Calculated in motor, before Limitation
+float trqreq= 0.0f;
 
 int receivedCanBus = 2;
 int count=2;
@@ -353,7 +367,7 @@ void log_spi_rx_data(spi_rx *cmd, int base_leg_index) {
   for (int i = 0; i < 2; i++) {  // Loop through two legs in STM
       int leg_index = base_leg_index + i;
 
-      fprintf(log_file, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %u, %u, %u, %u, %f\n",
+      fprintf(log_file, "%d, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %u, %u, %u, %u, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g\n",
               leg_index,
               cmd->ab_p[i], cmd->hip_p[i], cmd->knee_p[i],
               cmd->ab_v[i], cmd->hip_v[i], cmd->knee_v[i],
@@ -361,7 +375,8 @@ void log_spi_rx_data(spi_rx *cmd, int base_leg_index) {
               cmd->ab_kd[i], cmd->hip_kd[i], cmd->knee_kd[i],
               cmd->ab_t[i], cmd->hip_t[i], cmd->knee_t[i],
               cmd->flags[i], cmd->checksum,
-              log_nanrcvd, log_chcksm_errspi, log_motor_trqCalc);
+              log_nanrcvd, log_chcksm_errspi, stm_test_struct.ab_trqCalcAfterLimit[i], stm_test_struct.ab_trqCalcBeforeLimit[i],
+              stm_test_struct.hip_trqCalcAfterLimit[i], stm_test_struct.hip_trqCalcBeforeLimit[i], stm_test_struct.knee_trqCalcAfterLimit[i], stm_test_struct.knee_trqCalcBeforeLimit[i]);
   }
 
   fflush(log_file); // Flush the data to ensure it's saved
@@ -371,18 +386,18 @@ void log_spi_rx_data(spi_rx *cmd, int base_leg_index) {
 void print_spi_rx(spi_rx *cmd, int stm_index) {
   
     #ifdef PRINTF_LOG
-    printf("\n======= STM%d Command =======\n", stm_index + 1);
+    printf("\n\n======= STM%d Command =======\n", stm_index + 1);
     for (int i = 0; i < 2; i++) {  // Loop through both legs in STM
         printf("Leg %d:\n", stm_index * 2 + i);
-        printf("  Position:  ab=%.6f, hip=%.6f, knee=%.6f\n",
+        printf("  Position:  ab=%.9f, hip=%.9f, knee=%.9f\n",
                cmd->ab_p[i], cmd->hip_p[i], cmd->knee_p[i]);
-        printf("  Velocity:  ab=%.6f, hip=%.6f, knee=%.6f\n",
+        printf("  Velocity:  ab=%.9f, hip=%.9f, knee=%.9f\n",
                cmd->ab_v[i], cmd->hip_v[i], cmd->knee_v[i]);
-        printf("  Stiffness: ab=%.6f, hip=%.6f, knee=%.6f\n",
+        printf("  Stiffness: ab=%.9f, hip=%.9f, knee=%.9f\n",
                cmd->ab_kp[i], cmd->hip_kp[i], cmd->knee_kp[i]);
-        printf("  Damping:   ab=%.6f, hip=%.6f, knee=%.6f\n",
+        printf("  Damping:   ab=%.9f, hip=%.9f, knee=%.9f\n",
                cmd->ab_kd[i], cmd->hip_kd[i], cmd->knee_kd[i]);
-        printf("  Torque:    ab=%.6f, hip=%.6f, knee=%.6f\n",
+        printf("  Torque:    ab=%.9f, hip=%.9f, knee=%.9f\n",
                cmd->ab_t[i], cmd->hip_t[i], cmd->knee_t[i]);
         printf("  Flags: %u | Checksum: %u\n", cmd->flags[i], cmd->checksum);
     }
@@ -412,6 +427,19 @@ int read_spi_line(FILE *file, int *leg_index,
     kd_abad, kd_hip, kd_knee,
     tau_abad_ff, tau_hip_ff, tau_knee_ff,
     control_mode, checksum, flags_raw, flags);
+	
+  
+	#ifdef PRINTF_LOG_READCSV	
+ //Debugging Output
+  printf("\n[SPI READ] Leg: %d | Control Mode: %d | Checksum: 0x%08X | Flags: 0x%08X\n", 
+         *leg_index, *control_mode, *checksum, *flags);
+  printf("  q_des   = [%.9f, %.9f, %.9f]  qd_des  = [%.9f, %.9f, %.9f]\n",
+         *q_des_abad, *q_des_hip, *q_des_knee, *qd_des_abad, *qd_des_hip, *qd_des_knee);  
+  printf("  kp      = [%.9f, %.9f, %.9f]  kd      = [%.9f, %.9f, %.9f]\n",
+         *kp_abad, *kp_hip, *kp_knee, *kd_abad, *kd_hip, *kd_knee);  
+  printf("  tau_ff  = [%.9f, %.9f, %.9f]\n", *tau_abad_ff, *tau_hip_ff, *tau_knee_ff);
+    #endif
+  
   return 1;
 }
 
@@ -433,6 +461,18 @@ int read_can_line(FILE *file, int *leg_index,
     tau_m_abad, tau_m_hip, tau_m_knee,
     calc_checksum, rcvd_checksum,
     flag_dataraw, flag_data);
+	
+	
+	#ifdef PRINTF_LOG_READCSV	
+	//Debugging Output
+  printf("\n[CAN READ] Leg: %d | Calc Checksum: 0x%08X | Rcvd Checksum: 0x%08X\n", 
+         *leg_index, *calc_checksum, *rcvd_checksum);
+  printf("  q_meas  = [%.9f, %.9f, %.9f]  qd_meas = [%.9f, %.9f, %.9f]\n",
+         *q_abad, *q_hip, *q_knee, *qd_abad, *qd_hip, *qd_knee);  
+  printf("  tau_meas= [%.9f, %.9f, %.9f]  Flags: 0x%08X | Raw Flags: 0x%08X\n", 
+         *tau_m_abad, *tau_m_hip, *tau_m_knee, *flag_data, *flag_dataraw);
+    #endif
+		 
   return 1;
 }
 
@@ -474,6 +514,11 @@ void process_data(FILE *spi_file, FILE *can_file)
 
   while (1) 
   {
+    
+    #ifdef PRINTF_LOG
+		printf("\n\n >>>>>>> Reading next set of Robot log <<<<<<<\n");
+    #endif
+
     // Reading log in sets of 4
     for (int i = 0; i < 4; i++) 
     {  // Read 4 legs
@@ -544,11 +589,13 @@ void process_data(FILE *spi_file, FILE *can_file)
     // printf("Processed STM1 (Legs 0,1)\n");
 
 
-    printf("\nPress ENTER to continue...");
+	#ifdef PAUSE_AT_EACHITERATION
+    printf("\nPress ENTER to continue...\n");
     getchar();  // Waits for ENTER key press
+	#endif
 
 
-
+    print_spi_rx(&stm2_cmd, 1);
     // Call SPI Stub for STM2 (Legs 2,3)
     stub_can_receive(&stm2_data_old, &stm2_torque_old);  //Use old value, as state used in calculation is old one
     stub_spi_receive(&stm2_cmd);
@@ -601,9 +648,10 @@ int main(void)
   }
 
   // Write header
-  fprintf(log_file, "Leg_Index, stm_ab_p, stm_hip_p, stm_knee_p, stm_ab_v, stm_hip_v, stm_knee_v, "
-    "stm_ab_kp, stm_hip_kp, stm_knee_kp, stm_ab_kd, stm_hip_kd, stm_knee_kd, "
-    "stm_ab_t, stm_hip_t, stm_knee_t, stm_flags, stm_checksum, stm_nan_rcvd, stm_checksumerror, stm_motorTrqCalc\n");
+  fprintf(log_file, "Leg_Index, ab_p, hip_p, knee_p, ab_v, hip_v, knee_v, "
+    "ab_kp, hip_kp, knee_kp, ab_kd, hip_kd, knee_kd, "
+    "ab_t, hip_t, knee_t, flags, checksum, nan_rcvd, checksumerror, "
+    "ab_motorTrqCalcAfterLim, ab_motorTrqCalcBeforeLim, hip_motorTrqCalcAfterLim, hip_motorTrqCalcBeforeLim, knee_motorTrqCalcAfterLim, knee_motorTrqCalcBeforeLim\n");
   fflush(log_file);
 
 
@@ -1021,11 +1069,11 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
     #ifdef PRINTF_LOG
     printf("\n\n\n             ABAD           \n");	
 		printf("\n>>> Control Parameters Entered for Abad Motor:\n");
-		printf("Position (ab_p):        %.3f\n", control.ab_p[CAN]);
-		printf("Velocity (ab_v):        %.3f\n", control.ab_v[CAN]);
-		printf("Stiffness (ab_kp):      %.3f\n", control.ab_kp[CAN]);
-		printf("Damping (ab_kd):        %.3f\n", control.ab_kd[CAN]);
-		printf("Torque Feedforward:     %.3f\n", control.ab_t[CAN]);
+		printf("Position (ab_p):        %.9f\n", control.ab_p[CAN]);
+		printf("Velocity (ab_v):        %.9f\n", control.ab_v[CAN]);
+		printf("Stiffness (ab_kp):      %.9f\n", control.ab_kp[CAN]);
+		printf("Damping (ab_kd):        %.9f\n", control.ab_kd[CAN]);
+		printf("Torque Feedforward:     %.9f\n", control.ab_t[CAN]);
     #endif
 
 		p_in 	= (control.ab_p[CAN] * ab_mitdirection[CAN]);
@@ -1038,19 +1086,19 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b01;
 			p_in = p_in * ab_mitdirection[CAN]; // Direction update
-//			t_in = t_in * ab_mitdirection[CAN]; // Direction update
+			// t_in = t_in * ab_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
 		safetycheck_reqTrq(state.ab_p[CAN], state.ab_v[CAN], torque.ab_t[CAN]);
 
     #ifdef PRINTF_LOG
-		printf("\n>>> Control Parameters Entered for Abad Motor:\n");
-		printf("Position (p_in):        %.3f\n", p_in);
-		printf("Velocity (v_in):        %.3f\n", v_in);
-		printf("Stiffness (kp_in):      %.3f\n", kp_in);
-		printf("Damping (kd_in):        %.3f\n", kd_in);
-		printf("Torque Feedforward t_in:     %.3f\n", t_in);
+		printf("\n>>> Control Parameters after limiting and softstop check for Abad Motor:\n");
+		printf("Position (p_in):        %.9f\n", p_in);
+		printf("Velocity (v_in):        %.9f\n", v_in);
+		printf("Stiffness (kp_in):      %.9f\n", kp_in);
+		printf("Damping (kd_in):        %.9f\n", kd_in);
+		printf("Torque Feedforward t_in:     %.9f\n", t_in);
     #endif
 
 	}
@@ -1066,7 +1114,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b10;
 			p_in = p_in * hip_mitdirection[CAN]; // Direction update
-//			t_in = t_in * hip_mitdirection[CAN]; // Direction update
+			// t_in = t_in * hip_mitdirection[CAN]; // Direction update
 		}
 
 		// Safety Limit
@@ -1084,7 +1132,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		{	//Incase of wrong request
 			state.flags[CAN] |= 0b11;
 			p_in = (p_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
-//			t_in = (t_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
+			// t_in = (t_in * knee_mitdirection[CAN]) * KNEE_GEARRATIO; // Direction update
 		}
 
 		// Safety Limit
@@ -1118,16 +1166,7 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
     Data[7] = t_int&0xff;
 
 
-  #ifdef TEST_CODE   
-    #ifdef PRINTF_LOG
-		printf("\n>>> Final float:\n");
-		printf("Position (p_des):        %.3f\n", p_des);
-		printf("Velocity (v_des):        %.3f\n", v_des);
-		printf("Stiffness (kp):      %.3f\n", kp);
-		printf("Damping (kd):        %.3f\n", kd);
-		printf("Torque Feedforward t_ff:     %.3f\n", t_ff);
-    #endif
- 
+  #ifdef TEST_CODE    
 	if(ID == Abad_CANID)
 	{
 		stm_command.ab_p[CAN] = p_des;
@@ -1135,6 +1174,15 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		stm_command.ab_kp[CAN] = kp;
 		stm_command.ab_kd[CAN] = kd;
 		stm_command.ab_t[CAN] = t_ff;
+
+    stm_test_struct.ab_trqCalcBeforeLimit[CAN] = trqreq;
+    stm_test_struct.ab_trqCalcAfterLimit[CAN] = t_ff + kp*(p_des - state.ab_p[CAN]) + kd*(v_des - state.ab_v[CAN]);
+    
+    #ifdef PRINTF_LOG
+		printf("\n>>> Abad_CANID Final float:\n");
+    printf("Torque in motor before limit:     %.9f\n", stm_test_struct.ab_trqCalcBeforeLimit[CAN]);
+    printf("Torque in motor after limit:     %.9f\n", stm_test_struct.ab_trqCalcAfterLimit[CAN]);
+    #endif
 	}
 	if(ID == Hip_CANID)
 	{
@@ -1143,6 +1191,15 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		stm_command.hip_kp[CAN] = kp;
 		stm_command.hip_kd[CAN] = kd;
 		stm_command.hip_t[CAN] = t_ff;
+
+    stm_test_struct.hip_trqCalcBeforeLimit[CAN] = trqreq;
+    stm_test_struct.hip_trqCalcAfterLimit[CAN] = t_ff + kp*(p_des - state.hip_p[CAN]) + kd*(v_des - state.hip_v[CAN]);
+    
+    #ifdef PRINTF_LOG
+		printf("\n>>> Hip_CANID Final float:\n");
+    printf("Torque in motor before limit:     %.9f\n", stm_test_struct.hip_trqCalcBeforeLimit[CAN]);
+    printf("Torque in motor after limit:     %.9f\n", stm_test_struct.hip_trqCalcAfterLimit[CAN]);
+    #endif
 	}
 	if(ID == Knee_CANID)
 	{
@@ -1151,7 +1208,24 @@ void pack_message(uint8_t ID,CAN_TxHeaderTypeDef*Header,uint8_t*Data)
 		stm_command.knee_kp[CAN] = kp;
 		stm_command.knee_kd[CAN] = kd;
 		stm_command.knee_t[CAN] = t_ff;
+    
+    stm_test_struct.knee_trqCalcBeforeLimit[CAN] = trqreq;
+    stm_test_struct.knee_trqCalcAfterLimit[CAN] = t_ff + kp*(p_des - state.knee_p[CAN]) + kd*(v_des - state.knee_v[CAN]);
+    
+    #ifdef PRINTF_LOG
+		printf("\n>>> Knee_CANID Final float:\n");
+    printf("Torque in motor before limit:     %.9f\n", stm_test_struct.knee_trqCalcBeforeLimit[CAN]);
+    printf("Torque in motor after limit:     %.9f\n", stm_test_struct.knee_trqCalcAfterLimit[CAN]);
+    #endif
 	}
+  
+  #ifdef PRINTF_LOG
+  printf("Position (p_des):        %.9f\n", p_des);
+  printf("Velocity (v_des):        %.9f\n", v_des);
+  printf("Stiffness (kp):      %.9f\n", kp);
+  printf("Damping (kd):        %.9f\n", kd);
+  printf("Torque Feedforward t_ff:     %.9f\n", t_ff);
+  #endif
 #endif
 }
 
@@ -1199,20 +1273,20 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 	{
 		//*control = limit_p;
 		p_in = limit_p;
-//		v_in = 0.0f;
-//		kp_in = 0.0f;
-//		kd_in = KD_SOFTSTOP;
-//		t_in += KP_SOFTSTOP*(limit_p - state);
+		// v_in = 0.0f;
+		// kp_in = 0.0f;
+		// kd_in = KD_SOFTSTOP;
+		// t_in += KP_SOFTSTOP*(limit_p - state);
 		return 1;
 	}
 	if(*control<limit_n)
 	{
 		//*control = limit_n;
 		p_in = limit_n;
-//		v_in = 0.0f;
-//		kp_in = 0.0f;
-//		kd_in = KD_SOFTSTOP;
-//		t_in += KP_SOFTSTOP*(limit_n - state);
+		// v_in = 0.0f;
+		// kp_in = 0.0f;
+		// kd_in = KD_SOFTSTOP;
+		// t_in += KP_SOFTSTOP*(limit_n - state);
 		return 1;
 	}
 
@@ -1225,7 +1299,22 @@ int softstop_joint(float *control,float state, float limit_p, float limit_n)
 void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 {
 			 //𝜏 = 𝜏ff   + 𝐾𝑝(𝑞des − 𝑞) + 𝐾𝑑(𝑞_des − 𝑞_) (2.2) Software and Control Design for the MIT Cheetah Quadruped Robots by Jared Di Carlo
-	float trqreq = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
+	trqreq = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
+  
+	#ifdef PRINTF_LOG
+  printf("Safety Torque Check : Inputs:\n");
+  printf("  p_in:  %.9f,  p_act:  %.9f,  (p_in - p_act):  %.9f\n", p_in, p_act, (p_in - p_act));
+  printf("  v_in:  %.9f,  v_act:  %.9f,  (v_in - v_act):  %.9f\n", v_in, v_act, (v_in - v_act));
+  printf("  t_in:  %.9f,  kp_in:  %.9f,  kd_in:  %.9f\n", t_in, kp_in, kd_in);
+
+  printf("\nTorque Calculation Before Limit:\n");
+  printf("  trqreq = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act)\n");
+  printf("  %.9f = %.9f + (%.9f * %.9f) + (%.9f * %.9f)\n",
+        trqreq, t_in, kp_in, (p_in - p_act), kd_in, (v_in - v_act));        
+  printf("  %.9f = %.9f + %.9f  + %.9f\n",
+        trqreq, t_in, kp_in*(p_in - p_act),  kd_in*(v_in - v_act));
+  #endif
+
 
 	// Incase the Trq to be calculated at the motor is too high, cancel the req by setting Kp, Kd to zero
 	if (trqreq >= TRQ_REQ_MAX || trqreq <= -TRQ_REQ_MAX)
@@ -1245,7 +1334,8 @@ void safetycheck_reqTrq(float p_act, float v_act, float t_ff)
 	}
 
   #ifdef TEST_CODE
-  log_motor_trqCalc = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
+  log_motor_trqCalcAfterLimit = t_in + kp_in*(p_in - p_act) + kd_in*(v_in - v_act);
+  log_motor_trqCalcBeforeLimit = trqreq;
   #endif
 
   
@@ -1408,7 +1498,7 @@ int check_nan_in_spi_rx(spi_rx *data)
     {
         if (isnan(values_ptr[i]))
         {
-            // printf("ERROR: NaN detected at index %d! Value: %f\n", i, values_ptr[i]);
+            // printf("ERROR: NaN detected at index %d! Value: %.9f\n", i, values_ptr[i]);
             return 1;  // Return error if NaN is found
         }
     }

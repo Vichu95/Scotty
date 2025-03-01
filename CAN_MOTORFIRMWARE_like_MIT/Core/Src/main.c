@@ -155,6 +155,7 @@ uint8_t CAN_TxData_buf[8];
 uint8_t CAN_RxData_buf[8];
 
 uint32_t 	currentControlMode = 99;
+volatile uint32_t 	count_checksumerror = 0;
 
 //State Variables
 uint32_t checksum_calc; //to store calculated checksum
@@ -306,7 +307,7 @@ int main(void)
 
 
 
-
+//
 ////	 Only CAN
 //	count=1;
 //	  while (exit_command == 0)
@@ -402,6 +403,10 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 				{
 					((uint16_t*) &control)[i] = ((uint16_t*) &valuesrec)[i];
 				}
+			}
+			else
+			{
+				count_checksumerror = count_checksumerror + 1;
 			}
 		}
 
@@ -870,7 +875,7 @@ int check_nan_in_spi_rx(spi_rx *data)
     {
         if (isnan(values_ptr[i]))
         {
-            // printf("ERROR: NaN detected at index %d! Value: %f\n", i, values_ptr[i]);
+            // printf("ERROR: NaN detected at index %d! Value: %.9g\n", i, values_ptr[i]);
             return 1;  // Return error if NaN is found
         }
     }
