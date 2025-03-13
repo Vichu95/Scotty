@@ -1,3 +1,7 @@
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <sensor_msgs/JointState.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -7,6 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <byteswap.h>
+#include <vector>
 
 // Define SPI Device
 #define SPI_DEVICE_1 "/dev/spidev2.1"
@@ -228,8 +233,55 @@ void print_data_dynamic(spi_data_t *data_1, spi_data_t *data_2) {
     printf("=============================================================\n");
 }
 
+// Callback function for subscriber
+void messageCallback(const std_msgs::String::ConstPtr& msg) {
+    ROS_INFO("Received: %s", msg->data.c_str());
+}
 
-int main() {
+// // Callback Function for Joint Commands
+// void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg) {
+//     if (!msg->points.empty()) {
+//         // Extract the first set of joint positions from trajectory command
+//         std::vector<double> received_positions = msg->points[0].positions;
+
+//         // Update SPI command structure for a single leg (Assuming FL leg for now)
+//         cmd1.q_des_abad[0] = received_positions[0];
+//         cmd1.q_des_hip[0] = received_positions[1];
+//         cmd1.q_des_knee[0] = received_positions[2];
+
+//         cmd1.q_des_abad[1] = received_positions[3];
+//         cmd1.q_des_hip[1] = received_positions[4];
+//         cmd1.q_des_knee[1] = received_positions[5];
+
+//         // Other parameters can be updated if required (like stiffness, damping)
+//         cmd1.kp_abad[0] = 10.0f;
+//         cmd1.kp_hip[0] = 20.0f;
+//         cmd1.kp_knee[0] = 30.0f;
+
+//         cmd1.kd_abad[0] = 1.0f;
+//         cmd1.kd_hip[0] = 1.0f;
+//         cmd1.kd_knee[0] = 1.0f;
+
+//         cmd1.checksum = 0;  // Placeholder checksum, update if needed
+
+//         ROS_INFO("Updated SPI command structure from JointTrajectory.");
+//     }
+// }
+
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "hw_interface_handler");
+    ros::NodeHandle nh;
+
+    // ROS Subscriber: Receive joint commands
+    // ros::Subscriber traj_sub = nh.subscribe("/joint_group_position_controller/command", 10, trajectoryCallback);
+
+    // ROS Publisher: Publish real joint states
+    ros::Publisher joint_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 10);
+
+    ros::Rate rate(100);  // 100 Hz update rate
+
+
     init_spi();
 
     spi_command_t cmd1 = {};
@@ -260,32 +312,43 @@ int main() {
     cmd2.flags[1] = 1;
     cmd2.checksum = xor_checksum((uint32_t *)&cmd2, 32);
 
-    while (1) 
-    {
-        // Read from both SPI devices
-        for (int spi_board = 0; spi_board < 2; spi_board++) 
-        {
-            if(spi_board == 0 )
-            {
-                spi_send_receive(spi_1_fd, &cmd1, &data_1);
-                uint32_t calc_checksum = xor_checksum((uint32_t *)&data_1, 14);
-                if (calc_checksum != (uint32_t)data_1.checksum)
-                    checksumErrCnt_dev1 = checksumErrCnt_dev1 + 1;
-            }
-            else
-            {
-                spi_send_receive(spi_2_fd, &cmd2, &data_2);
-                uint32_t calc_checksum = xor_checksum((uint32_t *)&data_2, 14);
-                if (calc_checksum != (uint32_t)data_2.checksum)
-                    checksumErrCnt_dev2 = checksumErrCnt_dev2 + 1;
-            }
-        }
 
-        // Print Data Dynamically for Both Devices
-        print_data_dynamic(&data_1, &data_2);
 
-        usleep(500000);  // 500ms delay
-    }
+    // Create a subscriber to the "/test_topic"
+    ros::Subscriber sub = nh.subscribe("/test_topic", 10, messageCallback);
+
+
+
+    // Keep the node running
+    ros::spin();
+
+
+    // while (1) 
+    // {
+    //     // Read from both SPI devices
+    //     for (int spi_board = 0; spi_board < 2; spi_board++) 
+    //     {
+    //         if(spi_board == 0 )
+    //         {
+    //             spi_send_receive(spi_1_fd, &cmd1, &data_1);
+    //             uint32_t calc_checksum = xor_checksum((uint32_t *)&data_1, 14);
+    //             if (calc_checksum != (uint32_t)data_1.checksum)
+    //                 checksumErrCnt_dev1 = checksumErrCnt_dev1 + 1;
+    //         }
+    //         else
+    //         {
+    //             spi_send_receive(spi_2_fd, &cmd2, &data_2);
+    //             uint32_t calc_checksum = xor_checksum((uint32_t *)&data_2, 14);
+    //             if (calc_checksum != (uint32_t)data_2.checksum)
+    //                 checksumErrCnt_dev2 = checksumErrCnt_dev2 + 1;
+    //         }
+    //     }
+
+    //     // Print Data Dynamically for Both Devices
+    //     print_data_dynamic(&data_1, &data_2);
+
+    //     usleep(500000);  // 500ms delay
+    // }
 
 
     close(spi_1_fd);
