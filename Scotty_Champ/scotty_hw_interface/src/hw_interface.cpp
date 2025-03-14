@@ -507,20 +507,20 @@ void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg)
         const std::vector<double>& position = msg->points[0].positions;  // Read Only
 
         // **Front Legs (SPI1)**
-        spi_command_1.q_des_abad[MIT_FR_INDEX] = position[ROS_FR_INDEX + ABAD];
-        spi_command_1.q_des_abad[MIT_FL_INDEX] = position[ROS_FL_INDEX + ABAD];
-        spi_command_1.q_des_hip[MIT_FR_INDEX]  = position[ROS_FR_INDEX + HIP];
-        spi_command_1.q_des_hip[MIT_FL_INDEX]  = position[ROS_FL_INDEX + HIP];
-        spi_command_1.q_des_knee[MIT_FR_INDEX] = position[ROS_FR_INDEX + KNEE];
-        spi_command_1.q_des_knee[MIT_FL_INDEX] = position[ROS_FL_INDEX + KNEE];
+        spi_command_1.q_des_abad[MIT_FR_INDEX] = position[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.q_des_abad[MIT_FL_INDEX] = position[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.q_des_hip[MIT_FR_INDEX]  = position[3*ROS_FR_INDEX + HIP];
+        spi_command_1.q_des_hip[MIT_FL_INDEX]  = position[3*ROS_FL_INDEX + HIP];
+        spi_command_1.q_des_knee[MIT_FR_INDEX] = position[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.q_des_knee[MIT_FL_INDEX] = position[3*ROS_FL_INDEX + KNEE];
 
         // **Rear Legs (SPI2)**
-        spi_command_2.q_des_abad[MIT_RR_INDEX] = position[ROS_RR_INDEX + ABAD];
-        spi_command_2.q_des_abad[MIT_RL_INDEX] = position[ROS_RL_INDEX + ABAD];
-        spi_command_2.q_des_hip[MIT_RR_INDEX]  = position[ROS_RR_INDEX + HIP];
-        spi_command_2.q_des_hip[MIT_RL_INDEX]  = position[ROS_RL_INDEX + HIP];
-        spi_command_2.q_des_knee[MIT_RR_INDEX] = position[ROS_RR_INDEX + KNEE];
-        spi_command_2.q_des_knee[MIT_RL_INDEX] = position[ROS_RL_INDEX + KNEE];
+        spi_command_2.q_des_abad[MIT_RR_INDEX] = position[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.q_des_abad[MIT_RL_INDEX] = position[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.q_des_hip[MIT_RR_INDEX]  = position[3*ROS_RR_INDEX + HIP];
+        spi_command_2.q_des_hip[MIT_RL_INDEX]  = position[3*ROS_RL_INDEX + HIP];
+        spi_command_2.q_des_knee[MIT_RR_INDEX] = position[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.q_des_knee[MIT_RL_INDEX] = position[3*ROS_RL_INDEX + KNEE];
 
         // // Debug Print Statements
         // ROS_INFO("SPI1 - Front Right (FR): ABAD: %f, HIP: %f, KNEE: %f",
