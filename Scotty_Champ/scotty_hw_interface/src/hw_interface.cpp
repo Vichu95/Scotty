@@ -43,6 +43,10 @@
 #define MIT_RR_INDEX 0
 #define MIT_RL_INDEX 1
 
+
+#define SUB_FROM_ROS 0
+#define PUB_TO_ROS   1
+volatile int flowcontrol = SUB_FROM_ROS;
 // Define SPI Device
 #define SPI_DEVICE_1 "/dev/spidev2.1"
 #define SPI_DEVICE_2 "/dev/spidev2.0"
@@ -89,6 +93,12 @@ typedef struct {
     int32_t flags[2];
     int32_t checksum;
 } spi_data_t;
+
+
+spi_command_t spi_command_1 = {};
+spi_command_t spi_command_2 = {};
+spi_data_t spi_data_1 = {};
+spi_data_t spi_data_2 = {};
 
 // SPI File Descriptor
 int spi_1_fd = -1;
@@ -484,11 +494,15 @@ void messageCallback(const std_msgs::String::ConstPtr& msg) {
 
 
 int main(int argc, char** argv) {
+
+    ///////////////////////////////////////////////////
+    //   Define ROS nodes, subscribers, publishers
+    ///////////////////////////////////////////////////
     ros::init(argc, argv, "hw_interface_handler");
     ros::NodeHandle nh;
 
     // ROS Subscriber: Receive joint commands
-    // ros::Subscriber traj_sub = nh.subscribe("/joint_group_position_controller/command", 10, trajectoryCallback);
+    ros::Subscriber traj_sub = nh.subscribe("/joint_group_position_controller/command", 10, trajectoryCallback);
 
     // ROS Publisher: Publish real joint states
     ros::Publisher joint_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 10);
@@ -496,73 +510,50 @@ int main(int argc, char** argv) {
     ros::Rate rate(100);  // 100 Hz update rate
 
 
+    //////////////////////////////////////////
+    //     INIT SPI and DEFINE STRUCTURES
+    //////////////////////////////////////////
     init_spi();
-
-    spi_command_t cmd1 = {};
-    spi_command_t cmd2 = {};
-    spi_data_t data_1 = {};
-    spi_data_t data_2 = {};
-
-    // Example Data (Can be replaced with actual inputs)
-    cmd1.q_des_abad[0] = 0.1f;
-    cmd1.q_des_hip[0] = -0.2f;
-    cmd1.q_des_knee[1] = 0.3f;
-    cmd1.tau_abad_ff[0] = 1.0f;
-    cmd1.tau_hip_ff[0] = 2.0f;
-    cmd1.tau_knee_ff[1] = 3.0f;
-    cmd1.flags[0] = 1;
-    cmd1.checksum = xor_checksum((uint32_t *)&cmd1, 32);
-
-    // Example Data (Can be replaced with actual inputs)
-    cmd2.q_des_abad[0] = 0.1f;
-    cmd2.q_des_hip[1] = -0.2f;
-    cmd2.qd_des_knee[0] = 0.3f;
-    cmd2.kd_abad[0] = 3.f;
-    cmd2.kd_abad[1] = 5.f;
-    cmd2.tau_abad_ff[0] = 11.0f;
-    cmd2.tau_hip_ff[1] = 2.124f;
-    cmd2.tau_knee_ff[0] = -3.833f;
-    cmd2.flags[0] = 1;
-    cmd2.flags[1] = 1;
-    cmd2.checksum = xor_checksum((uint32_t *)&cmd2, 32);
+    if (spi_1_fd < 0 || spi_2_fd < 0) 
+    {
+        perror("[ERROR] Couldn't open SPI device");
+        return -1;
+    }
 
 
+    while (ros::ok()) 
+    { 
+        if(flowcontrol == PUB_TO_ROS)
+        {
+          // Read from both SPI devices
+          for (int spi_board = 0; spi_board < 2; spi_board++) 
+          {
+              if(spi_board == 0 )
+              {
+                  prepare_command_for_tx(&spi_command_1, spi_board * 2);
+                  spi_send_receive(spi_1_fd, &spi_command_1, &spi_data_1);
+                  process_data_after_rx(&spi_data_1, spi_board * 2);
+              }
+              else
+              {
+                  prepare_command_for_tx(&spi_command_2, spi_board * 2);
+                  spi_send_receive(spi_2_fd, &spi_command_2, &spi_data_2);
+                  process_data_after_rx(&spi_data_2, spi_board * 2);
+              }
+          }
 
-    // Create a subscriber to the "/test_topic"
-    ros::Subscriber sub = nh.subscribe("/test_topic", 10, messageCallback);
-
-
-
-    // Keep the node running
-    ros::spin();
-
-
-    // while (1) 
-    // {
-    //     // Read from both SPI devices
-    //     for (int spi_board = 0; spi_board < 2; spi_board++) 
-    //     {
-    //         if(spi_board == 0 )
-    //         {
-    //             spi_send_receive(spi_1_fd, &cmd1, &data_1);
-    //             uint32_t calc_checksum = xor_checksum((uint32_t *)&data_1, 14);
-    //             if (calc_checksum != (uint32_t)data_1.checksum)
-    //                 checksumErrCnt_dev1 = checksumErrCnt_dev1 + 1;
-    //         }
-    //         else
-    //         {
-    //             spi_send_receive(spi_2_fd, &cmd2, &data_2);
-    //             uint32_t calc_checksum = xor_checksum((uint32_t *)&data_2, 14);
-    //             if (calc_checksum != (uint32_t)data_2.checksum)
-    //                 checksumErrCnt_dev2 = checksumErrCnt_dev2 + 1;
-    //         }
-    //     }
-
-    //     // Print Data Dynamically for Both Devices
-    //     print_data_dynamic(&data_1, &data_2);
+          // // Print Data Dynamically for Both Devices
+          // print_data_dynamic(&spi_data_1, &spi_data_2);
 
     //     usleep(500000);  // 500ms delay
     // }
+
+          flowcontrol = SUB_FROM_ROS;
+        }
+
+        ros::spinOnce();
+        rate.sleep();
+    }
 
 
     close(spi_1_fd);
