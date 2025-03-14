@@ -457,40 +457,80 @@ void print_data_dynamic(spi_data_t *data_1, spi_data_t *data_2) {
     printf("=============================================================\n");
 }
 
-// Callback function for subscriber
-void messageCallback(const std_msgs::String::ConstPtr& msg) {
-    ROS_INFO("Received: %s", msg->data.c_str());
+
+
+
+
+                                              ///////////////////////////////
+                                              //           R O S 
+                                              ///////////////////////////////
+
+
+// Callback Function: Copies Data From ROS to SPI Structure
+void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
+{
+  if(flowcontrol == SUB_FROM_ROS)
+  {
+    if (!msg->points.empty()) {
+        const std::vector<double>& position = msg->points[0].positions;  // Read Only
+
+        // **Front Legs (SPI1)**
+        spi_command_1.q_des_abad[MIT_FR_INDEX] = position[ROS_FR_INDEX + ABAD];
+        spi_command_1.q_des_abad[MIT_FL_INDEX] = position[ROS_FL_INDEX + ABAD];
+        spi_command_1.q_des_hip[MIT_FR_INDEX]  = position[ROS_FR_INDEX + HIP];
+        spi_command_1.q_des_hip[MIT_FL_INDEX]  = position[ROS_FL_INDEX + HIP];
+        spi_command_1.q_des_knee[MIT_FR_INDEX] = position[ROS_FR_INDEX + KNEE];
+        spi_command_1.q_des_knee[MIT_FL_INDEX] = position[ROS_FL_INDEX + KNEE];
+
+        // **Rear Legs (SPI2)**
+        spi_command_2.q_des_abad[MIT_RR_INDEX] = position[ROS_RR_INDEX + ABAD];
+        spi_command_2.q_des_abad[MIT_RL_INDEX] = position[ROS_RL_INDEX + ABAD];
+        spi_command_2.q_des_hip[MIT_RR_INDEX]  = position[ROS_RR_INDEX + HIP];
+        spi_command_2.q_des_hip[MIT_RL_INDEX]  = position[ROS_RL_INDEX + HIP];
+        spi_command_2.q_des_knee[MIT_RR_INDEX] = position[ROS_RR_INDEX + KNEE];
+        spi_command_2.q_des_knee[MIT_RL_INDEX] = position[ROS_RL_INDEX + KNEE];
+
+        // // Debug Print Statements
+        // ROS_INFO("SPI1 - Front Right (FR): ABAD: %f, HIP: %f, KNEE: %f",
+        //          spi_command_1.q_des_abad[MIT_FR_INDEX], spi_command_1.q_des_hip[MIT_FR_INDEX], spi_command_1.q_des_knee[MIT_FR_INDEX]);
+        // ROS_INFO("SPI1 - Front Left (FL): ABAD: %f, HIP: %f, KNEE: %f",
+        //          spi_command_1.q_des_abad[MIT_FL_INDEX], spi_command_1.q_des_hip[MIT_FL_INDEX], spi_command_1.q_des_knee[MIT_FL_INDEX]);
+        // ROS_INFO("SPI2 - Rear Right (RR): ABAD: %f, HIP: %f, KNEE: %f",
+        //          spi_command_2.q_des_abad[MIT_RR_INDEX], spi_command_2.q_des_hip[MIT_RR_INDEX], spi_command_2.q_des_knee[MIT_RR_INDEX]);
+        // ROS_INFO("SPI2 - Rear Left (RL): ABAD: %f, HIP: %f, KNEE: %f",
+        //          spi_command_2.q_des_abad[MIT_RL_INDEX], spi_command_2.q_des_hip[MIT_RL_INDEX], spi_command_2.q_des_knee[MIT_RL_INDEX]);
+     } else {
+        ROS_WARN("Received an empty JointTrajectory message!");
+    }
+
+
+    flowcontrol = PUB_TO_ROS;
+  }//Only read when there is no publishing
 }
 
-// // Callback Function for Joint Commands
-// void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg) {
-//     if (!msg->points.empty()) {
-//         // Extract the first set of joint positions from trajectory command
-//         std::vector<double> received_positions = msg->points[0].positions;
+// Publish Joint States (Only Position)
+void publishJointStates(ros::Publisher &joint_state_pub) {
+    sensor_msgs::JointState joint_state_msg;
+    joint_state_msg.header.stamp = ros::Time::now();
 
-//         // Update SPI command structure for a single leg (Assuming FL leg for now)
-//         cmd1.q_des_abad[0] = received_positions[0];
-//         cmd1.q_des_hip[0] = received_positions[1];
-//         cmd1.q_des_knee[0] = received_positions[2];
+    // Joint Names (Same Order as CHAMP)
+    joint_state_msg.name.assign({
+        "abad_FL_joint", "hip_FL_joint", "knee_FL_joint",
+        "abad_FR_joint", "hip_FR_joint", "knee_FR_joint",
+        "abad_RL_joint", "hip_RL_joint", "knee_RL_joint",
+        "abad_RR_joint", "hip_RR_joint", "knee_RR_joint"});
 
-//         cmd1.q_des_abad[1] = received_positions[3];
-//         cmd1.q_des_hip[1] = received_positions[4];
-//         cmd1.q_des_knee[1] = received_positions[5];
+    // Joint Positions (CHAMP Reads This)
+    joint_state_msg.position.assign({
+        spi_data_1.q_abad[MIT_FL_INDEX], spi_data_1.q_hip[MIT_FL_INDEX], spi_data_1.q_knee[MIT_FL_INDEX],  // FL
+        spi_data_1.q_abad[MIT_FR_INDEX], spi_data_1.q_hip[MIT_FR_INDEX], spi_data_1.q_knee[MIT_FR_INDEX],  // FR
+        spi_data_2.q_abad[MIT_RL_INDEX], spi_data_2.q_hip[MIT_RL_INDEX], spi_data_2.q_knee[MIT_RL_INDEX],  // RL
+        spi_data_2.q_abad[MIT_RR_INDEX], spi_data_2.q_hip[MIT_RR_INDEX], spi_data_2.q_knee[MIT_RR_INDEX]   // RR
+    });
 
-//         // Other parameters can be updated if required (like stiffness, damping)
-//         cmd1.kp_abad[0] = 10.0f;
-//         cmd1.kp_hip[0] = 20.0f;
-//         cmd1.kp_knee[0] = 30.0f;
-
-//         cmd1.kd_abad[0] = 1.0f;
-//         cmd1.kd_hip[0] = 1.0f;
-//         cmd1.kd_knee[0] = 1.0f;
-
-//         cmd1.checksum = 0;  // Placeholder checksum, update if needed
-
-//         ROS_INFO("Updated SPI command structure from JointTrajectory.");
-//     }
-// }
+    // Publish the Joint State Message
+    joint_state_pub.publish(joint_state_msg);
+}
 
 
 int main(int argc, char** argv) {
@@ -545,8 +585,8 @@ int main(int argc, char** argv) {
           // // Print Data Dynamically for Both Devices
           // print_data_dynamic(&spi_data_1, &spi_data_2);
 
-    //     usleep(500000);  // 500ms delay
-    // }
+          // Publish the joint State
+          publishJointStates(joint_state_pub);
 
           flowcontrol = SUB_FROM_ROS;
         }
