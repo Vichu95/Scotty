@@ -9,6 +9,12 @@ Description : The hardware interface layer for Champ
 Usage       : This connects the ROS to STM 
 */
 
+// #define DEBUG_PRINT_SPI_DATA_RCVD
+// #define DEBUG_PRINT_SPI_DATA_TRANSMIT
+// #define DEBUG_PRINT_CHECKSUM_CALC
+// #define DEBUG_PRINT_SPINE_COMMAND
+// #define DEBUG_STUB_COMMAND_HARDCODE
+// #define DEBUG_PAUSE_AFTER_EACHLEG_SPI
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -424,6 +430,17 @@ void spi_send_receive(int spi_fd, spi_command_t *cmd, spi_data_t *data) {
         perror("SPI Transfer Failed");
         return;
     }
+
+
+    #ifdef DEBUG_PRINT_SPI_DATA_TRANSMIT
+        // Print the raw data 
+        printf("\n=== SPI BOARD RAW TX DATA ===\n"); 
+        for(int i = 0; i < K_WORDS_PER_MESSAGE; i++) 
+        { 
+          printf("tx_buf[%02d] = 0x%08X\n", i, tx_buf[i]);
+        }
+        printf("===============================\n\n");       
+    #endif
 
     // Swap Received Bytes Back
     swap_bytes(rx_buf, K_WORDS_PER_MESSAGE);
