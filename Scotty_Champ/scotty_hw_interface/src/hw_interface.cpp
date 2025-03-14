@@ -1,3 +1,15 @@
+/*
+"""
+Project     : Scotty
+ROS Package : scotty_hw_interface
+Script Name : hw_interface.cpp
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : The hardware interface layer for Champ
+Usage       : This connects the ROS to STM 
+*/
+
+
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <trajectory_msgs/JointTrajectory.h>
@@ -47,18 +59,21 @@
 #define SUB_FROM_ROS 0
 #define PUB_TO_ROS   1
 volatile int flowcontrol = SUB_FROM_ROS;
+
+///////////////////////////////
+//        D E F I N E S
+///////////////////////////////
 // Define SPI Device
 #define SPI_DEVICE_1 "/dev/spidev2.1"
 #define SPI_DEVICE_2 "/dev/spidev2.0"
 #define K_WORDS_PER_MESSAGE 66
 
-unsigned char spi_mode = SPI_MODE_0;
+unsigned char spi_mode          = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
-unsigned int spi_speed = 6000000;   // MIT original speed
-uint8_t lsb = 0x01;
+unsigned int  spi_speed         = 6000000;   // MIT original speed
+uint8_t       lsb               = 0x01;
 
-uint8_t checksumErrCnt_dev1 = 0;
-uint8_t checksumErrCnt_dev2 = 0;
+uint8_t checksumErrCnt_dev[2]   = {0,0};  // 0 for dev1 and 1 for dev2
 
 // SPI Command Structure (Like MIT)
 typedef struct {
@@ -79,7 +94,6 @@ typedef struct {
   float tau_knee_ff[2];
   int32_t flags[2];
   int32_t checksum;
-
 } spi_command_t;
 
 // SPI Data Structure (Like MIT)
@@ -152,9 +166,6 @@ void printSpineCmd(spi_command_t *print_cmd) {
                                                   ///////////////////////////////
 /*!
  * Compute SPI message checksum
- * @param data : input
- * @param len : length (in 32-bit words)
- * @return
  */
 uint32_t xor_checksum(uint32_t *data, size_t len) {
   uint32_t t = 0;  
@@ -233,7 +244,9 @@ int init_spi() {
   return rv;
 }
 
-// Function to Swap Bytes (Fix Endianness)
+/*!
+ * Function to Swap Bytes (Fix Endianness)
+ */
 void swap_bytes(uint16_t *buffer, size_t len) {
     for (size_t i = 0; i < len; i++) {
         buffer[i] = __bswap_16(buffer[i]);
@@ -380,6 +393,10 @@ void process_data_after_rx(spi_data_t *spi_rx_data, int leg_0) {
   // Close the file
   fclose(file);
 }
+
+/*!
+ * SPI Send/Receive Function
+ */
 void spi_send_receive(int spi_fd, spi_command_t *cmd, spi_data_t *data) {
     uint16_t tx_buf[K_WORDS_PER_MESSAGE] = {0};
     uint16_t rx_buf[K_WORDS_PER_MESSAGE] = {0};
@@ -413,14 +430,12 @@ void spi_send_receive(int spi_fd, spi_command_t *cmd, spi_data_t *data) {
 
     // Copy Data Back
     memcpy(data, rx_buf, sizeof(spi_data_t));
-
-    // Debug Output
-    // printf("Received Data: q_abad[0] = %.3f, q_hip[0] = %.3f, q_knee[0] = %.3f\n",
-    //        data->q_abad[0], data->q_hip[0], data->q_knee[0]);
 }
 
-// Function to Clear Screen and Print Data in Two Columns for Each SPI Device
-void print_data_dynamic(spi_data_t *data_1, spi_data_t *data_2) {
+/*!
+ * Function to Clear Screen and Print Data in Two Columns for Each SPI Device
+ */
+void print_data_dynamic(spi_data_t *spi_data_1, spi_data_t *spi_data_2) {
     printf("\033[H\033[J");  // Clear screen and move cursor to top-left
     printf("=================== SPI DATA RECEIVED ===================\n");
 
@@ -429,14 +444,14 @@ void print_data_dynamic(spi_data_t *data_1, spi_data_t *data_2) {
     printf("-------------------------------------------------------------\n");
     printf("| Parameter     |    Leg 0    |    Leg 1    |\n");
     printf("-------------------------------------------------------------\n");
-    printf("| q_abad       | %10.6f | %10.6f |\n", data_1->q_abad[0], data_1->q_abad[1]);
-    printf("| q_hip        | %10.6f | %10.6f |\n", data_1->q_hip[0], data_1->q_hip[1]);
-    printf("| q_knee       | %10.6f | %10.6f |\n", data_1->q_knee[0], data_1->q_knee[1]);
-    printf("| qd_abad      | %10.6f | %10.6f |\n", data_1->qd_abad[0], data_1->qd_abad[1]);
-    printf("| qd_hip       | %10.6f | %10.6f |\n", data_1->qd_hip[0], data_1->qd_hip[1]);
-    printf("| qd_knee      | %10.6f | %10.6f |\n", data_1->qd_knee[0], data_1->qd_knee[1]);
-    printf("| flags        | %10u | %10u |\n", (uint32_t)data_1->flags[0], (uint32_t)data_1->flags[1]);
-    printf("| Checksum     | %10u | Error Count : %u \n", (uint32_t)data_1->checksum, checksumErrCnt_dev1);
+    printf("| q_abad       | %10.6f | %10.6f |\n", spi_data_1->q_abad[0], spi_data_1->q_abad[1]);
+    printf("| q_hip        | %10.6f | %10.6f |\n", spi_data_1->q_hip[0], spi_data_1->q_hip[1]);
+    printf("| q_knee       | %10.6f | %10.6f |\n", spi_data_1->q_knee[0], spi_data_1->q_knee[1]);
+    printf("| qd_abad      | %10.6f | %10.6f |\n", spi_data_1->qd_abad[0], spi_data_1->qd_abad[1]);
+    printf("| qd_hip       | %10.6f | %10.6f |\n", spi_data_1->qd_hip[0], spi_data_1->qd_hip[1]);
+    printf("| qd_knee      | %10.6f | %10.6f |\n", spi_data_1->qd_knee[0], spi_data_1->qd_knee[1]);
+    printf("| flags        | %10u | %10u |\n", (uint32_t)spi_data_1->flags[0], (uint32_t)spi_data_1->flags[1]);
+    printf("| Checksum     | %10u | Error Count : %u \n", (uint32_t)spi_data_1->checksum, checksumErrCnt_dev[0]);
     printf("-------------------------------------------------------------\n");
 
     // Print Data for SPI 2 (Two Columns)
@@ -444,14 +459,14 @@ void print_data_dynamic(spi_data_t *data_1, spi_data_t *data_2) {
     printf("-------------------------------------------------------------\n");
     printf("| Parameter     |    Leg 0    |    Leg 1    |\n");
     printf("-------------------------------------------------------------\n");
-    printf("| q_abad       | %10.6f | %10.6f |\n", data_2->q_abad[0], data_2->q_abad[1]);
-    printf("| q_hip        | %10.6f | %10.6f |\n", data_2->q_hip[0], data_2->q_hip[1]);
-    printf("| q_knee       | %10.6f | %10.6f |\n", data_2->q_knee[0], data_2->q_knee[1]);
-    printf("| qd_abad      | %10.6f | %10.6f |\n", data_2->qd_abad[0], data_2->qd_abad[1]);
-    printf("| qd_hip       | %10.6f | %10.6f |\n", data_2->qd_hip[0], data_2->qd_hip[1]);
-    printf("| qd_knee      | %10.6f | %10.6f |\n", data_2->qd_knee[0], data_2->qd_knee[1]);
-    printf("| flags        | %10u | %10u |\n", (uint32_t)data_2->flags[0], (uint32_t)data_2->flags[1]);
-    printf("| Checksum     | %10u | Error Count : %u \n", (uint32_t)data_2->checksum, checksumErrCnt_dev2);
+    printf("| q_abad       | %10.6f | %10.6f |\n", spi_data_2->q_abad[0], spi_data_2->q_abad[1]);
+    printf("| q_hip        | %10.6f | %10.6f |\n", spi_data_2->q_hip[0], spi_data_2->q_hip[1]);
+    printf("| q_knee       | %10.6f | %10.6f |\n", spi_data_2->q_knee[0], spi_data_2->q_knee[1]);
+    printf("| qd_abad      | %10.6f | %10.6f |\n", spi_data_2->qd_abad[0], spi_data_2->qd_abad[1]);
+    printf("| qd_hip       | %10.6f | %10.6f |\n", spi_data_2->qd_hip[0], spi_data_2->qd_hip[1]);
+    printf("| qd_knee      | %10.6f | %10.6f |\n", spi_data_2->qd_knee[0], spi_data_2->qd_knee[1]);
+    printf("| flags        | %10u | %10u |\n", (uint32_t)spi_data_2->flags[0], (uint32_t)spi_data_2->flags[1]);
+    printf("| Checksum     | %10u | Error Count : %u \n", (uint32_t)spi_data_2->checksum, checksumErrCnt_dev[1]);
     printf("-------------------------------------------------------------\n");
 
     printf("=============================================================\n");
