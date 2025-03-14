@@ -24,6 +24,7 @@ install(PROGRAMS
     scripts/state_controllers/scotty_state_walk.py
     scripts/state_controllers/scotty_state_shutdown.py
     scripts/scotty_emergency_stop.py
+    scripts/joint_calibrator_relay.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
