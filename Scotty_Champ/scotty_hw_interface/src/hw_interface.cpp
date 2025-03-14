@@ -95,6 +95,51 @@ int spi_1_fd = -1;
 int spi_2_fd = -1;
 
 
+
+// For logging
+static char log_timestamp[15] = "";
+static void init_log_timestamp(void)
+{
+    if(log_timestamp[0] == '\0')
+    {
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        strftime(log_timestamp, sizeof(log_timestamp), "%Y%m%d%H%M", t);
+    }
+}
+
+#ifdef DEBUG_PRINT_SPINE_COMMAND
+//Printing Spine command
+void printSpineCmd(spi_command_t *print_cmd) {
+    printf("====================== Debugging ROS Command ======================\n");
+    for (int i = 0; i < 2; i++) {
+        printf("Leg Index: %d\n", i);
+        printf("  q_des_abad  : %.9g\n", print_cmd->q_des_abad[i]);
+        printf("  q_des_hip   : %.9g\n", print_cmd->q_des_hip[i]);
+        printf("  q_des_knee  : %.9g\n", print_cmd->q_des_knee[i]);
+        printf("  qd_des_abad : %.9g\n", print_cmd->qd_des_abad[i]);
+        printf("  qd_des_hip  : %.9g\n", print_cmd->qd_des_hip[i]);
+        printf("  qd_des_knee : %.9g\n", print_cmd->qd_des_knee[i]);
+        printf("  kp_abad     : %.9g\n", print_cmd->kp_abad[i]);
+        printf("  kp_hip      : %.9g\n", print_cmd->kp_hip[i]);
+        printf("  kp_knee     : %.9g\n", print_cmd->kp_knee[i]);
+        printf("  kd_abad     : %.9g\n", print_cmd->kd_abad[i]);
+        printf("  kd_hip      : %.9g\n", print_cmd->kd_hip[i]);
+        printf("  kd_knee     : %.9g\n", print_cmd->kd_knee[i]);
+        printf("  tau_abad_ff : %.9g\n", print_cmd->tau_abad_ff[i]);
+        printf("  tau_hip_ff  : %.9g\n", print_cmd->tau_hip_ff[i]);
+        printf("  tau_knee_ff : %.9g\n", print_cmd->tau_knee_ff[i]);
+        printf("  flags       : %d\n", print_cmd->flags[i]);
+        printf("--------------------------------------------------------------\n");
+    }
+    printf("  checksum    : %d\n", print_cmd->checksum);
+    printf("===============================================================\n");
+}
+#endif
+
+                                                  ///////////////////////////////
+                                                  //           S P I 
+                                                  ///////////////////////////////
 /*!
  * Compute SPI message checksum
  * @param data : input
@@ -185,7 +230,146 @@ void swap_bytes(uint16_t *buffer, size_t len) {
     }
 }
 
-// SPI Send/Receive Function
+
+/*!
+ * Prepare the command for transmission like checkum calculation
+ */
+void prepare_command_for_tx(spi_command_t *spi_tx_cmd, int leg_0) 
+{
+
+  // Init timestamp
+  init_log_timestamp();
+  char commandlog_file_name[128];
+  sprintf(commandlog_file_name,"spi_command_log_%s.csv",log_timestamp);
+  // Open the CSV file in append mode
+  FILE *file = fopen(commandlog_file_name, "a");
+  if (!file) {
+      perror("Failed to open file");
+      return;
+
+  }
+
+  static int header_written = 0; // Ensure header is written only once
+  if (!header_written) {
+      fprintf(file, "Leg_Index, q_des_abad, q_des_hip, q_des_knee, qd_des_abad, qd_des_hip, qd_des_knee, "
+                    "kp_abad, kp_hip, kp_knee, kd_abad, kd_hip, kd_knee, tau_abad_ff, tau_hip_ff, tau_knee_ff, Checksum, Flags\n");
+      header_written = 1;
+  }
+
+  spi_tx_cmd->qd_des_abad[0]  = DEFAULT_V;
+  spi_tx_cmd->qd_des_hip[0]   = DEFAULT_V;
+  spi_tx_cmd->qd_des_knee[0]  = DEFAULT_V;
+
+  spi_tx_cmd->kp_abad[0]      = DEFAULT_KP;
+  spi_tx_cmd->kp_hip[0]       = DEFAULT_KP;
+  spi_tx_cmd->kp_knee[0]      = DEFAULT_KP;
+
+  spi_tx_cmd->kd_abad[0]      = DEFAULT_KD;
+  spi_tx_cmd->kd_hip[0]       = DEFAULT_KD;
+  spi_tx_cmd->kd_knee[0]      = DEFAULT_KD;
+
+  spi_tx_cmd->tau_abad_ff[0]  = DEFAULT_TRQ;
+  spi_tx_cmd->tau_hip_ff[0]   = DEFAULT_TRQ;
+  spi_tx_cmd->tau_knee_ff[0]  = DEFAULT_TRQ;
+
+  spi_tx_cmd->qd_des_abad[1]  = DEFAULT_V;
+  spi_tx_cmd->qd_des_hip[1]   = DEFAULT_V;
+  spi_tx_cmd->qd_des_knee[1]  = DEFAULT_V;
+
+  spi_tx_cmd->kp_abad[1]      = DEFAULT_KP;
+  spi_tx_cmd->kp_hip[1]       = DEFAULT_KP;
+  spi_tx_cmd->kp_knee[1]      = DEFAULT_KP;
+
+  spi_tx_cmd->kd_abad[1]      = DEFAULT_KD;
+  spi_tx_cmd->kd_hip[1]       = DEFAULT_KD;
+  spi_tx_cmd->kd_knee[1]      = DEFAULT_KD;
+
+  spi_tx_cmd->tau_abad_ff[1]  = DEFAULT_TRQ;
+  spi_tx_cmd->tau_hip_ff[1]   = DEFAULT_TRQ;
+  spi_tx_cmd->tau_knee_ff[1]  = DEFAULT_TRQ;
+
+
+  //Calculate checksum
+  spi_tx_cmd->checksum = xor_checksum((uint32_t *)spi_tx_cmd, 32);
+  
+  #ifdef DEBUG_PRINT_SPINE_COMMAND
+  printSpineCmd(spi_tx_cmd);
+  #endif
+
+  // Adding log
+  for (int i = 0; i < 2; i++) {  
+    fprintf(file, "%d, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %d, %d\n",
+            leg_0 + i,
+            spi_tx_cmd->q_des_abad[i], spi_tx_cmd->q_des_hip[i], spi_tx_cmd->q_des_knee[i],
+            spi_tx_cmd->qd_des_abad[i], spi_tx_cmd->qd_des_hip[i], spi_tx_cmd->qd_des_knee[i],
+            spi_tx_cmd->kp_abad[i], spi_tx_cmd->kp_hip[i], spi_tx_cmd->kp_knee[i],
+            spi_tx_cmd->kd_abad[i], spi_tx_cmd->kd_hip[i], spi_tx_cmd->kd_knee[i],
+            spi_tx_cmd->tau_abad_ff[i], spi_tx_cmd->tau_hip_ff[i], spi_tx_cmd->tau_knee_ff[i],
+            spi_tx_cmd->checksum, spi_tx_cmd->flags[i]);    
+   }
+
+    // Close the file
+    fclose(file);
+}
+
+/*!
+ * Process the received data like for checksum check, logging
+ */
+void process_data_after_rx(spi_data_t *spi_rx_data, int leg_0) {
+
+  // Init timestamp
+  init_log_timestamp();
+  char datalog_file_name[128];
+  sprintf(datalog_file_name,"spi_data_log_%s.csv",log_timestamp);
+  // Open the CSV file in append mode
+  FILE *file = fopen(datalog_file_name, "a");
+  if (!file) {
+      perror("Failed to open file");
+      return;
+
+  }
+  // Write the header row if the file is empty (optional, depending on your use case)
+
+  static int header_data_written = 0; // Ensure header is written only once
+  if (!header_data_written) {
+      fprintf(file, "Leg_Index, q_abad, q_hip, q_knee, qd_abad, qd_hip, qd_knee, tau_m_abad, tau_m_hip, tau_m_knee, CalcChecksum, RcvdChecksum, Flag_dataraw, Flag_data\n");
+      header_data_written = 1;
+  }
+
+  uint32_t calc_checksum = xor_checksum((uint32_t *)spi_rx_data, 14);
+  if (calc_checksum != (uint32_t)spi_rx_data->checksum)
+  {
+    printf("SPI ERROR BAD CHECKSUM in Leg %d : Calculated 0x%08X  Received 0x%08X \n", leg_0, calc_checksum,(uint32_t)spi_rx_data->checksum);
+    checksumErrCnt_dev[leg_0/2] = checksumErrCnt_dev[leg_0/2] + 1; // leg_0/2 = 0 when leg_0 is 0 ie for dev1, and = 1 when leg_0 is 2 for dev2
+  }
+
+  // Log the data
+  for (int i = 0; i < 2; i++) {
+
+    // Extract each 10-bit segment
+    uint32_t flag = (spi_rx_data->flags[i]) & 0x3; // First 2 bits
+    uint16_t a_enc = (spi_rx_data->flags[i] >> 2) & 0x3FF; // First 10 bits (bits 2–11) 
+    uint16_t b_enc = (spi_rx_data->flags[i] >> 12) & 0x3FF; // Next 10 bits (bits 12–21) 
+    uint16_t c_enc = (spi_rx_data->flags[i] >> 22) & 0x3FF; // Last 10 bits (bits 22–31) 
+    // Decode each value back to the original 
+    float tau_m_abad = (a_enc * (140.0 / 1023.0)) - 70; 
+    float tau_m_hip = (b_enc * (140.0 / 1023.0)) - 70; 
+    float tau_m_knee = (c_enc * (140.0 / 1023.0)) - 70; 
+
+
+    fprintf(file, "%d, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %.9g, %d, %d, %d, %d\n",
+            leg_0 + i,
+            spi_rx_data->q_abad[i], spi_rx_data->q_hip[i], spi_rx_data->q_knee[i],
+            spi_rx_data->qd_abad[i], spi_rx_data->qd_hip[i], spi_rx_data->qd_knee[i],
+            tau_m_abad, tau_m_hip, tau_m_knee,
+            calc_checksum, (uint32_t)spi_rx_data->checksum,
+            spi_rx_data->flags[i], flag);
+
+  }
+
+  // Close the file
+  fclose(file);
+}
 void spi_send_receive(int spi_fd, spi_command_t *cmd, spi_data_t *data) {
     uint16_t tx_buf[K_WORDS_PER_MESSAGE] = {0};
     uint16_t rx_buf[K_WORDS_PER_MESSAGE] = {0};
