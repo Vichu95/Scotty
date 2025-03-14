@@ -13,6 +13,36 @@
 #include <byteswap.h>
 #include <vector>
 
+
+///////////////////////////////////////
+//     C O N T R O L    V A L U E S 
+///////////////////////////////////////
+#define DEFAULT_V    0.0f
+#define DEFAULT_KP   5.0f
+#define DEFAULT_KD   0.1f
+#define DEFAULT_TRQ  0.0f
+
+
+///////////////////////////////////////
+//        L E G    I N D E X I N G
+///////////////////////////////////////
+// Define Joint Type Indices
+#define ABAD 0
+#define HIP  1
+#define KNEE 2
+
+// ROS Joint Indexing Order. It is from ros_control.yaml in scotty_config/config
+#define ROS_FL_INDEX 0
+#define ROS_FR_INDEX 1
+#define ROS_RL_INDEX 2
+#define ROS_RR_INDEX 3
+
+// SPI Structure Joint Indexing (MIT Order: FR first, FL second)
+#define MIT_FR_INDEX 0
+#define MIT_FL_INDEX 1
+#define MIT_RR_INDEX 0
+#define MIT_RL_INDEX 1
+
 // Define SPI Device
 #define SPI_DEVICE_1 "/dev/spidev2.1"
 #define SPI_DEVICE_2 "/dev/spidev2.0"
