@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(scotty_hw_interface)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -135,17 +135,18 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-## add_executable(${PROJECT_NAME}_node src/hw_interface.cpp )
-add_executable(simple_subscriber src/simple_subscriber.cpp)
-target_link_libraries(simple_subscriber ${catkin_LIBRARIES})
+add_executable(hw_interface src/hw_interface.cpp )
+target_link_libraries(hw_interface ${catkin_LIBRARIES})
+## add_executable(simple_subscriber src/simple_subscriber.cpp)
+## target_link_libraries(simple_subscriber ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
-## set_target_properties(simple_subscriber PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++")
-set_target_properties(simple_subscriber PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_system -Wl,-Bdynamic")
+set_target_properties(hw_interface PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_system -Wl,-Bdynamic")
+## set_target_properties(simple_subscriber PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_system -Wl,-Bdynamic")
 
 
 ## Add cmake target dependencies of the executable
