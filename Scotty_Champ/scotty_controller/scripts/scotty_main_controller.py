@@ -69,7 +69,8 @@ class MainController:
         # Check if it is connected with hardware or simulation
         self.hardware_connected = rospy.get_param("/scotty_controller/hardware_connected", False)
         rospy.loginfo("Hardware connected : {}".format(self.hardware_connected))
-
+        self.mode = "hardware" if self.hardware_connected else "simulation"
+        
         # Start the initial state
         print("\n\n")
         self.console_log_pub.publish("INFO    : Controller is loading...")
@@ -152,7 +153,8 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            down_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_down.py"])
+
+            down_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_down.py", self.mode])
             down_process.wait()  # Wait for the Down state process to complete
 
         except Exception as e:
