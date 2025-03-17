@@ -66,6 +66,10 @@ class MainController:
         self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
         self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
+        # Check if it is connected with hardware or simulation
+        self.hardware_connected = rospy.get_param("/scotty_controller/hardware_connected", False)
+        rospy.loginfo("Hardware connected : {}".format(self.hardware_connected))
+
         # Start the initial state
         print("\n\n")
         self.console_log_pub.publish("INFO    : Controller is loading...")
