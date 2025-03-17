@@ -14,6 +14,8 @@
 
 // #define ACTUAL_CODE
 #define TEST_CODE
+// #define FRAMEWORK_MIT 
+#define FRAMEWORK_CHAMP 
 // #define PRINTF_LOG
 #define SPI_CODE
 #define STM2_FRONT
@@ -420,6 +422,7 @@ int read_spi_line(FILE *file, int *leg_index,
   if (fgets(line, sizeof(line), file) == NULL) 
     return 0;  // Stop if any read fails
 
+#ifdef FRAMEWORK_MIT	
   sscanf(line, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %u, %u, %u",
     leg_index, q_des_abad, q_des_hip, q_des_knee,
     qd_des_abad, qd_des_hip, qd_des_knee,
@@ -427,6 +430,19 @@ int read_spi_line(FILE *file, int *leg_index,
     kd_abad, kd_hip, kd_knee,
     tau_abad_ff, tau_hip_ff, tau_knee_ff,
     control_mode, checksum, flags_raw, flags);
+#endif
+	
+	#ifdef FRAMEWORK_CHAMP	
+  sscanf(line, "%d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %u, %u",
+    leg_index, q_des_abad, q_des_hip, q_des_knee,
+    qd_des_abad, qd_des_hip, qd_des_knee,
+    kp_abad, kp_hip, kp_knee,
+    kd_abad, kd_hip, kd_knee,
+    tau_abad_ff, tau_hip_ff, tau_knee_ff,
+    checksum, flags);
+	control_mode = 0; //CHAMP doesnot use control mode, flags_raw in logging
+	flags_raw = flags;
+    #endif
 	
   
 	#ifdef PRINTF_LOG_READCSV	
