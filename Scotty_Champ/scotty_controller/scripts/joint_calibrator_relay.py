@@ -36,9 +36,9 @@ class JointsCalibratorRelay:
     def __init__(self):
         rospy.Subscriber("joints_calibrator", JointState, self.joints_cmd_callback)
 
-        joint_controller_topic = rospy.get_param('champ_controller/joint_controller_topic')
+        # joint_controller_topic = rospy.get_param('/joint_group_position_controller/command')
         self.joint_minimal_pub = rospy.Publisher('cmd_joints', Joints, queue_size = 100)
-        self.joint_trajectory_pub = rospy.Publisher(joint_controller_topic, JointTrajectory, queue_size = 100)
+        self.joint_trajectory_pub = rospy.Publisher('/joint_group_position_controller/command', JointTrajectory, queue_size = 100)
         
 
         self.joint_names = ['abad_FL_joint', 'hip_FL_joint', 'knee_FL_joint',

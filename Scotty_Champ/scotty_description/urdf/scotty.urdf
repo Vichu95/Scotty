@@ -45,125 +45,7 @@
       </geometry>
     </collision>
   </link>
-  <link name="abad_FR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.06 0 0"/>
-      <mass value="1.03"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/abad_FR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.29804 0.29804 0.29804 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/abad_FR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="abad_FR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0.2485 -0.065 0.025"/>
-    <parent link="trunk"/>
-    <child link="abad_FR_link"/>
-    <axis xyz="1 0 0"/>
-    <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="hip_FR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 -0.06 -0.04"/>
-      <mass value="1.74"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/hip_FR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.29804 0.29804 0.29804 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/hip_FR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="hip_FR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0.065 -0.03 0"/>
-    <parent link="abad_FR_link"/>
-    <child link="hip_FR_link"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="knee_FR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.01 0 -0.1"/>
-      <mass value="0.52"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/knee_FR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.89804 0.91765 0.92941 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/knee_FR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="knee_FR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.087405 -0.3"/>
-    <parent link="hip_FR_link"/>
-    <child link="knee_FR_link"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="foot_FR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.02"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/foot_FR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.29804 0.29804 0.29804 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/foot_FR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="foot_FR_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.0175 0.001605 -0.3"/>
-    <parent link="knee_FR_link"/>
-    <child link="foot_FR_link"/>
-    <axis xyz="0 0 0"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
+  
   <link name="abad_FL_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.06 0 0"/>
@@ -283,106 +165,16 @@
     <axis xyz="0 0 0"/>
     <dynamics damping="0.5" friction="0.5"/>
   </joint>
-  <link name="abad_RR_link">
+  <link name="abad_FR_link">
     <inertial>
-      <origin rpy="0 0 0" xyz="-0.06 0 0"/>
+      <origin rpy="0 0 0" xyz="0.06 0 0"/>
       <mass value="1.03"/>
       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
     </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://scotty_description/meshes/abad_RR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.75294 0.75294 0.75294 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/abad_RR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="abad_RR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="-0.2485 -0.065 0.025"/>
-    <parent link="trunk"/>
-    <child link="abad_RR_link"/>
-    <axis xyz="1 0 0"/>
-    <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="hip_RR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 -0.06 -0.04"/>
-      <mass value="1.74"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/hip_RR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.75294 0.75294 0.75294 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/hip_RR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="hip_RR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="-0.065 -0.03 0"/>
-    <parent link="abad_RR_link"/>
-    <child link="hip_RR_link"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="knee_RR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0.01 0 -0.1"/>
-      <mass value="0.52"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/knee_RR_link.STL"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.89804 0.91765 0.92941 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/knee_RR_link.STL"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="knee_RR_joint" type="revolute">
-    <origin rpy="0 0 0" xyz="0 -0.087405 -0.3"/>
-    <parent link="hip_RR_link"/>
-    <child link="knee_RR_link"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
-    <dynamics damping="0.5" friction="0.5"/>
-  </joint>
-  <link name="foot_RR_link">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="0.02"/>
-      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
-    </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://scotty_description/meshes/foot_RR_link.STL"/>
+        <mesh filename="package://scotty_description/meshes/abad_FR_link.STL"/>
       </geometry>
       <material name="">
         <color rgba="0.29804 0.29804 0.29804 1"/>
@@ -391,17 +183,108 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://scotty_description/meshes/foot_RR_link.STL"/>
+        <mesh filename="package://scotty_description/meshes/abad_FR_link.STL"/>
       </geometry>
     </collision>
   </link>
-  <joint name="foot_RR_joint" type="fixed">
+  <joint name="abad_FR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0.2485 -0.065 0.025"/>
+    <parent link="trunk"/>
+    <child link="abad_FR_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="hip_FR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.06 -0.04"/>
+      <mass value="1.74"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/hip_FR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.29804 0.29804 0.29804 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/hip_FR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hip_FR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0.065 -0.03 0"/>
+    <parent link="abad_FR_link"/>
+    <child link="hip_FR_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="knee_FR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.01 0 -0.1"/>
+      <mass value="0.52"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/knee_FR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.89804 0.91765 0.92941 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/knee_FR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="knee_FR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 -0.087405 -0.3"/>
+    <parent link="hip_FR_link"/>
+    <child link="knee_FR_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="foot_FR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.02"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/foot_FR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.29804 0.29804 0.29804 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/foot_FR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="foot_FR_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.0175 0.001605 -0.3"/>
-    <parent link="knee_RR_link"/>
-    <child link="foot_RR_link"/>
+    <parent link="knee_FR_link"/>
+    <child link="foot_FR_link"/>
     <axis xyz="0 0 0"/>
     <dynamics damping="0.5" friction="0.5"/>
   </joint>
+  
   <link name="abad_RL_link">
     <inertial>
       <origin rpy="0 0 0" xyz="-0.06 0 0"/>
@@ -518,6 +401,125 @@
     <origin rpy="0 0 0" xyz="0.0175 0.004395 -0.3"/>
     <parent link="knee_RL_link"/>
     <child link="foot_RL_link"/>
+    <axis xyz="0 0 0"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="abad_RR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.06 0 0"/>
+      <mass value="1.03"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/abad_RR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/abad_RR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="abad_RR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.2485 -0.065 0.025"/>
+    <parent link="trunk"/>
+    <child link="abad_RR_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="50" lower="-0.65" upper="0.65" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="hip_RR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 -0.06 -0.04"/>
+      <mass value="1.74"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/hip_RR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.75294 0.75294 0.75294 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/hip_RR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="hip_RR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.065 -0.03 0"/>
+    <parent link="abad_RR_link"/>
+    <child link="hip_RR_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="50" lower="-1.25" upper="1.8" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="knee_RR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.01 0 -0.1"/>
+      <mass value="0.52"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/knee_RR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.89804 0.91765 0.92941 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/knee_RR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="knee_RR_joint" type="revolute">
+    <origin rpy="0 0 0" xyz="0 -0.087405 -0.3"/>
+    <parent link="hip_RR_link"/>
+    <child link="knee_RR_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="50" lower="-2.5" upper="0" velocity="25"/>
+    <dynamics damping="0.5" friction="0.5"/>
+  </joint>
+  <link name="foot_RR_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.02"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/foot_RR_link.STL"/>
+      </geometry>
+      <material name="">
+        <color rgba="0.29804 0.29804 0.29804 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://scotty_description/meshes/foot_RR_link.STL"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="foot_RR_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0175 0.001605 -0.3"/>
+    <parent link="knee_RR_link"/>
+    <child link="foot_RR_link"/>
     <axis xyz="0 0 0"/>
     <dynamics damping="0.5" friction="0.5"/>
   </joint>
