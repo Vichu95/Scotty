@@ -7,11 +7,23 @@
     <arg name="hardware_connected"  default="false" /> 
     <arg name="rviz_ref_frame"      default="base_link"/>
     
-    
-    <!-- Spawn Gazebo -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+    <!-- ==================== SIMULATION  ==================== --> 
+
+    <!-- Spawn Gazebo if Simulation -->
+    <include unless="$(arg hardware_connected)" file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_file)" />
-    </include>
+    </include>    
+
+
+    <!-- ==================== REAL HARDWARE  ==================== --> 
+
+    <!-- Run Robot State Publisher -->
+    <node if="$(arg hardware_connected)" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <!-- Launch RViz -->
+    <node if="$(arg hardware_connected)" name="rviz" pkg="rviz" type="rviz" args="-d $(find scotty_controller)/config/rviz_hardware_config.rviz" />
+
+
 
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro $(arg urdf_file)" />
@@ -25,7 +37,7 @@
     <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
     
     <!-- Main Python Controller -->
-<param name="/hardware_connected"    value="$(arg hardware_connected)"/> 
+    <param name="/hardware_connected"    value="$(arg hardware_connected)"/> 
     <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true"/>
     
 </launch>

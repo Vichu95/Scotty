@@ -66,6 +66,9 @@ Usage       : This connects the ROS to STM
 #define PUB_TO_ROS   1
 volatile int flowcontrol = SUB_FROM_ROS;
 
+ros::Time last_ros_msg_time;  // Stores the last time a ROS message was received
+const double TIMEOUT_INTERVAL = 3;  // Timeout in seconds 0.01 (10ms). Change to 0.1 for 100ms.
+
 ///////////////////////////////
 //        D E F I N E S
 ///////////////////////////////
@@ -531,6 +534,8 @@ void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg)
         //          spi_command_2.q_des_abad[MIT_RR_INDEX], spi_command_2.q_des_hip[MIT_RR_INDEX], spi_command_2.q_des_knee[MIT_RR_INDEX]);
         // ROS_INFO("SPI2 - Rear Left (RL): ABAD: %f, HIP: %f, KNEE: %f",
         //          spi_command_2.q_des_abad[MIT_RL_INDEX], spi_command_2.q_des_hip[MIT_RL_INDEX], spi_command_2.q_des_knee[MIT_RL_INDEX]);
+        
+        last_ros_msg_time = ros::Time::now();  // Update the last received time        
      } else {
         ROS_WARN("Received an empty JointTrajectory message!");
     }
@@ -580,7 +585,7 @@ int main(int argc, char** argv) {
     ros::Publisher joint_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 10);
 
     ros::Rate rate(100);  // 100 Hz update rate
-
+    last_ros_msg_time = ros::Time::now();  // Initialize last received time
 
     //////////////////////////////////////////
     //     INIT SPI and DEFINE STRUCTURES
@@ -595,6 +600,13 @@ int main(int argc, char** argv) {
 
     while (ros::ok()) 
     { 
+        // Check if timeout has occurred
+        if ((ros::Time::now() - last_ros_msg_time).toSec() > TIMEOUT_INTERVAL) {
+            flowcontrol = PUB_TO_ROS;
+            last_ros_msg_time = ros::Time::now();  // Reset time    
+            ROS_INFO("Time out reached");
+        }
+
         if(flowcontrol == PUB_TO_ROS)
         {
           // Read from both SPI devices
