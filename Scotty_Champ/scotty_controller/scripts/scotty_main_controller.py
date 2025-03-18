@@ -67,7 +67,7 @@ class MainController:
         self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
         # Check if it is connected with hardware or simulation
-        self.hardware_connected = rospy.get_param("/scotty_controller/hardware_connected", False)
+        self.hardware_connected = rospy.get_param("/hardware_connected", False)
         rospy.loginfo("Hardware connected : {}".format(self.hardware_connected))
         self.mode = "hardware" if self.hardware_connected else "simulation"
         

@@ -1,10 +1,12 @@
 <launch>
     <!-- Arguments -->
-    <arg name="world_file" default="$(find scotty_config)/worlds/default.world"/>
-    <arg name="urdf_file" default="$(find scotty_description)/urdf/scotty.urdf" />
-    <arg name="ros_control_file"   default="$(find scotty_config)/config/ros_control/ros_control.yaml" /> <!-- Path to ROS Control configurations. Do not touch. -->
-    <arg name="hardware_connected"   default="false" /> 
-    <param name="/scotty_controller/hardware_connected"    value="$(arg hardware_connected)"/> 
+    <arg name="base_frame"          default="base_link" />
+    <arg name="world_file"          default="$(find scotty_config)/worlds/default.world"/>
+    <arg name="urdf_file"           default="$(find scotty_description)/urdf/scotty.urdf" />
+    <arg name="ros_control_file"    default="$(find scotty_config)/config/ros_control/ros_control.yaml" /> <!-- Path to ROS Control configurations. Do not touch. -->
+    <arg name="hardware_connected"  default="false" /> 
+    <arg name="rviz_ref_frame"      default="base_link"/>
+    
     
     <!-- Spawn Gazebo -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -23,8 +25,7 @@
     <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
     
     <!-- Main Python Controller -->
-    <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true">
-        <param name="hardware_connected" value="$(arg hardware_connected)"/>
-    </node>
+<param name="/hardware_connected"    value="$(arg hardware_connected)"/> 
+    <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true"/>
     
 </launch>
