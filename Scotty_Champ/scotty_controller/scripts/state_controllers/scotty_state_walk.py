@@ -13,6 +13,7 @@ Logic       : Calls the champ bring up and champ takes over the walking
 
 import rospy
 import subprocess
+import sys
 from std_msgs.msg import String
 
 class WalkController:
@@ -32,6 +33,7 @@ class WalkController:
 
 if __name__ == '__main__':
     try:
+        mode = sys.argv[1] if len(sys.argv) > 1 else "simulation" # Default mode simulation
         controller = WalkController()
         controller.start_champ_controller()
     except rospy.ROSInterruptException:

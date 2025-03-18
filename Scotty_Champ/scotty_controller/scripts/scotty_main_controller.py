@@ -118,7 +118,7 @@ class MainController:
     def start_idle_state(self):
         rospy.loginfo("Launching Idle state node...")
         try:
-            idle_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py"])
+            idle_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py", self.mode])
             idle_process.wait()  # Wait for the Idle state process to complete
             rospy.loginfo("Completed Idle State.")
             self.console_log_pub.publish("INFO    : Completed execution of Idle state")
@@ -171,7 +171,7 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            stand_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_stand.py"])
+            stand_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_stand.py", self.mode])
             stand_process.wait()  # Wait for the Stand state process to complete
             rospy.loginfo("Stand node wait finished")
 
@@ -186,7 +186,7 @@ class MainController:
     def start_walk_state(self):
         rospy.loginfo("Launching Walk state node...")
         try:
-            walk_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_walk.py"])
+            walk_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_walk.py", self.mode])
             walk_process.wait()  # Wait for the Walk state process to complete
             rospy.loginfo("Completed Walk State.")
             self.console_log_pub.publish("SUCCESS : Completed execution of Walk state")
@@ -226,7 +226,7 @@ class MainController:
             self.current_state_key = 'Busy'
             self.state_pub.publish("Busy")
             self.console_log_pub.publish("INFO    : Entering state : Busy")
-            shutdown_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_shutdown.py"])
+            shutdown_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_shutdown.py", self.mode])
             shutdown_process.wait()  # Wait for the Shutdown state process to complete
 
         except Exception as e:
@@ -240,7 +240,7 @@ class MainController:
     def start_reset_state(self):
         rospy.loginfo("Launching Reset state node...")
         try:
-            reset_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py"])
+            reset_process = subprocess.Popen(["rosrun", "scotty_controller", "scripts/state_controllers/scotty_state_idle.py", self.mode])
             reset_process.wait()  # Wait for the Idle state process to complete
             rospy.loginfo("Completed Reset State.")
             self.console_log_pub.publish("INFO    : Completed resetting")

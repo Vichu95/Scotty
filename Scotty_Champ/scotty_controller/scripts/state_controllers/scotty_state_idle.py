@@ -14,6 +14,7 @@ Logic       : The script starts by deleting the robot model if present. Then it 
 
 import rospy
 import time
+import sys
 from gazebo_msgs.msg import ModelStates
 from gazebo_msgs.srv import SetModelConfiguration, DeleteModel, SpawnModel
 from geometry_msgs.msg import Pose
@@ -167,11 +168,26 @@ class IdleState:
         pause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
         pause_physics()
 
+    ##############
+    #   Idle state with Hardware
+    ##############
+    def idle_hardware(self):
+
+        rospy.loginfo("IdleController : Idle state with Scotty Robot...")
+        time.sleep(3)  # Idle wait. Optional
+        self.console_log_pub.publish("INFO    : Scotty Idle")
+
 if __name__ == '__main__':
     
     try:
-        idle_state = IdleState()
-        idle_state.reset_simulation()
+        mode = sys.argv[1] if len(sys.argv) > 1 else "simulation" # Default mode simulation
+
+        idle_state = IdleState()        
+
+        if mode =="hardware":
+            idle_state.idle_hardware()
+        else:
+            idle_state.reset_simulation()
 
     except rospy.ROSInterruptException:
         pass
