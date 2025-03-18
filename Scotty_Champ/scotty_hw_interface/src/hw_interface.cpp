@@ -20,6 +20,7 @@ Usage       : This connects the ROS to STM
 #include <std_msgs/String.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/String.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -67,8 +68,9 @@ Usage       : This connects the ROS to STM
 volatile int flowcontrol = SUB_FROM_ROS;
 
 ros::Time last_ros_msg_time;  // Stores the last time a ROS message was received
-const double TIMEOUT_INTERVAL = 3;  // Timeout in seconds 0.01 (10ms). Change to 0.1 for 100ms.
+const double TIMEOUT_INTERVAL = 0.01;  // Timeout in seconds 0.01 (10ms). Change to 0.1 for 100ms.
 
+volatile bool shutdown_requested = false;
 ///////////////////////////////
 //        D E F I N E S
 ///////////////////////////////
@@ -504,9 +506,12 @@ void print_data_dynamic(spi_data_t *spi_data_1, spi_data_t *spi_data_2) {
 // Callback Function: Copies Data From ROS to SPI Structure
 void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
 {
+
+    last_ros_msg_time = ros::Time::now();  // Update the last received time  
+
   if(flowcontrol == SUB_FROM_ROS)
   {
-    if (!msg->points.empty()) {
+    if (!msg->points.empty()) { 
         const std::vector<double>& position = msg->points[0].positions;  // Read Only
 
         // **Front Legs (SPI1)**
@@ -533,9 +538,7 @@ void trajectoryCallback(const trajectory_msgs::JointTrajectory::ConstPtr& msg)
         // ROS_INFO("SPI2 - Rear Right (RR): ABAD: %f, HIP: %f, KNEE: %f",
         //          spi_command_2.q_des_abad[MIT_RR_INDEX], spi_command_2.q_des_hip[MIT_RR_INDEX], spi_command_2.q_des_knee[MIT_RR_INDEX]);
         // ROS_INFO("SPI2 - Rear Left (RL): ABAD: %f, HIP: %f, KNEE: %f",
-        //          spi_command_2.q_des_abad[MIT_RL_INDEX], spi_command_2.q_des_hip[MIT_RL_INDEX], spi_command_2.q_des_knee[MIT_RL_INDEX]);
-        
-        last_ros_msg_time = ros::Time::now();  // Update the last received time        
+        //          spi_command_2.q_des_abad[MIT_RL_INDEX], spi_command_2.q_des_hip[MIT_RL_INDEX], spi_command_2.q_des_knee[MIT_RL_INDEX]);     
      } else {
         ROS_WARN("Received an empty JointTrajectory message!");
     }
@@ -569,6 +572,14 @@ void publishJointStates(ros::Publisher &joint_state_pub) {
     joint_state_pub.publish(joint_state_msg);
 }
 
+// Callback function to handle shutdown message
+void shutdownCallback(const std_msgs::String::ConstPtr& msg) {
+    if (msg->data == "Shutdown_Pose_Done") {
+        ROS_WARN("Shutdown message received! Exiting main loop...");
+        shutdown_requested = true;
+    }
+}
+
 
 int main(int argc, char** argv) {
 
@@ -584,6 +595,9 @@ int main(int argc, char** argv) {
     // ROS Publisher: Publish real joint states
     ros::Publisher joint_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 10);
 
+    // ROS Subscriber: Listen for shutdown message
+    ros::Subscriber shutdown_sub = nh.subscribe("/scotty_controller/state_execution_status", 10, shutdownCallback);
+
     ros::Rate rate(100);  // 100 Hz update rate
     last_ros_msg_time = ros::Time::now();  // Initialize last received time
 
@@ -598,13 +612,14 @@ int main(int argc, char** argv) {
     }
 
 
-    while (ros::ok()) 
+    while (ros::ok() && !shutdown_requested) 
     { 
         // Check if timeout has occurred
-        if ((ros::Time::now() - last_ros_msg_time).toSec() > TIMEOUT_INTERVAL) {
+        if ((ros::Time::now() - last_ros_msg_time).toSec() > TIMEOUT_INTERVAL)
+        {
             flowcontrol = PUB_TO_ROS;
             last_ros_msg_time = ros::Time::now();  // Reset time    
-            ROS_INFO("Time out reached");
+            // ROS_INFO("Time out reached");
         }
 
         if(flowcontrol == PUB_TO_ROS)
