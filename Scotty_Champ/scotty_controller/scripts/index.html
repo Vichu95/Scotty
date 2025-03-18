@@ -206,13 +206,19 @@
             document.getElementById('controller-status').className = 'badge badge-danger';
             disableGUI();
             addToConsoleLog(`ERROR : Lost connection to the controller`);
+            setTimeout(function(){
+                location.reload();
+            }, 3000);  // Refresh after 3 seconds
         }); 
 
         ros.on('close', function() {
             document.getElementById('controller-status').innerText = 'Off';
             document.getElementById('controller-status').className = 'badge badge-danger';
             disableGUI();
-            addToConsoleLog(`ERROR : Lost connection to the controller`);
+            addToConsoleLog(`ERROR : Connection to the controller closed`);
+            setTimeout(function(){
+                location.reload();
+            }, 3000);  // Refresh after 3 seconds
         });
 
 
