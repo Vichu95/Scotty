@@ -41,5 +41,5 @@
     <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true"/>
     
     <!-- Load a dummy controller incase hardware is connected -->
-    <node  if="$(arg hardware_connected)" pkg="scotty_controller" type="dummy_controller.py" name="dummy_controller" output="screen" />
+    <node if="$(arg hardware_connected)"  pkg="scotty_controller" type="dummy_controller.py" name="dummy_controller" output="screen" />
 </launch>

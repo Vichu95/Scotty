@@ -93,18 +93,21 @@ class ShutdownController:
 
         rospy.loginfo("ShutdownController : Moving smoothly in {} steps.".format(steps))
 
-        traj_msg = JointTrajectory()
-        traj_msg.joint_names = joint_names
 
         for i in range(steps + 1):
             alpha = i / float(steps)  # Interpolation factor (0 to 1)
             intermediate_positions = (1 - alpha) * np.array(current_positions) + alpha * np.array(target_positions)
 
+            traj_msg = JointTrajectory()
+            traj_msg.joint_names = joint_names
+            traj_msg.header.stamp = rospy.Time.now()
+
             point = JointTrajectoryPoint()
             point.positions = intermediate_positions.tolist()
             point.time_from_start = rospy.Duration(alpha * 2.0)  # Scale duration smoothly
 
-            traj_msg.points.append(point)
+            traj_msg.points = [point]
+            
             rospy.loginfo("Step {}/{} | Interpolated positions: {}".format(i,steps,intermediate_positions.tolist()))
 
             # Publish each step separately

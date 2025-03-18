@@ -173,7 +173,7 @@ class IdleState:
     ##############
     def idle_hardware(self):
 
-        rospy.loginfo("IdleController : Idle state with Scotty Robot...")
+        rospy.loginfo("IdleController : Idle state with Scotty simulation...")
         time.sleep(3)  # Idle wait. Optional
         self.console_log_pub.publish("INFO    : Scotty Idle")
 
