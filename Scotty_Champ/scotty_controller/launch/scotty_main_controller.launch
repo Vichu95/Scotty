@@ -22,8 +22,7 @@
     <node if="$(arg hardware_connected)" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <!-- Launch RViz -->
     <node if="$(arg hardware_connected)" name="rviz" pkg="rviz" type="rviz" args="-d $(find scotty_controller)/config/rviz_hardware_config.rviz" />
-
-
+    <node if="$(arg hardware_connected)" name="upboard_exec" pkg="scotty_controller" type="hw_interface_launch.sh" output="screen"/>
 
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg urdf_file) hardware_connected:=$(arg hardware_connected)" />
