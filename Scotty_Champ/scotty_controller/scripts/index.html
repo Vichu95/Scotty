@@ -132,10 +132,10 @@
             <span class="header-status">Status: <span id="controller-status" class="badge badge-danger">Off</span></span>
         </div>
  
-
         <!-- Current State -->
-        <div class="section current-state">
-            Current State: <span id="current-state" class="badge badge-warning status-badge">Idle</span>
+        <div class="section current-state d-flex justify-content-between align-items-center">
+            <span>Current State: <span id="current-state" class="badge badge-warning status-badge">Idle</span></span>
+            <span>Mode: <span id="robot-mode" class="badge badge-info">Loading...</span></span>
         </div>
  
 
@@ -379,7 +379,10 @@
             newMessage.textContent = message.data;
             newMessage.className = 'console-line';
 
-            if(/ERROR/.test(message.data)){
+            if(/INFO/.test(message.data)){
+                newMessage.style.color = 'white';
+            } 
+            else if(/ERROR/.test(message.data)){
                 newMessage.style.color = 'red';
             } 
             else if(/WARNING/.test(message.data)){
@@ -388,9 +391,19 @@
             else if(/SUCCESS/.test(message.data)){
                 newMessage.style.color = 'green';
             } 
-            else {
-                newMessage.style.color = 'white';
-            } 
+            else if(/MODE/.test(message.data)){
+                newMessage.style.color = 'green';
+                
+                // Check if the message contains "MODE : hardware" or "MODE : simulation"
+                if (message.data.includes("hardware")) {
+                    document.getElementById("robot-mode").innerText = "Hardware";
+                    document.getElementById("robot-mode").className = "badge badge-success";
+                } 
+                else if (message.data.includes("simulation")) {
+                    document.getElementById("robot-mode").innerText = "Simulation";
+                    document.getElementById("robot-mode").className = "badge badge-primary";
+                }
+            }
 
             // Add the new message to the console
             consoleDiv.appendChild(newMessage);
@@ -411,7 +424,10 @@
             newMessage.textContent = text;
             newMessage.className = 'console-line';
 
-            if(/ERROR/.test(text)){
+            if(/INFO/.test(text)){
+                newMessage.style.color = 'white';
+            } 
+            else if(/ERROR/.test(text)){
                 newMessage.style.color = 'red';
             } 
             else if(/WARNING/.test(text)){
@@ -419,9 +435,6 @@
             } 
             else if(/SUCCESS/.test(text)){
                 newMessage.style.color = 'green';
-            } 
-            else {
-                newMessage.style.color = 'white';
             } 
 
             // Add the new message to the console

@@ -66,10 +66,14 @@ class MainController:
         self.state_change_sub = rospy.Subscriber("/scotty_controller/change_state", String, self.change_state_callback)
         self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
+        #Delay to get the browser open
+        rospy.sleep(5) 
+
         # Check if it is connected with hardware or simulation
         self.hardware_connected = rospy.get_param("/hardware_connected", False)
         rospy.loginfo("Hardware connected : {}".format(self.hardware_connected))
         self.mode = "hardware" if self.hardware_connected else "simulation"
+        self.console_log_pub.publish("MODE    : " + self.mode)
         
         # Start the initial state
         print("\n\n")
