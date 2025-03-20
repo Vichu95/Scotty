@@ -1,0 +1,6 @@
+<launch> 
+  <!-- ROS Bridge Server -->
+  <node name="rosbridge_server" pkg="rosbridge_server" type="rosbridge_websocket"/>
+
+  <node pkg="scotty_hw_interface" type="openJointControlGUI.py" name="openJointControlGUI" output="screen" />
+</launch>

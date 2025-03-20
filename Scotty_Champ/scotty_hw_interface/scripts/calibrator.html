@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Scotty Joint Control</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/roslib/build/roslib.min.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <style>
+
+    body {
+
+      background-color: #f8f9fa;
+
+      font-family: Arial, sans-serif;
+
+      font-size: 0.9em; /* Smaller text */
+
+    }
+
+    .container-fluid {
+
+      width: 100%;
+
+      padding: 10px;
+
+    }
+
+    .joint-group {
+
+      margin-bottom: 8px;
+
+      padding: 8px;
+
+      border-radius: 5px;
+
+      background-color: #e9ecef;
+
+      border: 1px solid #ccc;
+
+    }
+
+    .joint-title {
+
+      font-weight: bold;
+
+      font-size: 1rem;
+
+      margin-bottom: 3px;
+
+      color: #007bff;
+
+    }
+
+    .param-label {
+
+      font-weight: bold;
+
+      font-size: 0.9rem;
+
+      margin-right: 5px;
+
+    }
+
+    .param-control {
+
+      display: flex;
+
+      align-items: center;
+
+      margin-bottom: 4px;
+
+    }
+
+    .param-control input[type="number"] {
+
+      width: 60px;
+
+      margin-left: 5px;
+
+    }
+
+    .param-control input[type="range"] {
+
+      flex-grow: 1;
+
+      margin: 0 5px;
+
+    }
+
+    .global-control {
+
+      margin-bottom: 10px;
+
+      padding: 8px;
+
+      border-radius: 5px;
+
+      background-color: #dfe6e9;
+
+      border: 1px solid #ccc;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container-fluid">
+
+    <h4 class="text-center mb-2">Scotty Joint Control</h4>
+
+ 
+
+    <!-- Global Control Panel (compact) -->
+
+    <div class="global-control">
+
+      <div class="param-control">
+
+        <input type="checkbox" id="global-enable-angle">
+
+        <span class="param-label">Angle:</span>
+
+        <input type="range" id="global-angle" min="-4" max="4" step="0.1" value="0">
+
+        <input type="number" id="global-angle-val" min="-4" max="4" step="0.1" value="0">
+
+      </div>
+
+      <div class="param-control">
+
+        <input type="checkbox" id="global-enable-kp">
+
+        <span class="param-label">Kp:</span>
+
+        <input type="range" id="global-kp" min="0" max="100" step="1" value="0">
+
+        <input type="number" id="global-kp-val" min="0" max="100" step="1" value="0">
+
+      </div>
+
+      <div class="param-control">
+
+        <input type="checkbox" id="global-enable-kd">
+
+        <span class="param-label">Kd:</span>
+
+        <input type="range" id="global-kd" min="0" max="50" step="0.5" value="0">
+
+        <input type="number" id="global-kd-val" min="0" max="50" step="0.5" value="0">
+
+      </div>
+
+      <div class="param-control">
+
+        <input type="checkbox" id="global-enable-vel">
+
+        <span class="param-label">Vel:</span>
+
+        <input type="range" id="global-vel" min="-50" max="50" step="1" value="0">
+
+        <input type="number" id="global-vel-val" min="-50" max="50" step="1" value="0">
+
+      </div>
+
+      <div class="param-control">
+
+        <input type="checkbox" id="global-enable-trq">
+
+        <span class="param-label">Trq:</span>
+
+        <input type="range" id="global-trq" min="-50" max="50" step="1" value="0">
+
+        <input type="number" id="global-trq-val" min="-50" max="50" step="1" value="0">
+
+      </div>
+
+    </div>
+
+ 
+
+    <!-- Individual Joint Controls -->
+
+    <div id="joint-controls"></div>
+
+ 
+
+    <button class="btn btn-danger btn-block mt-2" onclick="resetAllValues()">Reset All</button>
+
+  </div>
+
+ 
+
+  <script>
+
+    // ROS Setup
+
+    let ros = new ROSLIB.Ros({
+
+      url: 'ws://0.0.0.0:9090'
+
+    });
+ 
+
+    let topic = new ROSLIB.Topic({
+
+      ros: ros,
+
+      name: '/scotty_joint_control',
+
+      messageType: 'scotty_hw_interface/ScottyJointControlTest'
+
+    });
+
+ 
+
+    const joints = [
+
+      "abad_FL", "hip_FL", "knee_FL",
+
+      "abad_FR", "hip_FR", "knee_FR",
+
+      "abad_RL", "hip_RL", "knee_RL",
+
+      "abad_RR", "hip_RR", "knee_RR"
+
+    ];
+
+ 
+
+    // Initialize jointValues for each joint with all zeros.
+
+    let jointValues = {};
+
+ 
+
+    function createJointControls() {
+
+      const container = document.getElementById('joint-controls');
+
+      container.innerHTML = '';
+
+ 
+
+      joints.forEach(joint => {
+
+        // Set all parameters to zero
+
+        jointValues[joint] = { angle: 0, kp: 0, kd: 0, vel: 0, trq: 0 };
+
+        let jointDiv = document.createElement('div');
+
+        jointDiv.className = 'joint-group';
+
+        jointDiv.innerHTML = `
+
+          <div class="joint-title">${joint}</div>
+
+          ${createParamHTML(joint, 'angle', -4, 4, 0.1)}
+
+          ${createParamHTML(joint, 'kp', 0, 100, 1)}
+
+          ${createParamHTML(joint, 'kd', 0, 50, 0.5)}
+
+          ${createParamHTML(joint, 'vel', -50, 50, 1)}
+
+          ${createParamHTML(joint, 'trq', -50, 50, 1)}
+
+        `;
+
+        container.appendChild(jointDiv);
+
+      });
+
+ 
+
+      attachEventListeners();
+
+    }
+
+ 
+
+    function createParamHTML(joint, param, min, max, step) {
+
+      return `
+
+        <div class="param-control">
+
+          <span class="param-label">${param.toUpperCase()}:</span>
+
+          <input type="range" id="${joint}-${param}" min="${min}" max="${max}" step="${step}" value="0">
+
+          <input type="number" id="${joint}-${param}-val" min="${min}" max="${max}" step="${step}" value="0">
+
+        </div>
+
+      `;
+
+    }
+
+ 
+    function attachEventListeners() {
+    joints.forEach(joint => {
+        ["angle", "kp", "kd", "vel", "trq"].forEach(param => {
+            let slider = document.getElementById(`${joint}-${param}`);
+            let number = document.getElementById(`${joint}-${param}-val`);
+ 
+            slider.addEventListener('input', function() {
+                number.value = slider.value;
+                jointValues[joint][param] = parseFloat(slider.value);
+                console.log(`Updated ${joint} ${param} to ${slider.value}`);
+                publishData();
+            });
+ 
+
+          // As you type, update slider for a live feel
+
+          number.addEventListener('input', function() {
+
+            slider.value = number.value;
+
+          });
+
+ 
+          number.addEventListener('blur', function() {
+                slider.value = number.value;
+                jointValues[joint][param] = parseFloat(number.value);
+                console.log(`Finalized ${joint} ${param} to ${number.value}`);
+                publishData();
+            });
+        });
+    });
+}
+ 
+
+    function attachGlobalListeners() {
+
+      ["angle", "kp", "kd", "vel", "trq"].forEach(param => {
+
+        let globalSlider = document.getElementById(`global-${param}`);
+
+        let globalNumber = document.getElementById(`global-${param}-val`);
+
+        let globalCheckbox = document.getElementById(`global-enable-${param}`);
+
+ 
+
+        // Disable global controls on initial load
+
+        globalSlider.disabled = true;
+
+        globalNumber.disabled = true;
+
+ 
+
+        globalCheckbox.addEventListener('change', function() {
+
+          let enabled = this.checked;
+
+          globalSlider.disabled = !enabled;
+
+          globalNumber.disabled = !enabled;
+
+ 
+
+          if (enabled) {
+
+            let value = parseFloat(globalSlider.value);
+
+            joints.forEach(joint => {
+
+              jointValues[joint][param] = value;
+
+              document.getElementById(`${joint}-${param}`).value = value;
+
+              document.getElementById(`${joint}-${param}-val`).value = value;
+
+            });
+
+            publishData();
+
+          }
+
+        });
+
+ 
+
+        // Slider: update global number and publish immediately if enabled
+
+        globalSlider.addEventListener('input', function() {
+
+          globalNumber.value = globalSlider.value;
+
+          let value = parseFloat(globalSlider.value);
+
+          if (globalCheckbox.checked) {
+
+            joints.forEach(joint => {
+
+              jointValues[joint][param] = value;
+
+              document.getElementById(`${joint}-${param}`).value = value;
+
+              document.getElementById(`${joint}-${param}-val`).value = value;
+
+            });
+
+            publishData();
+
+          }
+
+        });
+
+ 
+
+        // Number input: live update slider without publishing
+
+        globalNumber.addEventListener('input', function() {
+
+          globalSlider.value = globalNumber.value;
+
+        });
+
+ 
+
+        // When editing is finished, update and publish if enabled
+
+        globalNumber.addEventListener('blur', function() {
+
+          let value = parseFloat(globalNumber.value);
+
+          if (globalCheckbox.checked) {
+
+            joints.forEach(joint => {
+
+              jointValues[joint][param] = value;
+
+              document.getElementById(`${joint}-${param}`).value = value;
+
+              document.getElementById(`${joint}-${param}-val`).value = value;
+
+            });
+
+            publishData();
+
+          }
+
+        });
+
+      });
+
+    }
+
+ 
+
+    function resetAllValues() {
+
+      // Reset all input fields to 0
+
+      document.querySelectorAll("input[type='range'], input[type='number']").forEach(input => input.value = 0);
+
+      joints.forEach(joint => {
+
+        jointValues[joint] = { angle: 0, kp: 0, kd: 0, vel: 0, trq: 0 };
+
+      });
+
+      publishData();
+
+    }
+
+ 
+    function publishData() {
+      let msg = new ROSLIB.Message({
+          joint_names: joints,
+          joint_angles: joints.map(joint => jointValues[joint].angle),
+          kp_values: joints.map(joint => jointValues[joint].kp),
+          kd_values: joints.map(joint => jointValues[joint].kd),
+          velocity_values: joints.map(joint => jointValues[joint].vel),
+          torque_values: joints.map(joint => jointValues[joint].trq),
+          centralized_mode: false,
+          centralized_enable_flags: [false, false, false, false, false, false, false],
+          centralized_values: [0, 0, 0, 0, 0, 0, 0]
+      });
+  
+      console.log("Publishing message:", msg); // Debugging log
+      topic.publish(msg);
+  }
+ 
+
+    // Initialize the interface
+
+    createJointControls();
+
+    attachGlobalListeners();
+
+  </script>
+
+</body>
+
+</html>
