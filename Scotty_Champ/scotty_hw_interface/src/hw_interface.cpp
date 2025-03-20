@@ -15,6 +15,7 @@ Usage       : This connects the ROS to STM
 // #define DEBUG_PRINT_SPINE_COMMAND
 // #define DEBUG_STUB_COMMAND_HARDCODE
 // #define DEBUG_PAUSE_AFTER_EACHLEG_SPI
+#define DEBUG_JOINT_CONTROL_GUI
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -32,6 +33,9 @@ Usage       : This connects the ROS to STM
 #include <byteswap.h>
 #include <vector>
 
+#ifdef DEBUG_JOINT_CONTROL_GUI
+#include "scotty_hw_interface/ScottyJointControlTest.h"
+#endif
 
 ///////////////////////////////////////
 //     C O N T R O L    V A L U E S 
@@ -290,6 +294,8 @@ void prepare_command_for_tx(spi_command_t *spi_tx_cmd, int leg_0)
       header_written = 1;
   }
 
+
+    #ifndef DEBUG_JOINT_CONTROL_GUI
   spi_tx_cmd->qd_des_abad[0]  = DEFAULT_V;
   spi_tx_cmd->qd_des_hip[0]   = DEFAULT_V;
   spi_tx_cmd->qd_des_knee[0]  = DEFAULT_V;
@@ -321,7 +327,7 @@ void prepare_command_for_tx(spi_command_t *spi_tx_cmd, int leg_0)
   spi_tx_cmd->tau_abad_ff[1]  = DEFAULT_TRQ;
   spi_tx_cmd->tau_hip_ff[1]   = DEFAULT_TRQ;
   spi_tx_cmd->tau_knee_ff[1]  = DEFAULT_TRQ;
-
+  #endif
 
   //Calculate checksum
   spi_tx_cmd->checksum = xor_checksum((uint32_t *)spi_tx_cmd, 32);
@@ -581,8 +587,94 @@ void shutdownCallback(const std_msgs::String::ConstPtr& msg) {
 }
 
 
-int main(int argc, char** argv) {
 
+#ifdef DEBUG_JOINT_CONTROL_GUI
+// Callback Function: Copies Data From Joint GUI to SPI Structure
+void jointCntrlGUI_Callback(const scotty_hw_interface::ScottyJointControlTest::ConstPtr& msg) 
+{
+
+    last_ros_msg_time = ros::Time::now();  // Update the last received time  
+
+  if(flowcontrol == SUB_FROM_ROS)
+  {
+        const std::vector<float>& joint_angles      = msg->joint_angles;
+        const std::vector<float>& kp_values         = msg->kp_values;
+        const std::vector<float>& kd_values         = msg->kd_values;
+        const std::vector<float>& velocity_values   = msg->velocity_values;
+        const std::vector<float>& torque_values     = msg->torque_values;
+
+        // **Front Legs (SPI1)**
+        spi_command_1.q_des_abad[MIT_FR_INDEX] = joint_angles[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.q_des_abad[MIT_FL_INDEX] = joint_angles[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.q_des_hip[MIT_FR_INDEX]  = joint_angles[3*ROS_FR_INDEX + HIP];
+        spi_command_1.q_des_hip[MIT_FL_INDEX]  = joint_angles[3*ROS_FL_INDEX + HIP];
+        spi_command_1.q_des_knee[MIT_FR_INDEX] = joint_angles[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.q_des_knee[MIT_FL_INDEX] = joint_angles[3*ROS_FL_INDEX + KNEE];
+        spi_command_1.qd_des_abad[MIT_FR_INDEX] = velocity_values[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.qd_des_abad[MIT_FL_INDEX] = velocity_values[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.qd_des_hip[MIT_FR_INDEX]  = velocity_values[3*ROS_FR_INDEX + HIP];
+        spi_command_1.qd_des_hip[MIT_FL_INDEX]  = velocity_values[3*ROS_FL_INDEX + HIP];
+        spi_command_1.qd_des_knee[MIT_FR_INDEX] = velocity_values[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.qd_des_knee[MIT_FL_INDEX] = velocity_values[3*ROS_FL_INDEX + KNEE];
+        spi_command_1.kp_abad[MIT_FR_INDEX] = kp_values[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.kp_abad[MIT_FL_INDEX] = kp_values[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.kp_hip[MIT_FR_INDEX]  = kp_values[3*ROS_FR_INDEX + HIP];
+        spi_command_1.kp_hip[MIT_FL_INDEX]  = kp_values[3*ROS_FL_INDEX + HIP];
+        spi_command_1.kp_knee[MIT_FR_INDEX] = kp_values[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.kp_knee[MIT_FL_INDEX] = kp_values[3*ROS_FL_INDEX + KNEE];
+        spi_command_1.kd_abad[MIT_FR_INDEX] = kd_values[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.kd_abad[MIT_FL_INDEX] = kd_values[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.kd_hip[MIT_FR_INDEX]  = kd_values[3*ROS_FR_INDEX + HIP];
+        spi_command_1.kd_hip[MIT_FL_INDEX]  = kd_values[3*ROS_FL_INDEX + HIP];
+        spi_command_1.kd_knee[MIT_FR_INDEX] = kd_values[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.kd_knee[MIT_FL_INDEX] = kd_values[3*ROS_FL_INDEX + KNEE];
+        spi_command_1.tau_abad_ff[MIT_FR_INDEX] = torque_values[3*ROS_FR_INDEX + ABAD];
+        spi_command_1.tau_abad_ff[MIT_FL_INDEX] = torque_values[3*ROS_FL_INDEX + ABAD];
+        spi_command_1.tau_hip_ff[MIT_FR_INDEX]  = torque_values[3*ROS_FR_INDEX + HIP];
+        spi_command_1.tau_hip_ff[MIT_FL_INDEX]  = torque_values[3*ROS_FL_INDEX + HIP];
+        spi_command_1.tau_knee_ff[MIT_FR_INDEX] = torque_values[3*ROS_FR_INDEX + KNEE];
+        spi_command_1.tau_knee_ff[MIT_FL_INDEX] = torque_values[3*ROS_FL_INDEX + KNEE];
+
+        // **Back Legs (SPI2)**
+        spi_command_2.q_des_abad[MIT_RR_INDEX] = joint_angles[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.q_des_abad[MIT_RL_INDEX] = joint_angles[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.q_des_hip[MIT_RR_INDEX]  = joint_angles[3*ROS_RR_INDEX + HIP];
+        spi_command_2.q_des_hip[MIT_RL_INDEX]  = joint_angles[3*ROS_RL_INDEX + HIP];
+        spi_command_2.q_des_knee[MIT_RR_INDEX] = joint_angles[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.q_des_knee[MIT_RL_INDEX] = joint_angles[3*ROS_RL_INDEX + KNEE];
+        spi_command_2.qd_des_abad[MIT_RR_INDEX] = velocity_values[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.qd_des_abad[MIT_RL_INDEX] = velocity_values[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.qd_des_hip[MIT_RR_INDEX]  = velocity_values[3*ROS_RR_INDEX + HIP];
+        spi_command_2.qd_des_hip[MIT_RL_INDEX]  = velocity_values[3*ROS_RL_INDEX + HIP];
+        spi_command_2.qd_des_knee[MIT_RR_INDEX] = velocity_values[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.qd_des_knee[MIT_RL_INDEX] = velocity_values[3*ROS_RL_INDEX + KNEE];
+        spi_command_2.kp_abad[MIT_RR_INDEX] = kp_values[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.kp_abad[MIT_RL_INDEX] = kp_values[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.kp_hip[MIT_RR_INDEX]  = kp_values[3*ROS_RR_INDEX + HIP];
+        spi_command_2.kp_hip[MIT_RL_INDEX]  = kp_values[3*ROS_RL_INDEX + HIP];
+        spi_command_2.kp_knee[MIT_RR_INDEX] = kp_values[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.kp_knee[MIT_RL_INDEX] = kp_values[3*ROS_RL_INDEX + KNEE];
+        spi_command_2.kd_abad[MIT_RR_INDEX] = kd_values[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.kd_abad[MIT_RL_INDEX] = kd_values[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.kd_hip[MIT_RR_INDEX]  = kd_values[3*ROS_RR_INDEX + HIP];
+        spi_command_2.kd_hip[MIT_RL_INDEX]  = kd_values[3*ROS_RL_INDEX + HIP];
+        spi_command_2.kd_knee[MIT_RR_INDEX] = kd_values[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.kd_knee[MIT_RL_INDEX] = kd_values[3*ROS_RL_INDEX + KNEE];
+        spi_command_2.tau_abad_ff[MIT_RR_INDEX] = torque_values[3*ROS_RR_INDEX + ABAD];
+        spi_command_2.tau_abad_ff[MIT_RL_INDEX] = torque_values[3*ROS_RL_INDEX + ABAD];
+        spi_command_2.tau_hip_ff[MIT_RR_INDEX]  = torque_values[3*ROS_RR_INDEX + HIP];
+        spi_command_2.tau_hip_ff[MIT_RL_INDEX]  = torque_values[3*ROS_RL_INDEX + HIP];
+        spi_command_2.tau_knee_ff[MIT_RR_INDEX] = torque_values[3*ROS_RR_INDEX + KNEE];
+        spi_command_2.tau_knee_ff[MIT_RL_INDEX] = torque_values[3*ROS_RL_INDEX + KNEE];
+    
+
+    flowcontrol = PUB_TO_ROS;
+  }//Only read when there is no publishing
+}
+#endif
+
+int main(int argc, char** argv) {
+    printf("\nHardware Interface for Scotty is starting...\n");
     ///////////////////////////////////////////////////
     //   Define ROS nodes, subscribers, publishers
     ///////////////////////////////////////////////////
@@ -597,6 +689,12 @@ int main(int argc, char** argv) {
 
     // ROS Subscriber: Listen for shutdown message
     ros::Subscriber shutdown_sub = nh.subscribe("/scotty_controller/state_execution_status", 10, shutdownCallback);
+
+    #ifdef DEBUG_JOINT_CONTROL_GUI
+    printf("\nJoints controlled by GUI. Used for calibration\n");
+    // ROS Subscriber: Receive joint commands from debug GUI
+    ros::Subscriber jointCntrlGUI_sub = nh.subscribe("/scotty_controller/joint_control_gui", 10, jointCntrlGUI_Callback);
+    #endif
 
     ros::Rate rate(100);  // 100 Hz update rate
     last_ros_msg_time = ros::Time::now();  // Initialize last received time
