@@ -40,9 +40,15 @@ Usage       : This connects the ROS to STM
 ///////////////////////////////////////
 //     C O N T R O L    V A L U E S 
 ///////////////////////////////////////
+
+// #define DEFAULT_V    0.0f
+// #define DEFAULT_KP   0.0f
+// #define DEFAULT_KD   0.0f
+// #define DEFAULT_TRQ  0.0f
+
 #define DEFAULT_V    0.0f
-#define DEFAULT_KP   5.0f
-#define DEFAULT_KD   0.1f
+#define DEFAULT_KP   1.0f
+#define DEFAULT_KD   0.0f
 #define DEFAULT_TRQ  0.0f
 
 
