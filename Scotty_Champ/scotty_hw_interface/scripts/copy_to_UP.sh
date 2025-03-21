@@ -1,4 +1,15 @@
 #!/bin/bash
+
+#############################################################################
+#                                                                           #
+#      This script is used to copy the hw_interface executable to the       #
+#      UP board. The file is saved under champ folder with a timestamp      #
+#                                                                           #
+#      NOTE!!!! The location of the source files has to be changed          #
+#                                                                           #
+#############################################################################
+
+
 set -e  # Exit on error
 
 # Define Source Files

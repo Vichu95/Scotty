@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+"""
+Project     : Scotty
+ROS Package : scotty_controller
+Script Name : dummy_controller.py
+Author      : Vishnudev Kurumbaparambil
+Organization: Hochschule Anhalt
+Description : A dummy controller stub
+Usage       : This is needed to expose the Controller Services, which otherwise is unavailable.
+"""
 import rospy
 from controller_manager_msgs.srv import ListControllers, ListControllersResponse
 from controller_manager_msgs.srv import SwitchController, SwitchControllerResponse

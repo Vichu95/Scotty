@@ -141,8 +141,6 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(hw_interface src/hw_interface.cpp )
 target_link_libraries(hw_interface ${catkin_LIBRARIES})
-## add_executable(simple_subscriber src/simple_subscriber.cpp)
-## target_link_libraries(simple_subscriber ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,7 +148,6 @@ target_link_libraries(hw_interface ${catkin_LIBRARIES})
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
 # set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
 set_target_properties(hw_interface PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_system -Wl,-Bdynamic")
-## set_target_properties(simple_subscriber PROPERTIES LINK_FLAGS "-static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_system -Wl,-Bdynamic")
 
 
 ## Add cmake target dependencies of the executable
@@ -179,7 +176,7 @@ set_target_properties(hw_interface PROPERTIES LINK_FLAGS "-static-libgcc -static
 
 catkin_package()
 install(PROGRAMS
-    launch/openJointControlGUI.py
+    scripts/openJointControlGUI.py
     DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

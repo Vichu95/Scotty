@@ -22,7 +22,13 @@
     <node if="$(arg hardware_connected)" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <!-- Launch RViz -->
     <node if="$(arg hardware_connected)" name="rviz" pkg="rviz" type="rviz" args="-d $(find scotty_controller)/config/rviz_hardware_config.rviz" />
+    <!-- Launch the hw_interface in UP board. Can also be executed separetly from UP board under /champ/ folder -->
     <node if="$(arg hardware_connected)" name="upboard_exec" pkg="scotty_controller" type="hw_interface_launch.sh" output="screen"/>
+    <!-- Load a dummy controller incase hardware is connected -->
+    <node if="$(arg hardware_connected)"  pkg="scotty_controller" type="dummy_controller.py" name="dummy_controller" output="screen" />
+
+
+    <!-- =====================  COMMON  ======================== --> 
 
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg urdf_file) hardware_connected:=$(arg hardware_connected)" />
@@ -39,6 +45,4 @@
     <param name="/hardware_connected"    value="$(arg hardware_connected)"/> 
     <node name="scotty_main_controller" pkg="scotty_controller" type="scotty_main_controller.py" output="screen" required="true"/>
     
-    <!-- Load a dummy controller incase hardware is connected -->
-    <node if="$(arg hardware_connected)"  pkg="scotty_controller" type="dummy_controller.py" name="dummy_controller" output="screen" />
 </launch>
