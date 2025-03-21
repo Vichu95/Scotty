@@ -13,6 +13,18 @@
       font-size: 0.9em; /* Smaller text */
     }
 
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ccebefd4;
+        color: rgb(0, 0, 0);
+        padding: 15px;
+        border-radius: 8px 8px 0 0;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
     .container-fluid {
       width: 100%;
       padding: 10px;
@@ -66,7 +78,12 @@
 </head>
 <body>
   <div class="container-fluid">
-    <h4 class="text-center mb-2">Scotty Joint Control</h4>
+
+      <!-- Header Section -->
+      <div class="header">
+        Scotty Joint Control
+          <span class="header-status">Status: <span id="controller-status" class="badge badge-danger">Off</span></span>
+      </div>
  
     <!-- Global Control Panel (compact) -->
     <div class="global-control">
@@ -123,6 +140,36 @@
     let ros = new ROSLIB.Ros({
       url: 'ws://0.0.0.0:9090'
     });
+
+    // Connection status management
+    ros.on('connection', function() {
+        console.log(`ROS is connected.`);
+        console.log(`First message to be send after 5 sec`);
+
+        setTimeout(function(){
+          document.getElementById('controller-status').innerText = 'On';
+          document.getElementById('controller-status').className = 'badge badge-success';
+          publishData();
+        }, 5000);  // after 5 seconds
+
+    }); 
+
+    ros.on('error', function(error) {
+        document.getElementById('controller-status').innerText = 'Off';
+        document.getElementById('controller-status').className = 'badge badge-danger';
+        setTimeout(function(){
+            location.reload();
+        }, 3000);  // Refresh after 3 seconds
+    }); 
+
+    ros.on('close', function() {
+        document.getElementById('controller-status').innerText = 'Off';
+        document.getElementById('controller-status').className = 'badge badge-danger';
+        setTimeout(function(){
+            location.reload();
+        }, 3000);  // Refresh after 3 seconds
+    });
+
  
     let topic = new ROSLIB.Topic({
       ros: ros,
