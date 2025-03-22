@@ -6,6 +6,7 @@
     <arg name="ros_control_file"    default="$(find scotty_config)/config/ros_control/ros_control.yaml" /> <!-- Path to ROS Control configurations. Do not touch. -->
     <arg name="hardware_connected"  default="false" /> 
     <arg name="rviz_ref_frame"      default="base_link"/>
+    <arg name="server_directory"      default="/home/roboubu/Documents/VishnuScooty/scotty_ws/src"/>
     
 
     <!-- ==================== SIMULATION  ==================== --> 
@@ -21,7 +22,7 @@
     <!-- Run Robot State Publisher -->
     <node if="$(arg hardware_connected)" name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <!-- Launch RViz -->
-    <node if="$(arg hardware_connected)" name="rviz" pkg="rviz" type="rviz" args="-d $(find scotty_controller)/config/rviz_hardware_config.rviz" />
+    <!-- <node if="$(arg hardware_connected)" name="rviz" pkg="rviz" type="rviz" args="-d $(find scotty_controller)/config/rviz_hardware_config.rviz" /> -->
     <!-- Launch the hw_interface in UP board. Can also be executed separetly from UP board under /champ/ folder -->
     <node if="$(arg hardware_connected)" name="upboard_exec" pkg="scotty_controller" type="hw_interface_launch.sh" output="screen"/>
     <!-- Load a dummy controller incase hardware is connected -->
@@ -29,7 +30,10 @@
 
 
     <!-- =====================  COMMON  ======================== --> 
-
+    
+    <node name="web_server" pkg="scotty_controller" type="server_launch.py" output="screen"/>
+<!-- <node name="web_server" pkg="scotty_controller" type="http_server.py" output="screen"
+        args="$(find scotty_controller)/ScottyViewer 8080" /> -->
     <!-- Load Robot Description -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg urdf_file) hardware_connected:=$(arg hardware_connected)" />
 

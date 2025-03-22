@@ -15,6 +15,7 @@ import subprocess
 from std_msgs.msg import String
 import webbrowser
 import rospkg
+import time
 
 ######
 ## STATES
@@ -51,7 +52,7 @@ class MainController:
         ## Open the GUI
         rospack = rospkg.RosPack()
         package_path = rospack.get_path("scotty_controller")
-        webbrowser.open(package_path + "/scripts/index.html")
+        webbrowser.open("http://0.0.0.0:8080/scotty_controller/scripts/index.html")
 
         self.current_state_key = 'Idle'
         self.state_exec_status = 'Wait'
@@ -67,7 +68,8 @@ class MainController:
         self.state_exec_status_sub = rospy.Subscriber("/scotty_controller/state_execution_status", String, self.state_execution_status_callback)
 
         #Delay to get the browser open
-        rospy.sleep(5) 
+        # rospy.sleep(5) 
+        time.sleep(5)
 
         # Check if it is connected with hardware or simulation
         self.hardware_connected = rospy.get_param("/hardware_connected", False)
