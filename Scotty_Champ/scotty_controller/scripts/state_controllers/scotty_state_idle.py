@@ -20,6 +20,17 @@ from gazebo_msgs.srv import SetModelConfiguration, DeleteModel, SpawnModel
 from geometry_msgs.msg import Pose
 from std_srvs.srv import Empty
 from std_msgs.msg import String
+from sensor_msgs.msg import JointState
+
+
+# ---------------- Safety Limits ----------------
+ABAD_VALID_MIN = -4.0
+ABAD_VALID_MAX =  4.0
+HIP_VALID_MIN  = -4.0
+HIP_VALID_MAX  =  4.0
+KNEE_VALID_MIN = -4.0
+KNEE_VALID_MAX =  4.0
+
 
 ## Handles the callback of /gazebo/model_states
 model_found = False  # Global variable to track if the model is found
@@ -30,6 +41,14 @@ def model_callback(msg, model_name):
     if model_name in msg.name:
         model_found = True
 
+
+## Handles the callback for joint states
+current_positions = None
+def joint_state_callback(msg):
+    """ Callback to store the latest joint states. """
+    global current_positions
+    current_positions = dict(zip(msg.name, msg.position))
+    # rospy.loginfo("Received joint states: {}".format(current_positions))
 
 class IdleState:
     def __init__(self):
@@ -48,6 +67,8 @@ class IdleState:
         self.console_log_pub = rospy.Publisher("/scotty_controller/console_log", String, queue_size=10)
 
         rospy.loginfo("IdleController : Initialized.")
+
+
     ##############
     #   Delets the model if present, else it fails
     ##############
@@ -173,8 +194,60 @@ class IdleState:
     ##############
     def idle_hardware(self):
 
-        rospy.loginfo("IdleController : Idle state with Scotty simulation...")
+        rospy.loginfo("IdleController : Idle state with Scotty...")
         time.sleep(3)  # Idle wait. Optional
+
+        # Define the joint names and target positions for the down pose
+        joint_names = [
+            "abad_FL_joint", "hip_FL_joint", "knee_FL_joint",
+            "abad_FR_joint", "hip_FR_joint", "knee_FR_joint",
+            "abad_RL_joint", "hip_RL_joint", "knee_RL_joint",
+            "abad_RR_joint", "hip_RR_joint", "knee_RR_joint"
+        ]
+
+        # Initialize current joint positions
+        global current_positions
+        current_positions = None
+        rospy.Subscriber("/joint_states", JointState, joint_state_callback)
+
+
+        self.console_log_pub.publish("INFO    : Waiting for current joint states...")
+        rospy.loginfo("IdleController : Waiting for current joint states...")
+
+        # Wait until we receive valid joint states
+        while current_positions is None and not rospy.is_shutdown():
+            rospy.sleep(0.1)
+
+        # Extract the current joint positions in the correct order
+        idle_positions = [current_positions[joint] for joint in joint_names]
+        rospy.loginfo("Current joint positions: {}".format(idle_positions))
+
+        # Inline safety range check using constants
+        unsafe_detected = False
+
+        for joint, pos in zip(joint_names, idle_positions):
+            if "abad" in joint:
+                if pos < ABAD_VALID_MIN or pos > ABAD_VALID_MAX:
+                    self.console_log_pub.publish("ERROR   : ABAD joint '{}' = {:.2f} out of range [{}, {}]".format(
+                        joint, pos, ABAD_VALID_MIN, ABAD_VALID_MAX))  
+                    unsafe_detected = True
+            elif "hip" in joint:
+                if pos < HIP_VALID_MIN or pos > HIP_VALID_MAX:
+                    self.console_log_pub.publish("ERROR   : HIP joint '{}' = {:.2f} out of range [{}, {}]".format(
+                        joint, pos, HIP_VALID_MIN, HIP_VALID_MAX))
+                    unsafe_detected = True
+            elif "knee" in joint:
+                if pos < KNEE_VALID_MIN or pos > KNEE_VALID_MAX:
+                    self.console_log_pub.publish("ERROR   : KNEE joint '{}' = {:.2f} out of range [{}, {}]".format(
+                        joint, pos, KNEE_VALID_MIN, KNEE_VALID_MAX))
+                    unsafe_detected = True
+
+
+        if unsafe_detected:
+            rospy.logerr("Safety check failed. Aborting controller startup.")
+            self.console_log_pub.publish("ERROR   : Unsafe joint positions. Aborting startup.")
+            return
+
         self.console_log_pub.publish("INFO    : Scotty Idle")
 
 if __name__ == '__main__':

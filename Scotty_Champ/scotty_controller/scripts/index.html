@@ -300,8 +300,15 @@
         </div>
     </div>
 
+      
+    <div id="popup-warning" style="display:none; position:fixed; top:10%; left:20%; transform:translateX(-50%);
+    background:red; color:white; padding:10px 20px; border-radius:5px; font-weight:bold; z-index:1000;">
+    Emergency Detected! Stopping in 5 seconds...
+    </div>
+
+
     <script>
-        // Global mode received flag
+        // Global mode received flag   
         window.modeReceived = false;
         
         // ROSBridge Connection Setup
@@ -505,6 +512,19 @@
             } 
             else if(/ERROR/.test(message.data)){
                 newMessage.style.color = 'red';
+
+                //Check if the message contains "MODE : hardware" or "MODE : simulation"
+                if (message.data.includes("Unsafe joint positions. Aborting startup")) {
+                    //Show styled popup
+                    const popup = document.getElementById("popup-warning");
+                    popup.style.display = "block";
+
+                    // Shutdown in 5s
+                    setTimeout(function() {
+                        emergencyStopFunc();
+                        popup.style.display = "none";
+                    }, 5000);
+                } 
             } 
             else if(/WARNING/.test(message.data)){
                 newMessage.style.color = 'yellow';
