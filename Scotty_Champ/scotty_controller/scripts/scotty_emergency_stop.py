@@ -36,8 +36,14 @@ class EmergencyStop:
     def kill_all_ros_nodes(self):
         """Kills all active ROS nodes."""
         try:
+
+            os.system("pkill -9 -f '/rosout'")
+            os.system("pkill -9 -f 'python.*server_launch.py'")
+            os.system("pkill -9 -f 'rosbridge_websocket'")
+
             # Kills the main controller
-            subprocess.Popen(["rosnode", "kill", "/scotty_main_controller"])
+            os.system("pkill -9 -f '/scotty_main_controller'")
+
             # Kills the gazebo process
             subprocess.call(["pkill", "-f", "gzserver"])
             subprocess.call(["pkill", "-f", "gzclient"])
