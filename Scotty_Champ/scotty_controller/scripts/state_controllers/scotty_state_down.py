@@ -68,6 +68,7 @@ class DownController:
            -0.2, 1.04, -2.18   # Rear Right
         ]
 
+        self.console_log_pub.publish("INFO    : Waiting for current joint states...")
         rospy.loginfo("DownController : Waiting for current joint states...")
 
         # Wait until we receive valid joint states

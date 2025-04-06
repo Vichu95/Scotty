@@ -73,6 +73,7 @@ class ShutdownController:
             -0.65, 1.8, -2.5   # Rear Right
         ]
 
+        self.console_log_pub.publish("INFO    : Waiting for current joint states...")
         rospy.loginfo("ShutdownController : Waiting for current joint states...")
 
         # Wait until we receive valid joint states

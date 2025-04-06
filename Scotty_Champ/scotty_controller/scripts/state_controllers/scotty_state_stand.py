@@ -67,6 +67,7 @@ class StandController:
             -0.24987684190273285, 0.9375174045562744, -1.8144596815109253, 
              0.23306728899478912, 0.9333721399307251, -1.806188941001892]
 
+        self.console_log_pub.publish("INFO    : Waiting for current joint states...")
         rospy.loginfo("StandController : Waiting for current joint states...")
 
         # Wait until we receive valid joint states
