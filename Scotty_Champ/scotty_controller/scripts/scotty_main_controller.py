@@ -69,7 +69,7 @@ class MainController:
 
         #Delay to get the browser open
         # rospy.sleep(5) 
-        time.sleep(10)
+        time.sleep(5)
 
         # Check if it is connected with hardware or simulation
         self.hardware_connected = rospy.get_param("/hardware_connected", False)

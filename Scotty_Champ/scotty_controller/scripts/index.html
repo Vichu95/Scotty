@@ -520,6 +520,11 @@
                     document.getElementById("robot-mode").innerText = "Hardware";
                     document.getElementById("robot-mode").className = "badge badge-success";
                     window.modeReceived = true;
+
+                    // Show visualization panel for hardware mode
+                    document.querySelector('.visualization-panel').style.display = 'block';
+                    document.querySelector('.controller-panel').style.width = '60%';
+
                     // Dispatch a custom event that the mode has been received
                     const event = new CustomEvent('modeReceived');
                     window.dispatchEvent(event);
@@ -528,6 +533,11 @@
                     document.getElementById("robot-mode").innerText = "Simulation";
                     document.getElementById("robot-mode").className = "badge badge-primary";
                     window.modeReceived = true;
+
+                    // Hide visualization panel for simulation mode
+                    document.querySelector('.visualization-panel').style.display = 'none';
+                    document.querySelector('.controller-panel').style.width = '100%';
+
                     // Dispatch a custom event that the mode has been received
                     const event = new CustomEvent('modeReceived');
                     window.dispatchEvent(event);
