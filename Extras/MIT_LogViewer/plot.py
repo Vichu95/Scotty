@@ -7,7 +7,7 @@ from bokeh.layouts import column, row
 
 # Load CSV with Dask (Efficient for Large Files)
 file_path = "merged_log.csv"
-df = dd.read_csv(file_path, low_memory=False).compute()  # Load only required parts
+df = dd.read_csv(file_path, dtype={'data_ q_hip': 'object'},low_memory=False).compute()  # Load only required parts
 
 # Clean column names (remove leading spaces)
 df.columns = df.columns.str.strip()
