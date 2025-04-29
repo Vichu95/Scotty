@@ -9,7 +9,14 @@ Date 29-04-2025 Vishnu
 
 Refer Chapter 7. Recommended Next Steps in "Analysis, Development and Integration of Control Frameworks for Scotty, a Custom Quadrupedal Robot" by Vishnudev Kurumbaparambil, 2025
 
-**Other Software Improvements**
+
+**Other Improvements in CHAMP Controller GUI**
+1. More Error Information to users like spi error, ros bridge error etc
+
+
+
+
+**Other Improvements in Low Level Code**
 1. Better definition of size and copying between struct and array
 
             #define TX_LEN (sizeof(spi_tx) / 2)  // Calculate correct size
