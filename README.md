@@ -3,6 +3,35 @@
 
 A custom quadrapedal robot.
 
+## Tasks To Do
+
+Date 29-04-2025 Vishnu
+
+Refer Chapter 7. Recommended Next Steps in "Analysis, Development and Integration of Control Frameworks for Scotty, a Custom Quadrupedal Robot" by Vishnudev Kurumbaparambil, 2025
+
+**Other Software Improvements**
+1. Better definition of size and copying between struct and array
+
+            #define TX_LEN (sizeof(spi_tx) / 2)  // Calculate correct size
+            memcpy(spi_tx_buffer, data, sizeof(spi_tx));
+
+
+2. For more readability than mere numbers
+
+            #define for receivedCanBus like CAN1,2,3,4
+
+
+3. CAN Reception in callback instead of in loop
+4. Check CAN receive return success (HAL_CAN_GetRxMessage()).
+5. Add timeout for CAN transmission.
+6. Improve CAN Bus-Off recovery.
+7. Understand proper way of doing softstop_joint().
+8. Handle case of out of range value from Motor, unpack fn
+9. No limit check for input from MIT, ie control
+10. Also a way to handle NaN from MIT or from Motor
+
+
+
 ## Contents
 
 The repository is organized into the following main components:
